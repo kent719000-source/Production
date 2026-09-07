@@ -1,0 +1,15 @@
+# Eclipse
+.settings/
+.classpath
+.project
+bin/
+
+# Maven
+target/
+
+# Gradle
+build/
+
+# OS
+Thumbs.db
+.DS_Store
