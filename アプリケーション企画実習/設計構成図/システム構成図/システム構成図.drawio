@@ -1,0 +1,52 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="ページ-1" id="ae1bq1dM_eH8tFCf_rMg">
+    <mxGraphModel dx="2847" dy="1056" grid="1" gridSize="10" guides="1" tooltips="1" connect="0" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Ma2Zp-zxfRERvSl413eM-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="" vertex="1">
+          <mxGeometry height="290" width="520" x="-360" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="Ma2Zp-zxfRERvSl413eM-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="160" width="170" x="-720" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="Ma2Zp-zxfRERvSl413eM-26" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="" vertex="1">
+          <mxGeometry height="270" width="190" x="350" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="RcEJhg_qyd8vtT_e_T01-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;My SQL9.4&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="110" x="374.5" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="RcEJhg_qyd8vtT_e_T01-8" edge="1" parent="1" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=-0.004;entryY=0.476;entryDx=0;entryDy=0;entryPerimeter=0;" target="Ma2Zp-zxfRERvSl413eM-4" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="-550" y="438.94" as="sourcePoint" />
+            <mxPoint x="-360" y="441.0511111111111" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RcEJhg_qyd8vtT_e_T01-9" edge="1" parent="1" style="endArrow=classic;startArrow=classic;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="160" y="440" as="sourcePoint" />
+            <mxPoint x="350" y="438.92" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="RcEJhg_qyd8vtT_e_T01-11" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 28px;&quot;&gt;Spring Boot&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 28px;&quot;&gt;(組み込みTomcat)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 28px;&quot;&gt;Java25/JSP(EL式)&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font style=&quot;font-size: 28px;&quot;&gt;JavaScript&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="95" width="275" x="-237.5" y="392.5" as="geometry" />
+        </mxCell>
+        <mxCell id="RcEJhg_qyd8vtT_e_T01-12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 17px;&quot;&gt;HTTP&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="-490" y="392.5" as="geometry" />
+        </mxCell>
+        <mxCell id="RcEJhg_qyd8vtT_e_T01-14" parent="1" style="text;whiteSpace=wrap;html=1;" value="&lt;font style=&quot;font-size: 17px;&quot;&gt;JDBC&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="80" x="230" y="392.5" as="geometry" />
+        </mxCell>
+        <mxCell id="RcEJhg_qyd8vtT_e_T01-15" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=20;" value="&lt;font&gt;ブラウザ&lt;/font&gt;&lt;div&gt;&lt;font&gt;(Google Chrome )&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;HTML表示&lt;br&gt;フォーム入力&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="127.5" width="190" x="-730" y="376.25" as="geometry" />
+        </mxCell>
+        <mxCell id="Zb4rvWXI-4s9mylQ46uy-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=22;" value="hogotarou.db" vertex="1">
+          <mxGeometry height="45.75" width="110" x="390" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="Zb4rvWXI-4s9mylQ46uy-2" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=20;" value="主な使用テーブル&lt;br&gt;[ staff ]&lt;br&gt;[kotai ]&lt;br&gt;[ satooya ]&lt;br&gt;[ event ]&lt;br&gt;[ dantai ]&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="95" width="195.5" x="350" y="450" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
