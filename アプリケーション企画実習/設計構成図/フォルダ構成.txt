@@ -1,0 +1,52 @@
+hogotaro/
+├─ pom.xml
+├─ src/main/java/com/example/hogotaro/
+│   ├─ HogotaroApplication.java
+│   ├─ config/
+│   │   ├─ SecurityConfig.java           URL ごとの権限、ログイン/ログアウトの設定、BCrypt
+│   │   └─ LoginUserDetailsService.java  loginId から staff を引いて LoginUser を返す
+│   ├─ controller/
+│   │   ├─ TopController.java            /
+│   │   ├─ KotaiController.java          /kotai/**（写真の配信も）
+│   │   ├─ SatooyaController.java
+│   │   ├─ EventController.java          /event/**（PDF の配信も）
+│   │   └─ StaffController.java
+│   ├─ exception/
+│   │   ├─ NotFoundException.java        id が無い・他団体の id のとき Service が投げる
+│   │   └─ GlobalExceptionHandler.java   @ControllerAdvice。404 / 500 / ファイルサイズ超過
+│   ├─ service/                          Controller と同じ単位。クラスに @Transactional
+│   ├─ repository/                       interface のみ
+│   │   ├─ StaffRepository.java          findByLoginId、findByDantaiId…、findByIdAndDantaiId
+│   │   ├─ KotaiRepository.java          findByDantaiId…（絞り込みは @Query）、findByIdAndDantaiId、countByDantaiIdAndStatusIn
+│   │   ├─ KotaiPhotoRepository.java     findByKotaiIdAndDantaiId
+│   │   ├─ SatooyaRepository.java
+│   │   ├─ EventRepository.java          findByDantaiIdAndEventDateBetween、findByKotaiIdOrderByEventDateDesc
+│   │   ├─ EventAttachmentRepository.java
+│   │   ├─ BreedRepository.java          findBySpeciesOrderByName
+│   │   └─ DantaiRepository.java
+│   ├─ entity/
+│   │   ├─ Dantai.java  Staff.java  Kotai.java  KotaiPhoto.java  Satooya.java  Event.java  EventAttachment.java  Breed.java
+│   │   └─ Role.java  Species.java  Sex.java  Gender.java  Status.java  EventType.java   enum（label 付き）
+│   ├─ form/                             画面の入力を受けるクラス。Bean Validation のアノテーション付き
+│   │   └─ KotaiForm.java  SatooyaForm.java  EventForm.java  StaffForm.java  KotaiSearchForm.java
+│   ├─ dto/                              表示用の合成値だけ（Entity で表せない物）。画面ごとには作らない
+│   │   └─ VaccineStatus.java  TopSummary.java
+│   └─ security/
+│       └─ LoginUser.java                UserDetails 実装。id・dantaiId・role・name
+├─ src/main/resources/
+│   ├─ application.properties
+│   └─ static/
+│       ├─ css/style.css
+│       ├─ js/confirm.js                 削除・完了の確認ダイアログ
+│       └─ img/placeholder-dog.svg  placeholder-cat.svg
+├─ src/main/webapp/WEB-INF/views/
+│   ├─ common/header.jspf  footer.jspf  messages.jspf
+│   ├─ login.jsp  top.jsp  error/403.jsp  error/404.jsp  error/500.jsp
+│   ├─ kotai/list.jsp  detail.jsp  form.jsp          form は新規と編集で共用
+│   ├─ satooya/list.jsp  detail.jsp  form.jsp
+│   ├─ event/calendar.jsp  detail.jsp  form.jsp
+│   └─ staff/list.jsp  detail.jsp  form.jsp
+└─ sql/
+    ├─ schema.sql                        CREATE DATABASE hogotaro + 全テーブル（IF NOT EXISTS）
+    ├─ data.sql                          デモ団体2つ・スタッフ（BCrypt 済みハッシュ）・品種・テストデータ
+    └─ new_dantai.sql                    団体と最初の管理ユーザーを追加するテンプレート（8章）
