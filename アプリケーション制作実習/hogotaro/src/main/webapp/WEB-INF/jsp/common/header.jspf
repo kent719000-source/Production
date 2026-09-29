@@ -1,0 +1,22 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ホゴタロウ</title>
+</head>
+<body>
+<header>
+	<a href="/">ホゴタロウ</a>
+	<nav>
+		<a href ="/animal"></a>
+		<a href ="/event"></a>
+		<a href ="/adopter"></a>
+		<a href ="/staff"></a>
+	</nav>
+
+
+</header>
+</body>
+</html>
