@@ -2,6 +2,11 @@ package com.example.hogotaro.form;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
+
 import com.example.hogotaro.entity.Gender;
 
 import lombok.Getter;
@@ -17,7 +22,7 @@ public class AdopterForm {
 	private String name;
 	
 	// gender
-	@Notnull(message = "性別を選択してください")
+	@NotNull(message = "性別を選択してください")
 	private Gender gender;
 	
 	// birthday

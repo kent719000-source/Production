@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.example.hogotaro.entity.Staff;
 
-public interface StaffRepository extends JpaRepository {
+public interface StaffRepository extends JpaRepository<Staff, Integer> {
     List<Staff> findByOrganizationIdOrderByIdDesc(Integer organizationId);
     Optional<Staff> findByIdAndOrganizationId(Integer id, Integer organizationId);
 

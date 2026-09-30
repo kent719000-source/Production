@@ -1,22 +1,10 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>ホゴタロウ</title>
-</head>
-<body>
+<%@ page pageEncoding="UTF-8" %>
 <header>
 	<a href="/">ホゴタロウ</a>
 	<nav>
-		<a href ="/animal"></a>
-		<a href ="/event"></a>
-		<a href ="/adopter"></a>
-		<a href ="/staff"></a>
+		<a href ="/animal">個体管理</a>
+		<a href ="/event">イベント管理</a>
+		<a href ="/adopter">里親管理</a>
+		<a href ="/staff">スタッフ管理</a>
 	</nav>
-
-
 </header>
-</body>
-</html>

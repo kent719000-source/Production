@@ -2,6 +2,8 @@ package com.example.hogotaro.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface OrganizationRepository extends JpaRepository {
+import com.example.hogotaro.entity.Organization;
+
+public interface OrganizationRepository extends JpaRepository<Organization, Integer> {
 
 }
