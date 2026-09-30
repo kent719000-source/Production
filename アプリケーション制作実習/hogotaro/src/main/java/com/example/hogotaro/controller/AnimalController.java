@@ -3,32 +3,23 @@ package com.example.hogotaro.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.example.hogotaro.security.LoginUser;
 import com.example.hogotaro.service.AnimalService;
 
 import lombok.RequiredArgsConstructor;
 
-@Controller
-@RequiredArgsConstructor
+@Controller //アプリ起動時にSpringが1個だけnewして管理する
+@RequiredArgsConstructor //コンストラクタの記述を省略(Requiredはfinalの付いたフィールドを受け取るコンストラクタの意味)、コンストラクタが注入の窓口になる
 public class AnimalController {
-	
-	private final AnimalService animalService;
-    private final LoginUser loginUser;        // ← これ 1 行だけ。@RequiredArgsConstructor が注入する
-    
 
-    @GetMapping("/animal")
-    public String list(Model model) {
-        model.addAttribute("animalList", animalService.findAll(loginUser.getOrganizationId()));
-        return "animal/list";
-    }
-    
-    @GetMapping("/animal/{id}")
-    public String detail(@PathVariable Integer id, Model model) {
-    	
-    	return "animal/detail";
-    }
+	private final AnimalService animalService; //Springが管理しているAnimalService(の参照値)を受け取る(自分でnewしない)
+	private final LoginUser loginUser; //同上
+
+	@GetMapping("/animal") //URLでlocalhost:8080/animalをリクエストすると呼ばれる
+	public String list(Model model) { //Model: JSPに渡すデータを入れる箱。引数に書くだけでSpringが用意して渡してくれる(自分でnewしない)
+		model.addAttribute("animalList", animalService.findAll(loginUser.getOrganizationId())); //JSPにanimalListという名前で渡す。JSPでは${animalList}で読む
+		return "animal/list"; //		/WEB-INF/jsp/animal/list.jspを表示する
+	}
 
 }
-

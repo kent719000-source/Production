@@ -5,15 +5,20 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.*;
 
-/** event_types テーブル 1 行。Entity には @Data を付けない（equals/hashCode/toString が関連を辿って事故る）ので @Getter @Setter だけ */
-@Entity
-@Table(name = "event_types")
-@Getter
-@Setter
+/**
+ * event_types テーブル 1 行。
+ * アノテーションの無いフィールドは、フィールド名を snake_case にした列に自動で対応する（phoneNumber → phone_number）。
+ * Entity には @Data を付けない。@Data が作る equals / hashCode / toString が @ManyToOne の相手を辿り、
+ * 無限ループや余計な SELECT の原因になるため。getter / setter だけ欲しいので @Getter @Setter にしている。
+ */
+@Entity                                                         // このクラスは DB のテーブル 1 行を表す、という印（JPA が管理する対象になる）
+@Table(name = "event_types")                                    // 対応するテーブル名。無いとクラス名 EventType からテーブル「eventType」を探してしまう（テーブルは複数形なので必須）
+@Getter                                                         // Lombok: 全フィールドの getXxx() を自動で作る
+@Setter                                                         // Lombok: 全フィールドの setXxx() を自動で作る
 public class EventType {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id                                                         // 主キー（PK）の印。この列で 1 行を区別する
+    @GeneratedValue(strategy = GenerationType.IDENTITY)         // id は MySQL の AUTO_INCREMENT が決める。save() した後にこのフィールドへ入る
     private Integer id;
 
     private String code;
