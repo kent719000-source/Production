@@ -6,22 +6,27 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.hogotaro.dto.CalendarDay;
 import com.example.hogotaro.dto.EventCalendar;
 import com.example.hogotaro.entity.Event;
+import com.example.hogotaro.entity.Staff;
 import com.example.hogotaro.repository.EventRepository;
+import com.example.hogotaro.repository.StaffRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service //アプリ起動時にSpringが1個だけnewして管理する
 @RequiredArgsConstructor //コンストラクタの記述を省略(Requiredはfinal の付いたフィールドを受け取るコンストラクタの意味)、コンストラクタが注入の窓口になる
-@Transactional (readOnly = true)//このクラスのメソッドは、途中で失敗したらDBへの変更を全部取り消す
+@Transactional
 public class EventService {
 	private final EventRepository eventRepository; //Springが管理しているEventRepository(の参照値)を受け取る(自分でnewしない)
-
+	private final StaffRepository staffRepository;
+	
 	//団体ID(OrganizationId)で絞って取得する。他の団体のデータを出さないため、Repository を呼ぶときは必ず団体IDを渡す
 	public List<Event> findAll(Integer organizationId) {
 		return eventRepository.findByOrganizationIdOrderByIdDesc(organizationId);
@@ -114,5 +119,41 @@ public class EventService {
 
 	    return calendar;
 	}
+	
+	public Event findbyId(Integer id, Integer organizationId) {
+		
+		return eventRepository
+				.findByIdAndOrganizationId(id,organizationId)
+				.orElseThrow(() ->
+						new ResponseStatusException(HttpStatus.NOT_FOUND));
+	}
+	
+	public Event complete(
+	        Integer id,
+	        Integer organizationId,
+	        Integer staffId) {
 
+	    // 1. 変更する予定を取り出す
+	    Event event = findbyId(id, organizationId);
+
+	    // 2. すでに対応済なら、そのまま返して終了
+	    if (Boolean.TRUE.equals(event.getDone())) {
+	        return event;
+	    }
+
+	    // 3. 操作したスタッフを取り出す
+	    Staff staff = staffRepository
+	            .findByIdAndOrganizationId(staffId, organizationId)
+	            .orElseThrow(() ->
+	                    new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+	    // 4. 予定に「対応済」と書き込む
+	    event.setDone(true);
+
+	    // 5. 予定に「対応した人」を書き込む
+	    event.setStaff(staff);
+
+	    // 6. 変更した予定を保存して、呼び出し元へ返す
+	    return eventRepository.save(event);
+	}
 }
