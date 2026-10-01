@@ -7,16 +7,8 @@
 		<title>ホゴタロウ</title>
 	</head>
 		<body>
-			<header>
-					<a href="/">ホゴタロウ</a>
-					<nav>
-						<a href="/animal">個体管理</a>
-						<a href="/event">イベント管理</a>
-						<a href="/adopter">里親管理</a>
-						<a href="/staff">スタッフ管理</a>>
-					</nav>		
-			</header>
-			<h1>一覧ページ</h1>
+			<%@ include file="/WEB-INF/jsp/common/header.jspf" %>
+			<h1>スタッフ一覧</h1>
 			<table>
 				<tr>
 					<th>ID</th>
@@ -26,5 +18,5 @@
 			</table>
 		
 		
-	</body>
+		</body>
 </html>
