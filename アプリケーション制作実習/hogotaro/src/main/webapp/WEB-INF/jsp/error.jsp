@@ -7,6 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-
+<p>エラー：${status} ${error}（${path}）</p>
 </body>
 </html>
