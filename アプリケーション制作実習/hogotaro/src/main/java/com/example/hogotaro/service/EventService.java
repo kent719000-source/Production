@@ -9,8 +9,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.hogotaro.DTO.CalendarDay;
-import com.example.hogotaro.DTO.EventCalendar;
+import com.example.hogotaro.dto.CalendarDay;
+import com.example.hogotaro.dto.EventCalendar;
 import com.example.hogotaro.entity.Event;
 import com.example.hogotaro.repository.EventRepository;
 

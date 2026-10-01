@@ -54,7 +54,8 @@ public class Animal {
     @JoinColumn(name = "adopter_id")                            // 外部キーの列名。NULL 可（相手がいなければ null）
     private Adopter adopter;
 
-    private Boolean isNeutered;
+    @Enumerated(EnumType.STRING)                                // 避妊去勢は 3 択の enum。DB には "DONE" / "NOT_DONE" / "UNKNOWN" の文字列で入る（列は neutered VARCHAR(20)）
+    private NeuterStatus neutered;
 
     private Boolean comboVaccine;
 

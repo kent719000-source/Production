@@ -1,4 +1,4 @@
-package com.example.hogotaro.DTO;
+package com.example.hogotaro.dto;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -5,7 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.hogotaro.DTO.EventCalendar;
+import com.example.hogotaro.dto.EventCalendar;
 import com.example.hogotaro.security.LoginUser;
 import com.example.hogotaro.service.EventService;
 

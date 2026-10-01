@@ -11,7 +11,7 @@ import java.time.*;
  * Entity には @Data を付けない。@Data が作る equals / hashCode / toString が @ManyToOne の相手を辿り、
  * 無限ループや余計な SELECT の原因になるため。getter / setter だけ欲しいので @Getter @Setter にしている。
  */
-@Entity                                                         // このクラスは DB のテーブル 1 行(レコード)を表す、という印（JPA が管理する対象になる）
+@Entity                                                         // このクラスは DB のテーブル 1 行を表す、という印（JPA が管理する対象になる）
 @Table(name = "adopters")                                       // 対応するテーブル名。無いとクラス名 Adopter からテーブル「adopter」を探してしまう（テーブルは複数形なので必須）
 @Getter                                                         // Lombok: 全フィールドの getXxx() を自動で作る
 @Setter                                                         // Lombok: 全フィールドの setXxx() を自動で作る
