@@ -8,9 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.hogotaro.entity.Adopter;
+import com.example.hogotaro.entity.Animal;
+import com.example.hogotaro.entity.Event;
+import com.example.hogotaro.entity.Status;
 import com.example.hogotaro.form.AdopterForm;
 import com.example.hogotaro.form.AdopterSearchForm;
 import com.example.hogotaro.repository.AdopterRepository;
+import com.example.hogotaro.repository.AnimalRepository;
+import com.example.hogotaro.repository.EventRepository;
 import com.example.hogotaro.repository.OrganizationRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class AdopterService {
 	private final AdopterRepository adopterRepository; //Springが管理しているAdopterRepository(の参照値)を受け取る(自分でnewしない)
 	private final OrganizationRepository organizationRepository; // 団体を設定するために使う
+	private final AnimalRepository animalRepository; // 個体状況を里親詳細と紐づき確認するために使う
+	private final EventRepository eventRepository; // イベントを里親詳細と紐づき確認するために使う
 
 	//団体ID(OrganizationId)で絞って取得する。他の団体のデータを出さないため、Repository を呼ぶときは必ず団体IDを渡す
 	public List<Adopter> findAll(Integer organizationId) {
@@ -53,11 +60,22 @@ public class AdopterService {
 	private String blankToNull(String s) {
 		return (s == null || s.isBlank()) ? null : s;
 	}
+	
 	//里親IDと団体IDで絞って取得する（F-21）
 	public Adopter detail(Integer id,Integer organizationId) {
 		return adopterRepository.findByIdAndOrganizationId(id,organizationId)
 				.orElseThrow(() ->
 				new ResponseStatusException(HttpStatus.NOT_FOUND));
+	}
+	
+	// この里親のうち、トライアル中・譲渡済みのもの（F-21）
+	public List<Animal> findAnimalList(Integer id, Integer organizationId){
+		return animalRepository.findByOrganizationIdAndAdopterIdAndStatusInOrderByStatusDesc(organizationId, id, List.of(Status.TRIAL, Status.ADOPTED));
+	}
+	
+	// この里親のイベントを日付の新しい順で（F-21）
+	public List<Event> findEventList(Integer id, Integer organizationId){
+		return eventRepository.findByOrganizationIdAndAdopterIdOrderByEventDateDescEventTimeDesc(organizationId,id);
 	}
 	//里親の情報を削除（F-26）
 	public boolean delete(Integer id,Integer organizationId) {

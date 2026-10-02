@@ -62,49 +62,22 @@
 		</tr>
 	</table>
 
-	<%--	<h2>関連する個体</h2>
-
-	<table>
-		<tr>
-			<th>名前</th>
-			<th>犬猫</th>
-			<th>保護状況</th>
-		</tr>
-		<c:forEach var="a" items="${animalList}">
-			<tr>
-				<td><a href="/animal/${a.id}"><c:out value="${a.name}" /></a></td>
-				<td>${a.speciesl}</td>
-				<td>${a.status}</td>
-			</tr>
-		</c:forEach>
-	</table>
-
-
-	<h2>関連するイベント</h2>
-	<table>
-		<tr>
-			<th>日付</th>
-			<th>個体</th>
-			<th>種別</th>
-			<th>状況</th>
-		</tr>
-		<c:forEach var="e" items="${eventList}">
-			<tr>
-				<td><a href="/event/${e.id}"><c:out value="${e.name}" /></a></td>
-				<td>${e.species}</td>
-				<td>${e.status}</td>
-			</tr>
-		</c:forEach>
-	</table>
-</body>
-</html>
-
-
-
-
-<tr>
-	<td></td>
-	<td>${e. }</td>
-</tr>
-
- --%>
+<%-- 登録・編集・削除できなかった時のメッセージ（フラッシュ。1回だけ表示される） --%>
+	<h2>関連する個体</h2>
+	<c:choose>
+		<c:when test="${not empty message}">
+			<p>関連する犬猫はいません</p>
+		</c:when>
+		<c:otherwise>
+			<table>
+				<tr><th>名前</th><th>犬猫</th><th>保護状況</th></tr>
+				<c:forEach items="${animalList}" var="a">
+					<tr>
+						<td><a href="/animal/${a.id}"><c:out value="${a.name}"/></a></td>
+						<td>${a/species.label}</td>
+						<td>${a/status.label}</td>
+					</tr>
+				</c:forEach>
+			</table>
+		</c:otherwise>
+	</c:choose>

@@ -55,7 +55,10 @@ public class AdopterController {
 	// 里親詳細ページを表示する（S-12）
 	@GetMapping("/adopter/{id}")
 	public String detail(@PathVariable Integer id, Model model) {
-		model.addAttribute("adopter",adopterService.detail(id,loginUser.getOrganizationId()));
+		Integer organizationId = loginUser.getOrganizationId();
+		model.addAttribute("adopter",adopterService.detail(id, organizationId));
+		model.addAttribute("animalList", adopterService.findAnimalList(id, organizationId));
+		model.addAttribute("eventList", adopterService.findEventList(id, organizationId));
 		return "adopter/detail";
 	}
 	// 里親を削除し、/adopter/{id}へリダイレクト（F-26）
