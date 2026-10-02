@@ -7,24 +7,21 @@
 		<title>ホゴタロウ</title>
 	</head>
 		<body>
-			<header>
-					<a href="/">ホゴタロウ</a>
-					<nav>
-						<a href="/animal">個体管理</a>
-						<a href="/event">イベント管理</a>
-						<a href="/adopter">里親管理</a>
-						<a href="/staff">スタッフ管理</a>>
-					</nav>		
-			</header>
-			<h1>一覧ページ</h1>
+			<%@ include file="/WEB-INF/jsp/common/header.jspf" %>
+			<h1>スタッフ一覧</h1>
+			<a href ="/staff/new">新規登録</a>
 			<table>
 				<tr>
-					<th>ID</th>
-				
-				
-				</tr>	
+					<th>ID</th><th>名前</th>
+				</tr>
+				<c:forEach var="s" items="${staffList}">
+					<tr>
+						<td><c:out value="${s.id}"/></td>
+						<td><a href="/staff/${s.id}"><c:out value="${s.name}"/></a></td>
+					</tr>
+				</c:forEach>
 			</table>
 		
 		
-	</body>
+		</body>
 </html>

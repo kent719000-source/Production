@@ -1,10 +1,13 @@
 package com.example.hogotaro.repository;
 
-import com.example.hogotaro.entity.Event;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.hogotaro.entity.Event;
+
 
 /**
  * イベント（Entity: Event）の Repository。
