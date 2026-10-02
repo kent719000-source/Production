@@ -3,12 +3,26 @@ package com.example.hogotaro.service;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.example.hogotaro.entity.Organization;
+import com.example.hogotaro.entity.Status;
+import com.example.hogotaro.repository.AnimalRepository;
+import com.example.hogotaro.repository.OrganizationRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class TopService {
+	private final AnimalRepository animalRepository;
+	private final OrganizationRepository organizationRepository;
+	
 	// 指定した月のカレンダーを「週のリスト（1週 = 日〜土の7日）」で返す
 		public List<List<LocalDate>> buildCalendar(YearMonth ym) {
 			LocalDate first = ym.atDay(1); // 月の1日(2026-09-01)
@@ -29,6 +43,16 @@ public class TopService {
 				weeks.add(week);							//出来上がったweekをweeksに追加(当月を過ぎたらwhileのループを終了)
 			}
 			return weeks;
+		}
+		
+		public Long countInCare(Integer organizationId){
+			Collection<Status> statuses = Status.inCare();
+			return animalRepository.countByOrganizationIdAndStatusIn(organizationId, statuses);
+		}
+		
+		public Organization findOrganization(Integer id) {
+			return organizationRepository.findById(id)
+					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));   // 無ければ 404。Spring Boot が error.jsp を出す
 		}
 
 }

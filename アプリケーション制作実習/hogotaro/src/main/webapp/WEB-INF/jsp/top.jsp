@@ -13,12 +13,16 @@
 
 <section>
 	<h2>保護頭数</h2>
+	<p>保護中：${inCare }/${organization.capacity }<br>
+	空き：${organization.capacity - inCare}</p>
 </section>
+
 
 <section>
 	<h2>カレンダー</h2>
 	<p>${yearMonth.year}年${yearMonth.monthValue}月</p>
 <table>
+
 	<tr>
 		<th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
 	</tr>

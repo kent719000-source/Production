@@ -8,7 +8,14 @@
 </head>
 <body>
 <%@ include file="/WEB-INF/jsp/common/header.jspf"%>
-<h1>スタッフ新規登録・編集</h1>
+<c:choose>
+  <c:when test="${mode == 'edit'}">
+    <h1>スタッフ編集</h1>
+  </c:when>
+  <c:otherwise>
+    <h1>スタッフ新規登録</h1>
+  </c:otherwise>
+</c:choose>
 
 	<form:form modelAttribute="staffForm" method="post" action="${action}">
 		<div>
@@ -37,10 +44,11 @@
      	<form:errors path="password"/>
 		</div>
 		
-
-      
     	<br><button type="submit">登録</button>
 	</form:form>
 	
 </body>
 </html>
+
+
+<%-- --%>
