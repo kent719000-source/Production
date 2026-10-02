@@ -2,8 +2,10 @@ package com.example.hogotaro.service;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.hogotaro.entity.Animal;
 import com.example.hogotaro.repository.AnimalRepository;
@@ -20,6 +22,10 @@ public class AnimalService {
 	public List<Animal> findAll(Integer organizationId) {
 		return animalRepository.findByOrganizationIdOrderByIdDesc(organizationId);
 
+	}
+	public Animal findById(Integer id, Integer organizationId) {
+	    return animalRepository.findByIdAndOrganizationId(id, organizationId)
+	            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 	}
 
 }

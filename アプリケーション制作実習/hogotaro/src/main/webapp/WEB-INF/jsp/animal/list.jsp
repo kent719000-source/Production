@@ -8,7 +8,7 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
-<!-- CSSもどき -->
+<%-- CSSもどき --%>
     <style>
         /* == 新規登録ボタン == */
         .new-button {
@@ -109,13 +109,13 @@
 
 <body>
 <%@ include file="/WEB-INF/jsp/common/header.jspf" %>
-<h2>個体一覧(仮)</h2>
-<!-- 新規登録ボタン -->
-	<a href="${pageContext.request.contextPath}/animal/new" class="new-button">新規登録</a>
-<!-- ファセット検索(になる予定) -->
+<h1>個体一覧(仮)</h1>
+<%-- 新規登録ボタン --%>
+	<a href="/animal/new" class="new-button">新規登録</a>
+<%-- ファセット検索(になる予定) --%>
     <form action="${pageContext.request.contextPath}/animal" method="get">
     	<div class="search-box">
-     <!-- 犬猫 -->
+     <%-- 犬猫 --%>
      		<div class="search-row">
      			<span class="search-label">種別：</span>
         			<c:forEach var="species" items="${speciesList}">
@@ -127,7 +127,7 @@
                  		</label>
              		</c:forEach>
       		</div>
-      <!-- 保護状況 -->
+      <%-- 保護状況 --%>
       		<div class="search-row">
       			<span class="search-label">保護状況：</span>
         			<c:forEach var="status" items="${statusList}">
@@ -139,7 +139,7 @@
                 		</label>
             		</c:forEach>
        		</div>
-       <!-- 名前 -->
+       <%-- 名前 --%>
        		<div class="search-row">
                 		<label for="name" class="search-label">名前：</label>
                     		<input type="text" id="name" name="name" value="${searchForm.name}">
@@ -150,7 +150,7 @@
      
      <br>
 
-<!-- 個体カード一覧 -->
+<%-- 個体カード一覧 --%>
 	<table>
 		<tr>
 			<th>写真</th><th>名前</th><th>性別</th><th>品種</th><th>年齢</th>
@@ -159,14 +159,14 @@
         	<tr>
             	<td>
                 	<a href="${pageContext.request.contextPath}/animal/${animal.id}">
-                    	<c:choose>
+                   	<c:choose>
                         	<c:when test="${not empty animal.imagePath}">
-                            	<img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${animal.name}" width="100" height="100">
+                            	<img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${animal.name}" style="width: 100px; height: 100px; object-fit: cover;">
                         	</c:when>
                         	<c:otherwise>
-                            	写真なし
+								<img src="${pageContext.request.contextPath}/NoPhotos/NoPhotos.png" alt="画像なし" style="width: 100px; height: 100px; object-fit: cover;">
                         	</c:otherwise>
-                    	</c:choose>
+                    </c:choose>
                 	</a>
             	</td>
             	<td>
