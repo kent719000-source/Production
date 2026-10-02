@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.example.hogotaro.entity.Organization;
 import com.example.hogotaro.entity.Staff;
 import com.example.hogotaro.repository.StaffRepository;
 
@@ -47,6 +48,11 @@ public class LoginUser {
     /** ログイン中のスタッフの団体 ID。Repository の絞り込みは必ずこれを使う */
     public Integer getOrganizationId() {
         return staff().getOrganization().getId();
+    }
+    
+    /** ログイン中のスタッフの団体（Entity）。新規登録で animal.setOrganization(loginUser.getOrganization()) のように使う */
+    public Organization getOrganization() {
+        return staff().getOrganization();
     }
 
     public String getOrganizationName() {
