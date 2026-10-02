@@ -6,6 +6,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -50,5 +51,17 @@ public class AdopterController {
 		Integer id = adopterService.create(adopterForm, loginUser.getOrganizationId());
 		redirectAttributes.addFlashAttribute("message", "里親新規登録が完了しました"); // リダイレクト先で1回だけ読めるメッセージ
 		return "redirect:/adopter/" + id; // 登録した里親の詳細へリダイレクトする（F-21）
+	}
+	// 里親詳細ページを表示する（S-12）
+	@GetMapping("/adopter/{id}")
+	public String detail(@PathVariable Integer id, Model model) {
+		model.addAttribute("adopter",adopterService.detail(id,loginUser.getOrganizationId()));
+		return "adopter/detail";
+	}
+	// 里親を削除し、/adopter/{id}へリダイレクト（F-26）
+	@PostMapping("/adopter/{id}/delete")
+	public String delete(@PathVariable Integer id) {
+		adopterService.delete(id,loginUser.getOrganizationId());
+		return "redirect:/adopter";
 	}
 }

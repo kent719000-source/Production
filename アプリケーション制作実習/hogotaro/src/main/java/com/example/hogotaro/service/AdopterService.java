@@ -2,8 +2,10 @@ package com.example.hogotaro.service;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.hogotaro.entity.Adopter;
 import com.example.hogotaro.form.AdopterForm;
@@ -50,5 +52,17 @@ public class AdopterService {
 	// 空文字（未入力なら） null にする
 	private String blankToNull(String s) {
 		return (s == null || s.isBlank()) ? null : s;
+	}
+	//里親IDと団体IDで絞って取得する（F-21）
+	public Adopter detail(Integer id,Integer organizationId) {
+		return adopterRepository.findByIdAndOrganizationId(id,organizationId)
+				.orElseThrow(() ->
+				new ResponseStatusException(HttpStatus.NOT_FOUND));
+	}
+	//里親の情報を削除（F-26）
+	public boolean delete(Integer id,Integer organizationId) {
+		Adopter adopter = this.detail(id, organizationId);
+		adopterRepository.delete(adopter);
+		return true;
 	}
 }
