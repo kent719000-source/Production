@@ -1,8 +1,8 @@
-<%--   <%@ include file="common/header.jspf" %>   でインクルード--%>
+<%--   <%@ include file="/WEB-INF/jsp/common/header.jspf" %>   でインクルード--%>
 
 <%@ page pageEncoding="UTF-8" %>
 
-<%-- taglib の宣言。include した側の JSP でも c: form: sec: などがそのまま使えるようになる。
+<%-- taglibの宣言。includeした側のJSPでもc: form: sec:などがそのまま使えるようになる。
      form: の宣言が無いと <form:form> がそのまま文字としてブラウザに届き、ログアウトのボタンが動かない --%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
@@ -11,22 +11,22 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 
-<nav class="navbar navbar-expand navbar-hogo mb-3">
-  <div class="container-fluid">
+<nav>
+  <div>
     <a class="navbar-brand fw-bold" href="/">ホゴタロウ</a>
-    <div class="navbar-nav me-auto">
-      <a class="nav-link" href="/animal">個体管理</a>
-      <a class="nav-link" href="/event">イベント管理</a>
-      <a class="nav-link" href="/adopter">里親管理</a>
-      <a class="nav-link" href="/staff">スタッフ管理</a>
+    <div>
+      <a href="/animal">個体管理</a>
+      <a href="/event">イベント管理</a>
+      <a href="/adopter">里親管理</a>
+      <a href="/staff">スタッフ管理</a>
     </div>
-    <%-- loginUser は LoginUserModelAdvice が全画面に渡している --%>
-    <span class="navbar-text me-3 small">
+    <%-- loginUserはLoginUserModelAdviceが全画面に渡している --%>
+    <span>
       <c:out value="${loginUser.organizationName}"/> / <c:out value="${loginUser.name}"/>（<c:out value="${loginUser.userTypeName}"/>）
     </span>
-    <%-- ログアウトは POST。ほかの POST と同じく <form:form> で書く（CSRF トークンの hidden が自動で入る。無いと 403） --%>
-    <form:form action="/logout" method="post" cssClass="d-inline">
-      <button type="submit" class="btn btn-sm btn-outline-dark">ログアウト</button>
+    <%-- ログアウトはPOST。ほかのPOSTと同じく<form:form>で書く（CSRFトークンのhiddenが自動で入る。無いと403） --%>
+    <form:form action="/logout" method="post">
+      <button type="submit">ログアウト</button>
     </form:form>
   </div>
 </nav>

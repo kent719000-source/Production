@@ -11,6 +11,14 @@
 <%@ include file="common/header.jspf" %>
 <h1>トップページ</h1>
 
+<%-- 管理画面へのリンク --%>
+<ul>
+  <li><a href="/animal">個体管理へ</a></li>
+  <li><a href="/event">イベント管理へ</a></li>
+  <li><a href="/adopter">里親管理へ</a></li>
+  <li><a href="/staff">スタッフ管理へ</a></li>
+</ul>
+
 <section>
 	<h2>保護頭数</h2>
 	<p>保護中：${inCare }/${organization.capacity }<br>
