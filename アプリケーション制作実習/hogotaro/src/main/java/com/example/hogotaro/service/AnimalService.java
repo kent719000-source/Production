@@ -1,10 +1,16 @@
 package com.example.hogotaro.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.hogotaro.entity.Animal;
@@ -90,6 +96,10 @@ public class AnimalService {
            breed = breedRepository.findById(form.getBreedId())
                     .orElseThrow(() ->
                             new ResponseStatusException(HttpStatus.NOT_FOUND));}
+        // 犬猫と品種の組み合わせが正しいかチェック
+        if (breed != null && breed.getSpecies() != form.getSpecies()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"犬猫と品種の組み合わせが不正です。");
+        }
         animal.setBreed(breed);
 
         // 誕生日
@@ -118,6 +128,11 @@ public class AnimalService {
         // 特記事項
         animal.setHealthNotes(form.getHealthNotes());
         animal.setNotes(form.getNotes());
+        
+        // 画像が選択されていたら保存
+        if (form.getPhoto() != null && !form.getPhoto().isEmpty()) {
+            animal.setImagePath(savePhoto(form.getPhoto()));
+        }
 
         // DBに登録
         return animalRepository.save(animal);
@@ -148,7 +163,11 @@ public class AnimalService {
         } else if (form.getBreedId() != null) {
            breed = breedRepository.findById(form.getBreedId())
                     .orElseThrow(() ->
-                            new ResponseStatusException(HttpStatus.NOT_FOUND));}        
+                            new ResponseStatusException(HttpStatus.NOT_FOUND));}
+        // 犬猫と品種の組み合わせが正しいかチェック
+        if (breed != null && breed.getSpecies() != form.getSpecies()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"犬猫と品種の組み合わせが不正です。");
+        }
         animal.setBreed(breed);
 
         // 誕生日
@@ -177,9 +196,30 @@ public class AnimalService {
         // 特記事項
         animal.setHealthNotes(form.getHealthNotes());
         animal.setNotes(form.getNotes());
+        
+        // 写真
+        // 新しい写真が選択されている場合だけ保存して更新する
+        if (form.getPhoto() != null && !form.getPhoto().isEmpty()) {
+            animal.setImagePath(savePhoto(form.getPhoto()));
+        }
 
         // DBに登録
         animalRepository.save(animal);
 
     }
+    // 写真をプロジェクト直下の uploads/photos/ に保存し、画面から見る URL（/photos/ファイル名）を返す。選ばれていなければ null
+    private String savePhoto(MultipartFile photo) {
+		if (photo == null || photo.isEmpty()) {
+			return null; // 写真を選ばなかったとき、中身が空 photo が届く
+		}
+		String ext = "image/png".equals(photo.getContentType()) ? ".png" : ".jpg"; // 拡張子。JSP の accept で JPEG か PNG に絞っている
+		String fileName = UUID.randomUUID() + ext; 
+		Path dir = Paths.get("uploads/photos"); // application.properties の file:uploads/ の下。/photos/ファイル名 で表示できる
+		try {
+			Files.createDirectories(dir); 	Files.copy(photo.getInputStream(), dir.resolve(fileName)); // transferTo に相対パスを渡すと Tomcat の一時フォルダに入るので Files.copy を使う
+		} catch (IOException e) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "写真を保存できませんでした", e); // エラー画面（500）を出す
+		}
+		return "/photos/" + fileName;
+	}
 }

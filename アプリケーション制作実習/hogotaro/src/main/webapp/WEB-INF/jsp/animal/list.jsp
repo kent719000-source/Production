@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>個体一覧 | ホゴタロウ</title>
 </head>
 <%-- CSSもどき --%>
     <style>
@@ -110,8 +110,8 @@
 <body>
 <%@ include file="/WEB-INF/jsp/common/header.jspf" %>
 <h1>個体一覧</h1>
-<%-- 新規登録ボタン --%>
-	<c:if test="${loginUser.role eq 'ADMIN' or loginUser.role eq 'STAFF'}">
+<%-- 新規登録ボタン：ボランティア以外に表示) --%>
+	<c:if test="${loginUser.role == 'ADMIN' || loginUser.role == 'STAFF'}">
     	<a href="/animal/new" class="new-button">新規登録</a>
 	</c:if>
 <%-- ファセット検索(になる予定) --%>

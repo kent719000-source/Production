@@ -267,17 +267,13 @@
                     <td>
 
                         <c:choose>
-
                             <c:when test="${animal.rabiesVaccine}">
                                 済
                             </c:when>
-
                             <c:otherwise>
                                 未
                             </c:otherwise>
-
                         </c:choose>
-
                     </td>
                 </tr>
 
@@ -288,7 +284,6 @@
                 <td>
 
                     <c:choose>
-
                         <c:when test="${not empty animal.microchipNo}">
                             <c:out value="${animal.microchipNo}" />
                         </c:when>
@@ -308,15 +303,12 @@
                 <th>健康に関する特記事項</th>
                 <td class="notes">
                     <c:choose>
-
                         <c:when test="${not empty animal.healthNotes}">
                             <c:out value="${animal.healthNotes}" />
                         </c:when>
-
                         <c:otherwise>
                             -
                         </c:otherwise>
-
                     </c:choose>
                 </td>
             </tr>
@@ -344,7 +336,7 @@
         <div class="button-area">
         
     		<%-- 管理ユーザー・常勤スタッフだけ編集を表示 --%>
-    		<c:if test="${loginUser.role eq 'ADMIN' or loginUser.role eq 'STAFF'}">
+    		<c:if test="${loginUser.role == 'ADMIN' || loginUser.role == 'STAFF'}">
 
         	<%-- 編集 --%>
         		<a href="${pageContext.request.contextPath}/animal/${animal.id}/edit">
@@ -353,7 +345,7 @@
     		</c:if>
 
     		<%-- 管理ユーザーだけ削除を表示 --%>
-    		<c:if test="${loginUser.role eq 'ADMIN'}">
+    		<c:if test="${loginUser.role == 'ADMIN'}">
 
            	<%-- 削除 --%>
             <form action="${pageContext.request.contextPath}/animal/${animal.id}/delete" method="post" style="display: inline;">
