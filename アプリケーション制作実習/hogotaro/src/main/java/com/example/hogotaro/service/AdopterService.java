@@ -29,11 +29,7 @@ public class AdopterService {
 	private final AnimalRepository animalRepository; // 個体状況を里親詳細と紐づき確認するために使う
 	private final EventRepository eventRepository; // イベントを里親詳細と紐づき確認するために使う
 
-	//団体ID(OrganizationId)で絞って取得する。他の団体のデータを出さないため、Repository を呼ぶときは必ず団体IDを渡す
-	public List<Adopter> findAll(Integer organizationId) {
-		return adopterRepository.findByOrganizationIdOrderByIdDesc(organizationId);
-
-	}
+	
 	// 一覧の検索（F-20）。未入力は空文字にし、電話番号はハイフンを取ってから Repository に渡す
 	public List<Adopter> search(Integer organizationId, AdopterSearchForm form){
 		String name = form.getName() == null ? "" :form.getName().trim();
@@ -76,6 +72,32 @@ public class AdopterService {
 	// この里親のイベントを日付の新しい順で（F-21）
 	public List<Event> findEventList(Integer id, Integer organizationId){
 		return eventRepository.findByOrganizationIdAndAdopterIdOrderByEventDateDescEventTimeDesc(organizationId,id);
+	}
+	
+	// 編集画面用に、今の値をAdopterFormに詰める（F-24）
+	public AdopterForm getEditForm(Integer id, Integer organizationId){
+		Adopter adopter = detail(id, organizationId); // 他団体の里親ならここで404
+		AdopterForm form = new AdopterForm();
+		form.setName(adopter.getName());
+		form.setGender(adopter.getGender());
+		form.setBirthday(adopter.getBirthday());
+		form.setAddress(adopter.getAddress());
+		form.setPhoneNumber(adopter.getPhoneNumber());
+		form.setEmail(adopter.getEmail());
+		form.setNotes(adopter.getNotes());
+		return form;
+	}
+	// 里親を更新する（F-25）。団体ID付きで取り直し、フォームの値で上書きして保存する
+	public void update(Integer id, AdopterForm form, Integer organizationId) {
+		Adopter adopter = detail(id, organizationId); // 他団体の里親なら、ここで404
+		adopter.setName(form.getName());
+		adopter.setGender(form.getGender());
+		adopter.setBirthday(form.getBirthday());
+		adopter.setAddress(blankToNull(form.getAddress()));
+		adopter.setPhoneNumber(form.getPhoneNumber());
+		adopter.setEmail(blankToNull(form.getEmail()));
+		adopter.setNotes(blankToNull(form.getNotes()));
+		adopterRepository.save(adopter);
 	}
 	//里親の情報を削除（F-26）
 	public boolean delete(Integer id,Integer organizationId) {

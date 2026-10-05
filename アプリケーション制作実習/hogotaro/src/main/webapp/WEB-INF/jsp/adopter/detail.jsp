@@ -4,12 +4,22 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>里親詳細 | ホゴタロウ</title>
 </head>
 <body>
 	<%@ include file="/WEB-INF/jsp/common/header.jspf"%>
+	
 	<h1>里親詳細</h1>
-
+	
+	<%-- 登録・編集・削除できなかった時のメッセージ（フラッシュ。1回だけ表示される） --%>
+	<c:if test="${not empty message}">
+		<p><c:out value="${message}"/></p>
+	</c:if>
+	
+	<sec:authorize access="hasAnyRole('ADMIN','STAFF')">
+		<a href="/adopter/${adopter.id}/edit">編集</a>
+	</sec:authorize>
+	
 	<sec:authorize access="hasAnyRole('ADMIN')">
 		<form:form method="post" action="/adopter/${adopter.id}/delete"
 			onsubmit="return confirm('本当に削除しますか？')">
@@ -18,9 +28,6 @@
 	</sec:authorize>
 
 
-	<sec:authorize access="hasAnyRole('ADMIN','STAFF')">
-		<a href="/adopter/${adopter.id}/edit">編集</a>
-	</sec:authorize>
 
 	<h2>情報</h2>
 	<table>
@@ -30,39 +37,34 @@
 		</tr>
 		<tr>
 			<td>名前</td>
-			<td>${adopter.name }</td>
+			<td><c:out value="${adopter.name}"/></td>
 		</tr>
 		<tr>
 			<td>性別</td>
-			<td>${adopter.gender.label }</td>
+			<td>${adopter.gender.label}</td>
 		</tr>
 		<tr>
 			<td>生年月日</td>
-			<td>${adopter.birthday }</td>
+			<td>${adopter.birthday}</td>
 		</tr>
 		<tr>
 			<td>年齢</td>
-			<td>${adopter.age }</td>
+			<td>${empty adopter.age ? '不明' : adopter.age}</td>
 		</tr>
 		<tr>
 			<td>住所</td>
-			<td>${adopter.address }</td>
+			<td><c:out value="${adopter.address}"/></td>
 		</tr>
 		<tr>
 			<td>電話番号</td>
-			<td>${adopter.phoneNumber }</td>
+			<td><c:out value="${adopter.phoneNumber}"/></td>
 		</tr>
 		<tr>
 			<td>メールアドレス</td>
-			<td>${adopter.email }</td>
-		</tr>
-		<tr>
-			<td>特記事項</td>
-			<td>${adopter.notes }</td>
+			<td><c:out value="${adopter.email}"/></td>
 		</tr>
 	</table>
-
-	<%-- 登録・編集・削除できなかった時のメッセージ（フラッシュ。1回だけ表示される） --%>
+	
 	<h2>関連する個体</h2>
 	<c:choose>
 		<c:when test="${empty animalList}">
@@ -101,7 +103,7 @@
 			</table>
 		</c:otherwise>
 	</c:choose>
-
+	
 	<h2>メモ</h2>
 	<%-- pre-wrap:入力したときの改行をそのまま表示する。c:out とタグの間に改行を入れない（余分な空白も表示されるため） --%>
 	<p style="white-space: pre-wrap;"><c:out value="${adopter.notes}"/></p>
