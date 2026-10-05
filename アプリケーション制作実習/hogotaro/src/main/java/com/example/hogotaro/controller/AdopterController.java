@@ -61,6 +61,29 @@ public class AdopterController {
 		model.addAttribute("eventList", adopterService.findEventList(id, organizationId));
 		return "adopter/detail";
 	}
+	// 編集画面を表示する（F-24）。今の値を詰めたフォームを渡す
+	@GetMapping("/adopter/{id}/edit")
+	public String editForm(@PathVariable Integer id, Model model) {
+		model.addAttribute("adopterForm", adopterService.getEditForm(id, loginUser.getOrganizationId())); // 他団体の里親なら404
+		model.addAttribute("adopterId",id); // form.jspの送り先（/adopter/{id}/edit）とキャンセルの戻り先に使う
+		model.addAttribute("genderList",Gender.values());
+		model.addAttribute("mode","edit"); // form.jspを編集モードで表示する目印
+		return "adopter/form";
+	}
+	
+	// 里親を更新する（F-25）。 入力エラーなら同じフォームを再表示、OKなら詳細へリダイレクト
+	@PostMapping("/adopter/{id}/edit")
+	public String update(@PathVariable Integer id, @Validated AdopterForm adopterForm, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+		if(result.hasErrors()) { // 入力エラーがあれば、同じフォームを再表示
+			model.addAttribute("adopterId",id);
+			model.addAttribute("genderList",Gender.values());
+			model.addAttribute("mode","edit");
+			return "adopter/form";
+		}
+		adopterService.update(id, adopterForm, loginUser.getOrganizationId());
+		redirectAttributes.addFlashAttribute("message","里親を編集しました");
+		return "redirect:/adopter/" + id; // 編集した里親の詳細へ（F-21）
+	}
 	// 里親を削除する（F-26）。紐づく個体・イベントがあれば消さずに詳細（/adopter/{id}）へ戻し、消せたら一覧（/adopter）へリダイレクト
 	@PostMapping("/adopter/{id}/delete")
 	public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
