@@ -1,5 +1,7 @@
 package com.example.hogotaro.controller;
 
+import java.time.LocalDate;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -157,5 +159,86 @@ public class EventController {
 
         model.addAttribute("adopterList",
                 eventService.findAdopterList(organizationId));
+    }
+    
+ // イベントの削除を受け付ける
+    @PostMapping("/event/{id}/delete")
+    public String delete(
+            @PathVariable("id") Integer id,
+            RedirectAttributes redirectAttributes) {
+
+        // Serviceに削除を依頼し、削除したイベントの日付を受け取る
+        LocalDate eventDate = eventService.delete(
+                id, loginUser.getOrganizationId());
+
+        // 戻った画面に表示するメッセージ
+        redirectAttributes.addFlashAttribute(
+                "message", "イベントを削除しました");
+
+        // 削除したイベントの年月のカレンダーへ戻る
+        return "redirect:/event?year=" + eventDate.getYear()
+                + "&month=" + eventDate.getMonthValue();
+    }
+    
+ // 新規登録画面を表示する
+    @GetMapping("/event/new")
+    public String newForm(Model model) {
+
+        // 入力値がまだ入っていない、空のフォームを用意する
+        model.addAttribute("eventForm", new EventForm());
+
+        // プルダウンの選択肢と、新規登録モードを設定する
+        setNewModel(loginUser.getOrganizationId(), model);
+
+        return "event/form";
+    }
+
+    // 新規登録画面で必要な情報を用意する
+    private void setNewModel(Integer organizationId, Model model) {
+
+        model.addAttribute("mode", "new");
+
+        model.addAttribute("animalList",
+                eventService.findAnimalList(organizationId, null));
+
+        model.addAttribute("eventTypeList",
+                eventService.findEventTypeList());
+
+        model.addAttribute("adopterList",
+                eventService.findAdopterList(organizationId));
+    }
+    
+ // 新規登録画面から送られた入力内容を受け取る
+    @PostMapping("/event/new")
+    public String create(
+            @Validated @ModelAttribute("eventForm") EventForm form,
+            BindingResult result,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        Integer organizationId = loginUser.getOrganizationId();
+
+        // 必須項目・文字数などのエラーがあれば再表示
+        if (result.hasErrors()) {
+            setNewModel(organizationId, model);
+            return "event/form";
+        }
+
+        // Serviceで追加チェックと保存を行う
+        Event event = eventService.create(
+                form, result, organizationId);
+
+        // Serviceのチェックでエラーになった場合も再表示
+        if (result.hasErrors()) {
+            setNewModel(organizationId, model);
+            return "event/form";
+        }
+
+        redirectAttributes.addFlashAttribute(
+                "message", "イベント新規登録が完了しました");
+
+        // 登録したイベントの月のカレンダーへ戻る
+        return "redirect:/event?year=" + event.getEventDate().getYear()
+                + "&month=" + event.getEventDate().getMonthValue();
     }
 }

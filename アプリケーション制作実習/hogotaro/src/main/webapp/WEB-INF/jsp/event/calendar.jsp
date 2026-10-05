@@ -405,6 +405,19 @@ button.event-bar[aria-pressed="true"] {
 <body>
 	<%@ include file="/WEB-INF/jsp/common/header.jspf"%>
 	<main class="page-container">
+	<sec:authorize access="hasAnyRole('ADMIN', 'STAFF')">
+    <c:url var="newEventUrl" value="/event/new" />
+	    <p>
+	        <a href="${fn:escapeXml(newEventUrl)}">
+	            イベントを新規登録
+	        </a>
+	    </p>
+	</sec:authorize>
+	<c:if test="${not empty message}">
+    <p role="status">
+        <c:out value="${message}" />
+    </p>
+	</c:if>
 
 		<c:choose>
 			<c:when test="${not empty calendar}">
