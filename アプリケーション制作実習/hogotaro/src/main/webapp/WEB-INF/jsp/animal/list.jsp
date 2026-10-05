@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>個体一覧 | ホゴタロウ</title>
 </head>
 <%-- CSSもどき --%>
     <style>
@@ -109,9 +109,11 @@
 
 <body>
 <%@ include file="/WEB-INF/jsp/common/header.jspf" %>
-<h1>個体一覧(仮)</h1>
-<%-- 新規登録ボタン --%>
-	<a href="/animal/new" class="new-button">新規登録</a>
+<h1>個体一覧</h1>
+<%-- 新規登録ボタン：ボランティア以外に表示) --%>
+	<c:if test="${loginUser.role == 'ADMIN' || loginUser.role == 'STAFF'}">
+    	<a href="/animal/new" class="new-button">新規登録</a>
+	</c:if>
 <%-- ファセット検索(になる予定) --%>
     <form action="${pageContext.request.contextPath}/animal" method="get">
     	<div class="search-box">
@@ -133,7 +135,8 @@
         			<c:forEach var="status" items="${statusList}">
             			<label>
                 			<input type="checkbox" name="status" value="${status}"
-                			<c:if test="${searchForm.statusList.contains(status)}">checked
+                			<c:if test="${searchForm.statusList.contains(status)}">
+                				checked
                     		</c:if>>
                     			${status.label}
                 		</label>
@@ -146,8 +149,7 @@
                     		<button type="submit" class="search-button">検索</button>
        		</div>
          </div>
-     </form>
-     
+     </form>    
      <br>
 
 <%-- 個体カード一覧 --%>

@@ -9,13 +9,23 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.hogotaro.dto.CalendarDay;
 import com.example.hogotaro.dto.EventCalendar;
+import com.example.hogotaro.entity.Adopter;
+import com.example.hogotaro.entity.Animal;
 import com.example.hogotaro.entity.Event;
+import com.example.hogotaro.entity.EventType;
+import com.example.hogotaro.entity.Species;
 import com.example.hogotaro.entity.Staff;
+import com.example.hogotaro.entity.Status;
+import com.example.hogotaro.form.EventForm;
+import com.example.hogotaro.repository.AdopterRepository;
+import com.example.hogotaro.repository.AnimalRepository;
 import com.example.hogotaro.repository.EventRepository;
+import com.example.hogotaro.repository.EventTypeRepository;
 import com.example.hogotaro.repository.StaffRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +36,9 @@ import lombok.RequiredArgsConstructor;
 public class EventService {
 	private final EventRepository eventRepository; //Springが管理しているEventRepository(の参照値)を受け取る(自分でnewしない)
 	private final StaffRepository staffRepository;
+	private final AnimalRepository animalRepository;
+	private final EventTypeRepository eventTypeRepository;
+	private final AdopterRepository adopterRepository;
 	
 	//団体ID(OrganizationId)で絞って取得する。他の団体のデータを出さないため、Repository を呼ぶときは必ず団体IDを渡す
 	public List<Event> findAll(Integer organizationId) {
@@ -33,6 +46,7 @@ public class EventService {
 
 	}
 	
+	//イベントカレンダーの表示
 	public EventCalendar search(
 	        Integer organizationId,
 	        Integer year,
@@ -120,6 +134,7 @@ public class EventService {
 	    return calendar;
 	}
 	
+	//イベントIDの取得
 	public Event findbyId(Integer id, Integer organizationId) {
 		
 		return eventRepository
@@ -128,6 +143,7 @@ public class EventService {
 						new ResponseStatusException(HttpStatus.NOT_FOUND));
 	}
 	
+	//イベント対応済・未対応の表示
 	public Event complete(
 	        Integer id,
 	        Integer organizationId,
@@ -156,4 +172,186 @@ public class EventService {
 	    // 6. 変更した予定を保存して、呼び出し元へ返す
 	    return eventRepository.save(event);
 	}
+	
+	//イベント対応済を未対応に戻す処理
+	public Event uncomplete(Integer id, Integer organizationId) {
+
+	    // 自分の団体のイベントを1件取得する
+	    Event event = findbyId(id, organizationId);
+
+	    // すでに未対応なら、そのまま返す
+	    if (!Boolean.TRUE.equals(event.getDone())) {
+	        return event;
+	    }
+
+	    // 未対応に戻す
+	    event.setDone(false);
+
+	    // 「完了にした人」の記録も空にする
+	    event.setStaff(null);
+
+	    // 保存したイベントを返す
+	    return eventRepository.save(event);
+	}
+	
+	// 保存済みのイベントから、現在値入りの編集フォームを作る
+	public EventForm getEditForm(Integer id, Integer organizationId) {
+
+	    Event event = findbyId(id, organizationId);
+	    EventForm form = new EventForm();
+
+	    form.setEventDate(event.getEventDate());
+	    form.setEventTime(event.getEventTime());
+	    form.setAnimalId(event.getAnimal().getId());
+	    form.setEventTypeId(event.getEventType().getId());
+	    form.setPlace(event.getPlace());
+	    form.setCost(event.getCost());
+	    form.setNotes(event.getNotes());
+
+	    if (event.getAdopter() != null) {
+	        form.setAdopterId(event.getAdopter().getId());
+	    }
+
+	    return form;
+	}
+	
+	// 個体の選択肢：現在保護している個体＋このイベントの現在の個体
+	public List<Animal> findAnimalList(
+	        Integer organizationId, Integer currentAnimalId) {
+
+	    List<Animal> animals = new ArrayList<>(
+	            animalRepository.findByOrganizationIdAndStatusInOrderByNameAsc(
+	                    organizationId, Status.inCare()));
+
+	    if (currentAnimalId != null) {
+	        Animal currentAnimal = animalRepository
+	                .findByIdAndOrganizationId(currentAnimalId, organizationId)
+	                .orElseThrow(() ->
+	                        new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+	        boolean alreadyIncluded = false;
+
+	        for (Animal animal : animals) {
+	            if (animal.getId().equals(currentAnimalId)) {
+	                alreadyIncluded = true;
+	                break;
+	            }
+	        }
+
+	        if (!alreadyIncluded) {
+	            animals.add(currentAnimal);
+	        }
+	    }
+
+	    return animals;
+	}
+
+	// イベント種別の選択肢
+	public List<EventType> findEventTypeList() {
+	    return eventTypeRepository.findAllByOrderById();
+	}
+
+	// 自分の団体の里親の選択肢
+	public List<Adopter> findAdopterList(Integer organizationId) {
+	    return adopterRepository
+	            .findByOrganizationIdOrderByNameAsc(organizationId);
+	}
+	
+	// 入力内容を確認して、イベントを更新する
+	public void update(
+	        Integer id,
+	        EventForm form,
+	        BindingResult result,
+	        Integer organizationId) {
+
+	    Event event = findbyId(id, organizationId);
+
+	    // 必須項目や文字数などのエラーがあれば更新しない
+	    if (result.hasErrors()) {
+	        return;
+	    }
+
+	    // 選択された個体が、自分の団体に存在するか確認
+	    Animal animal = animalRepository
+	            .findByIdAndOrganizationId(form.getAnimalId(), organizationId)
+	            .orElse(null);
+
+	    if (animal == null) {
+	        result.rejectValue(
+	                "animalId", "invalid", "個体の指定が不正です");
+	    } else if (!Status.inCare().contains(animal.getStatus())
+	            && !animal.getId().equals(event.getAnimal().getId())) {
+	        result.rejectValue(
+	                "animalId", "invalid", "選択できない個体です");
+	    }
+
+	    // 選択されたイベント種別が存在するか確認
+	    EventType eventType = eventTypeRepository
+	            .findById(form.getEventTypeId())
+	            .orElse(null);
+
+	    if (eventType == null) {
+	        result.rejectValue(
+	                "eventTypeId", "invalid", "種別の指定が不正です");
+	    }
+
+	    // 里親が選択されていれば、自分の団体に存在するか確認
+	    Adopter adopter = null;
+
+	    if (form.getAdopterId() != null) {
+	        adopter = adopterRepository
+	                .findByIdAndOrganizationId(
+	                        form.getAdopterId(), organizationId)
+	                .orElse(null);
+
+	        if (adopter == null) {
+	            result.rejectValue(
+	                    "adopterId", "invalid", "里親の指定が不正です");
+	        }
+	    }
+
+	    // トライアル開始・譲渡では里親が必須
+	    if (eventType != null) {
+	        String code = eventType.getCode();
+
+	        if (("TRIAL_START".equals(code) || "ADOPTION".equals(code))
+	                && form.getAdopterId() == null) {
+	            result.rejectValue(
+	                    "adopterId", "required",
+	                    "トライアル開始・譲渡の場合は里親を選択してください");
+	        }
+
+	        // 猫には狂犬病ワクチンのイベントを登録できない
+	        if (animal != null
+	                && animal.getSpecies() == Species.CAT
+	                && "RABIES_VACCINE".equals(code)) {
+	            result.rejectValue(
+	                    "eventTypeId", "invalid",
+	                    "猫には狂犬病ワクチンを登録できません");
+	        }
+	    }
+
+	    // 追加のチェックに引っかかった場合も更新しない
+	    if (result.hasErrors()) {
+	        return;
+	    }
+
+	    // 全チェックを通ってから、保存済みのイベントを書き換える
+	    event.setEventDate(form.getEventDate());
+	    event.setEventTime(form.getEventTime());
+	    event.setAnimal(animal);
+	    event.setEventType(eventType);
+	    event.setAdopter(adopter);
+	    event.setPlace(emptyToNull(form.getPlace()));
+	    event.setCost(form.getCost());
+	    event.setNotes(emptyToNull(form.getNotes()));
+
+	    eventRepository.save(event);
+	}
+
+	// 任意の文字列が空欄なら、DBにはnullで保存する
+	private String emptyToNull(String value) {
+	    return value == null || value.isBlank() ? null : value;
+	}
+	
 }

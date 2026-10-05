@@ -2,10 +2,7 @@ package com.example.hogotaro.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -29,56 +26,53 @@ public class StaffController {
 		model.addAttribute("staffList", staffService.findAll(loginUser.getOrganizationId())); //JSPにstaffListという名前で渡す。JSPでは${staffList}で読む
 		return "staff/list"; // /WEB-INF/jsp/staff/list.jspを表示する
 	}
-	
+
 	@GetMapping("/staff/{id}")
-	public String detail(@PathVariable Integer id,Model model) {
+	public String detail(@PathVariable Integer id, Model model) {
 		Integer organizationId = loginUser.getOrganizationId();
-		Staff staff = staffService.find(id,organizationId);
-		
-		model.addAttribute("staff",staff);
+		Staff staff = staffService.find(id, organizationId);
+
+		model.addAttribute("staff", staff);
 		return "staff/detail";
 	}
-	
+
 	@GetMapping("/staff/new")
 	public String newForm(Model model) {
 		model.addAttribute("staffForm", new StaffForm());
-        model.addAttribute("mode", "new");
-        model.addAttribute("userTypeList", staffService.findUserTypes());
-        model.addAttribute("genderList", Gender.values());   // 性別のラジオボタン（男性 / 女性 / その他）
-		
+		model.addAttribute("mode", "new");
+		model.addAttribute("userTypeList", staffService.findUserTypes());
+		model.addAttribute("genderList", Gender.values()); // 性別のラジオボタン（男性 / 女性 / その他）
+
 		return "staff/form";
 	}
-	
+
 	@PostMapping("/staff/new")
-	public String create(@Validated @ModelAttribute("staffForm") StaffForm form, Model model,BindingResult result) {
-		
-		
-		return "redirect:/staff";
+	public String create(StaffForm staffForm) { // 送られた値は name 属性と同じ名前のフィールドに自動で入る
+		Integer id = staffService.create(staffForm, loginUser.getOrganizationId());
+		return "redirect:/staff/" + id; // リダイレクトにすると、再読み込みで二重登録されない
 	}
-	
+
 	@GetMapping("/staff/{id}/edit")
-	public String editForm(@PathVariable Integer id,Model model) {
+	public String editForm(@PathVariable Integer id, Model model) {
 		Staff staff = staffService.find(id, loginUser.getOrganizationId());
 		model.addAttribute("staffForm", staffService.toForm(staff));
-        model.addAttribute("mode", "edit");
-        model.addAttribute("staffId", staff.getId());          // 送り先 /staff/{id}/edit とキャンセルの戻り先に使う
-        model.addAttribute("loginId", staff.getLoginId());
-        model.addAttribute("userTypeList", staffService.findUserTypes());
-        model.addAttribute("genderList", Gender.values());
-        return "staff/form";
+		model.addAttribute("mode", "edit");
+		model.addAttribute("staff", staff); // ログインIDの表示・キャンセルの戻り先・自分かどうかの判定に使う
+		model.addAttribute("userTypeList", staffService.findUserTypes());
+		model.addAttribute("genderList", Gender.values());
+		return "staff/form";
 	}
-	
-	
+
 	@PostMapping("/staff/{id}/edit")
-	public String update(Model model) {
-		model.addAttribute("staffForm", new StaffForm());
-		return "redirect:/staff";
+	public String update(@PathVariable Integer id, StaffForm staffForm) {
+		staffService.update(id, staffForm, loginUser.getOrganizationId());
+		return "redirect:/staff/" + id;
 	}
+
 	@PostMapping("/staff/{id}/delete")
 	public String delete(Model model) {
 		model.addAttribute("staffForm", new StaffForm());
 		return "redirect:/staff";
 	}
-
 
 }
