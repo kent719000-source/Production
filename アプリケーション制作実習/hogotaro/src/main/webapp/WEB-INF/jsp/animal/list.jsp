@@ -5,6 +5,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<<<<<<< HEAD
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>個体一覧 | ホゴタロウ</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,9 +13,58 @@
   /* カード画像の高さをそろえ、はみ出た部分は切り取る */
   .animal-img { height: 200px; object-fit: cover; }
 </style>
+=======
+<title>個体一覧 | ホゴタロウ</title>
+>>>>>>> origin/kubota
 </head>
 <body>
 <%@ include file="/WEB-INF/jsp/common/header.jspf" %>
+<<<<<<< HEAD
+=======
+<h1>個体一覧</h1>
+<%-- 新規登録ボタン：ボランティア以外に表示) --%>
+	<c:if test="${loginUser.role == 'ADMIN' || loginUser.role == 'STAFF'}">
+    	<a href="/animal/new" class="new-button">新規登録</a>
+	</c:if>
+<%-- ファセット検索(になる予定) --%>
+    <form action="${pageContext.request.contextPath}/animal" method="get">
+    	<div class="search-box">
+     <%-- 犬猫 --%>
+     		<div class="search-row">
+     			<span class="search-label">種別：</span>
+        			<c:forEach var="species" items="${speciesList}">
+            			<label>
+						<input type="checkbox" name="species" value="${species}"
+    						<c:if test="${searchForm.species != null && searchForm.species.contains(species)}">
+        					checked
+    						</c:if>>
+                    			${species.label}
+                 		</label>
+             		</c:forEach>
+      		</div>
+      <%-- 保護状況 --%>
+      		<div class="search-row">
+      			<span class="search-label">保護状況：</span>
+        			<c:forEach var="status" items="${statusList}">
+            			<label>
+						<input type="checkbox" name="statuses" value="${status}"
+    						<c:if test="${searchForm.statuses != null && searchForm.statuses.contains(status)}">
+        						checked
+    						</c:if>>
+                    			${status.label}
+                		</label>
+            		</c:forEach>
+       		</div>
+       <%-- 名前 --%>
+       		<div class="search-row">
+                		<label for="name" class="search-label">名前：</label>
+                    		<input type="text" id="name" name="name" value="${searchForm.name}">
+                    		<button type="submit" name="search" value="1" class="search-button">検索</button>
+       		</div>
+         </div>
+     </form>    
+     <br>
+>>>>>>> origin/kubota
 
 <div class="container my-4">
 

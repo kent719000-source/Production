@@ -59,7 +59,7 @@
 
     /* 必須 */
     .required {
-        color: red;
+        color: black;
         margin-left: 5px;
     }
 
@@ -253,7 +253,7 @@
         <tr>
             <th>
                 名前
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <form:input path="name" maxlength="10"/>
@@ -266,7 +266,7 @@
         <tr>
             <th>
                 犬猫
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <div class="radio-group">
@@ -328,7 +328,7 @@
         <tr>
             <th>
                 性別
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <div class="radio-group">
@@ -339,13 +339,11 @@
                     <form:radiobutton path="sex" value="UNKNOWN"/>
                     不明
                 </div>
-
                 <form:errors path="sex" cssClass="error"/>
             </td>
         </tr>
-
         <%-- 誕生日 --%>
-
+		<br>
         <tr>
             <th>
                 誕生日
@@ -369,7 +367,7 @@
         <tr>
             <th>
                 保護日
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <form:input path="intakeDate" type="date"/>
@@ -383,7 +381,7 @@
         <tr>
             <th>
                 保護場所
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <form:input path="intakePlace" maxlength="50"/>
@@ -396,7 +394,7 @@
         <tr>
             <th>
                 保護方法
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <form:input path="intakeMethod" maxlength="30"/>
@@ -409,7 +407,7 @@
         <tr>
             <th>
                 保護状況
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <select id="status" name="status">
@@ -458,7 +456,7 @@
         <tr>
             <th>
                 避妊去勢
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <div class="radio-group">
@@ -477,7 +475,7 @@
         <tr>
             <th>
                 混合ワクチン
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <div class="radio-group">
@@ -620,7 +618,7 @@
         <tr>
             <th>
                 名前
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <form:input path="name" maxlength="10"/>
@@ -633,7 +631,7 @@
         <tr>
             <th>
                 犬猫
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <div class="radio-group">
@@ -696,7 +694,7 @@
         <tr>
             <th>
                 性別
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <div class="radio-group">
@@ -737,7 +735,7 @@
         <tr>
             <th>
                 保護日
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <form:input path="intakeDate" type="date"/>
@@ -751,7 +749,7 @@
         <tr>
             <th>
                 保護場所
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <form:input path="intakePlace" maxlength="50"/>
@@ -764,7 +762,7 @@
         <tr>
             <th>
                 保護方法
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <form:input path="intakeMethod" maxlength="30"/>
@@ -777,7 +775,7 @@
         <tr>
             <th>
                 保護状況
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <select id="status" name="status">
@@ -826,7 +824,7 @@
         <tr>
             <th>
                 避妊去勢
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <div class="radio-group">
@@ -845,7 +843,7 @@
         <tr>
             <th>
                 混合ワクチン
-                <span class="required">＊</span>
+                <span class="required">（必須）</span>
             </th>
             <td>
                 <div class="radio-group">

@@ -17,6 +17,7 @@ import com.example.hogotaro.entity.Sex;
 import com.example.hogotaro.entity.Species;
 import com.example.hogotaro.entity.Status;
 import com.example.hogotaro.form.AnimalForm;
+import com.example.hogotaro.form.AnimalSearchForm;
 import com.example.hogotaro.repository.AdopterRepository;
 import com.example.hogotaro.repository.AnimalRepository;
 import com.example.hogotaro.repository.BreedRepository;
@@ -36,8 +37,19 @@ public class AnimalController {
 	private final AnimalRepository animalRepository;
 
 	@GetMapping("/animal") //URLでlocalhost:8080/animalをリクエストすると呼ばれる
-	public String list(Model model) { //Model: JSPに渡すデータを入れる箱。引数に書くだけでSpringが用意して渡してくれる(自分でnewしない)
-		model.addAttribute("animalList", animalService.findAll(loginUser.getOrganizationId())); //JSPにanimalListという名前で渡す。JSPでは${animalList}で読む
+	public String list( @ModelAttribute("searchForm") AnimalSearchForm form,@org.springframework.web.bind.annotation.RequestParam(value = "search",required = false) String search,Model model) { //Model: JSPに渡すデータを入れる箱。引数に書くだけでSpringが用意して渡してくれる(自分でnewしない)
+		// 初めて一覧を開いたときだけ、
+	    // 保護状況を「保護中・入院中・トライアル中」の4つにする
+	    if (search == null && (form.getStatuses() == null || form.getStatuses().isEmpty())) {
+	        form.setStatuses(Status.inCare());
+	    }
+	    model.addAttribute("animalList",animalService.search(loginUser.getOrganizationId(),form));
+
+	    // 犬猫の選択肢
+	    model.addAttribute("speciesList", Species.values());
+
+	    // 保護状況の選択肢
+	    model.addAttribute("statusList", Status.values());
 		return "animal/list"; //		/WEB-INF/jsp/animal/list.jspを表示する
 	}
 	// 個体新規登録画面
@@ -87,12 +99,25 @@ public class AnimalController {
 		    return "redirect:/animal/" + animal.getId();
 	    }catch(ResponseStatusException e) {
 	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+<<<<<<< HEAD
 	            result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
+=======
+	            if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
+	                result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
+	            } else {
+	            	// トライアル・譲渡で里親を選択しなかった時にエラー
+	                result.rejectValue("adopterId","adopter.required",e.getReason());
+	            }
+>>>>>>> origin/kubota
 	            setFormModel(model);
 	            model.addAttribute("mode", "new");
 	            return "animal/form";
 	        }
 	        throw e;
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/kubota
 	    }
 	}
 	// 個体詳細画面
@@ -153,7 +178,17 @@ public class AnimalController {
 		    
 	    }catch(ResponseStatusException e) {
 	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+<<<<<<< HEAD
 	            result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
+=======
+	            if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
+	                // 品種エラー
+	                result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
+	            } else {
+	                // トライアル・譲渡で里親を選択しなかった時にエラー
+	                result.rejectValue("adopterId","adopter.required",e.getReason());
+	            }
+>>>>>>> origin/kubota
 	            setFormModel(model);
 	            model.addAttribute("animalId", id);
 	            model.addAttribute("mode", "edit");
