@@ -79,7 +79,11 @@ public class AdopterService {
 	}
 	//里親の情報を削除（F-26）
 	public boolean delete(Integer id,Integer organizationId) {
-		Adopter adopter = this.detail(id, organizationId);
+		Adopter adopter = detail(id, organizationId);
+		if (animalRepository.existsByOrganizationIdAndAdopterId(organizationId, id)
+				|| eventRepository.existsByOrganizationIdAndAdopterId(organizationId, id)) {
+			return false; //個体かイベントに紐づいているので消さない
+		}
 		adopterRepository.delete(adopter);
 		return true;
 	}

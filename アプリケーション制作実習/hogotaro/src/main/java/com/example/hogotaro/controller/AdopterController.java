@@ -61,10 +61,14 @@ public class AdopterController {
 		model.addAttribute("eventList", adopterService.findEventList(id, organizationId));
 		return "adopter/detail";
 	}
-	// 里親を削除し、/adopter/{id}へリダイレクト（F-26）
+	// 里親を削除する（F-26）。紐づく個体・イベントがあれば消さずに詳細（/adopter/{id}）へ戻し、消せたら一覧（/adopter）へリダイレクト
 	@PostMapping("/adopter/{id}/delete")
-	public String delete(@PathVariable Integer id) {
-		adopterService.delete(id,loginUser.getOrganizationId());
-		return "redirect:/adopter";
+	public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+		if (!adopterService.delete(id, loginUser.getOrganizationId())) {
+			redirectAttributes.addFlashAttribute("message", "個体またはイベントに紐づいているため削除できません");
+			return "redirect:/adopter/" + id; //詳細に戻す
+		}
+		redirectAttributes.addFlashAttribute("message", "里親を削除しました");
+		return "redirect:/adopter"; //一覧へ
 	}
 }
