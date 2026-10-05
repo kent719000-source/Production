@@ -1,7 +1,5 @@
 package com.example.hogotaro.controller;
 
-import java.time.YearMonth;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,15 +18,18 @@ public class TopController {
 	private final TopService topService;
 	private final EventService eventService;
 	
+
 	
 	@GetMapping("/")
 	public String top(Model model) {
+		Integer organizationId = loginUser.getOrganizationId();
 		
-		YearMonth ym = YearMonth.now(); // 今月(2026-10)
-		model.addAttribute("weeks", topService.buildCalendar(ym)); // 週ごとの日付の表
-		model.addAttribute("yearMonth", ym); // 見出しと、当月かどうかの判定に使う
+		// 現在の保護頭数と団体の保護上限表示のための団体
 		model.addAttribute("inCare", topService.countInCare(loginUser.getOrganizationId()));
-		model.addAttribute("organization",topService.findOrganization(loginUser.getOrganizationId()));
+		model.addAttribute("organization",topService.findOrganization(loginUser.getOrganizationId()));	
+		// カレンダー
+		model.addAttribute("calendar", eventService.search(organizationId,null, null));
+
 		return "top";
 	}
 
