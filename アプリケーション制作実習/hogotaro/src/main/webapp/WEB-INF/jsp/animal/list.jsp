@@ -122,9 +122,10 @@
      			<span class="search-label">種別：</span>
         			<c:forEach var="species" items="${speciesList}">
             			<label>
-                		<input type="checkbox" name="species" value="${species}"
-                			<c:if test="${searchForm.speciesList.contains(species)}">checked
-                    		</c:if>>
+						<input type="checkbox" name="species" value="${species}"
+    						<c:if test="${searchForm.species != null && searchForm.species.contains(species)}">
+        					checked
+    						</c:if>>
                     			${species.label}
                  		</label>
              		</c:forEach>
@@ -134,10 +135,10 @@
       			<span class="search-label">保護状況：</span>
         			<c:forEach var="status" items="${statusList}">
             			<label>
-                			<input type="checkbox" name="status" value="${status}"
-                			<c:if test="${searchForm.statusList.contains(status)}">
-                				checked
-                    		</c:if>>
+						<input type="checkbox" name="statuses" value="${status}"
+    						<c:if test="${searchForm.statuses != null && searchForm.statuses.contains(status)}">
+        						checked
+    						</c:if>>
                     			${status.label}
                 		</label>
             		</c:forEach>
@@ -146,7 +147,7 @@
        		<div class="search-row">
                 		<label for="name" class="search-label">名前：</label>
                     		<input type="text" id="name" name="name" value="${searchForm.name}">
-                    		<button type="submit" class="search-button">検索</button>
+                    		<button type="submit" name="search" value="1" class="search-button">検索</button>
        		</div>
          </div>
      </form>    
