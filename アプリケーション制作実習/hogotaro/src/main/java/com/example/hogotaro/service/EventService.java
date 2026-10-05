@@ -26,6 +26,7 @@ import com.example.hogotaro.repository.AdopterRepository;
 import com.example.hogotaro.repository.AnimalRepository;
 import com.example.hogotaro.repository.EventRepository;
 import com.example.hogotaro.repository.EventTypeRepository;
+import com.example.hogotaro.repository.OrganizationRepository;
 import com.example.hogotaro.repository.StaffRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class EventService {
 	private final AnimalRepository animalRepository;
 	private final EventTypeRepository eventTypeRepository;
 	private final AdopterRepository adopterRepository;
+	private final OrganizationRepository organizationRepository;
 	
 	//団体ID(OrganizationId)で絞って取得する。他の団体のデータを出さないため、Repository を呼ぶときは必ず団体IDを渡す
 	public List<Event> findAll(Integer organizationId) {
@@ -352,6 +354,121 @@ public class EventService {
 	// 任意の文字列が空欄なら、DBにはnullで保存する
 	private String emptyToNull(String value) {
 	    return value == null || value.isBlank() ? null : value;
+	}
+	
+	// イベントを削除する
+	public LocalDate delete(Integer id, Integer organizationId) {
+
+	    // 自分の団体のイベントを取得する
+	    Event event = findbyId(id, organizationId);
+
+	    // 削除後、その月のカレンダーへ戻るために日付を控える
+	    LocalDate eventDate = event.getEventDate();
+
+	    // データベースから削除する
+	    eventRepository.delete(event);
+
+	    return eventDate;
+	}
+	
+	// 入力内容を確認して、新しいイベントを保存する
+	public Event create(
+	        EventForm form,
+	        BindingResult result,
+	        Integer organizationId) {
+
+	    // 必須項目・文字数などに問題があれば保存しない
+	    if (result.hasErrors()) {
+	        return null;
+	    }
+
+	    // 個体が自分の団体に存在するか確認
+	    Animal animal = animalRepository
+	            .findByIdAndOrganizationId(
+	                    form.getAnimalId(), organizationId)
+	            .orElse(null);
+
+	    if (animal == null) {
+	        result.rejectValue(
+	                "animalId", "invalid", "個体の指定が不正です");
+	    } else if (!Status.inCare().contains(animal.getStatus())) {
+	        result.rejectValue(
+	                "animalId", "invalid", "選択できない個体です");
+	    }
+
+	    // イベント種別が存在するか確認
+	    EventType eventType = eventTypeRepository
+	            .findById(form.getEventTypeId())
+	            .orElse(null);
+
+	    if (eventType == null) {
+	        result.rejectValue(
+	                "eventTypeId", "invalid", "種別の指定が不正です");
+	    }
+
+	    // 里親が選ばれていれば、自分の団体に存在するか確認
+	    Adopter adopter = null;
+
+	    if (form.getAdopterId() != null) {
+	        adopter = adopterRepository
+	                .findByIdAndOrganizationId(
+	                        form.getAdopterId(), organizationId)
+	                .orElse(null);
+
+	        if (adopter == null) {
+	            result.rejectValue(
+	                    "adopterId", "invalid", "里親の指定が不正です");
+	        }
+	    }
+
+	    // イベント種別に応じた入力チェック
+	    if (eventType != null) {
+	        String code = eventType.getCode();
+
+	        if (("TRIAL_START".equals(code) || "ADOPTION".equals(code))
+	                && form.getAdopterId() == null) {
+
+	            result.rejectValue(
+	                    "adopterId", "required",
+	                    "トライアル開始・譲渡の場合は里親を選択してください");
+	        }
+
+	        if (animal != null
+	                && animal.getSpecies() == Species.CAT
+	                && "RABIES_VACCINE".equals(code)) {
+
+	            result.rejectValue(
+	                    "eventTypeId", "invalid",
+	                    "猫には狂犬病ワクチンを登録できません");
+	        }
+	    }
+
+	    // チェックで問題が見つかったら、ここで終了
+	    if (result.hasErrors()) {
+	        return null;
+	    }
+
+	    // 新しいイベントに入力内容を移す
+	    Event event = new Event();
+
+	    event.setEventDate(form.getEventDate());
+	    event.setEventTime(form.getEventTime());
+	    event.setAnimal(animal);
+	    event.setEventType(eventType);
+	    event.setAdopter(adopter);
+	    event.setPlace(emptyToNull(form.getPlace()));
+	    event.setCost(form.getCost());
+	    event.setNotes(emptyToNull(form.getNotes()));
+
+	    // 新規登録時は「未対応」
+	    event.setDone(false);
+	    event.setStaff(null);
+
+	    // ログインしている人の団体を設定する
+	    event.setOrganization(
+	            organizationRepository.getReferenceById(organizationId));
+
+	    return eventRepository.save(event);
 	}
 	
 }

@@ -9,7 +9,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>イベント編集 | ホゴタロウ</title>
+<title>${mode == 'new' ? 'イベント新規登録' : 'イベント編集'} | ホゴタロウ</title>
 
 <style>
 .event-form {
@@ -55,13 +55,23 @@
 <%@ include file="/WEB-INF/jsp/common/header.jspf" %>
 
 <main class="event-form">
-    <h1>イベント編集</h1>
-
-    <c:url var="editUrl" value="/event/${eventId}/edit" />
-    <c:url var="detailUrl" value="/event/${eventId}" />
-
-    <form:form modelAttribute="eventForm"
-               action="${editUrl}" method="post">
+		<h1>${mode == 'new' ? 'イベント新規登録' : 'イベント編集'}</h1>
+		
+		<%-- 新規登録か編集かによって、リンク先を切り替える --%>
+		<c:choose>
+		    <c:when test="${mode == 'new'}">
+		        <c:url var="submitUrl" value="/event/new" />
+		        <c:url var="cancelUrl" value="/event" />
+		    </c:when>
+		
+		    <c:otherwise>
+		        <c:url var="submitUrl" value="/event/${eventId}/edit" />
+		        <c:url var="cancelUrl" value="/event/${eventId}" />
+		    </c:otherwise>
+		</c:choose>
+		
+		<form:form modelAttribute="eventForm"
+		           action="${submitUrl}" method="post">
 
         <div class="field">
             <label for="eventDate">日付（必須）</label>
@@ -133,11 +143,13 @@
             <form:errors path="notes" cssClass="error" />
         </div>
 
-        <div class="actions">
-            <button type="submit">更新する</button>
-            <a href="${fn:escapeXml(detailUrl)}">キャンセル</a>
-        </div>
-
+		<div class="actions">
+		    <button type="submit">
+		        ${mode == 'new' ? '登録する' : '更新する'}
+		    </button>
+		
+		    <a href="${fn:escapeXml(cancelUrl)}">キャンセル</a>
+		</div>
     </form:form>
 </main>
 </body>

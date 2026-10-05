@@ -223,9 +223,36 @@
         <a href="${fn:escapeXml(editUrl)}">編集する</a>
     </p>
 	</sec:authorize>
+	<%-- 削除できるのは管理ユーザーだけ --%>
+	<sec:authorize access="hasRole('ADMIN')">
+	    <c:url var="deleteUrl" value="/event/${event.id}/delete" />
+	
+	    <form:form action="${deleteUrl}" method="post"
+	               data-confirm="本当に削除しますか？">
+	        <button type="submit">削除する</button>
+	    </form:form>
+	</sec:authorize>
     <p>
         <a href="${fn:escapeXml(calendarUrl)}">一覧へ戻る</a>
     </p>
 </main>
+
+<script>
+document.addEventListener("submit", function (event) {
+    const form = event.target;
+
+    if (!(form instanceof HTMLFormElement)) {
+        return;
+    }
+
+    // フォームのdata-confirmに書かれた確認文を取り出す
+    const message = form.dataset.confirm;
+
+    // 「キャンセル」なら送信を止める
+    if (message && !window.confirm(message)) {
+        event.preventDefault();
+    }
+});
+</script>
 </body>
 </html>
