@@ -241,7 +241,6 @@
                     <%-- ファイル選択 --%>
 
                     <form:input path="photo" type="file" accept="image/jpeg,image/png" id="photoInput"/>
-
                     <div class="photo-note">
                         JPEG または PNG<br>
                         5MB以下
@@ -289,17 +288,26 @@
             </th>
             <td>
                 <select id="breedId" name="breedId">
-                    <option value="">
-                        未選択
-                    </option>
+                    <option value="">未選択</option>
+                    <%-- プルダウンに猫の品種か犬の品種かわかるように表示させる --%>
+                    <optgroup label="-- 猫 --">
                     <c:forEach var="breed" items="${breedList}">
-                        <option value="${breed.id}" data-species="${breed.species.label}"
-                            <c:if test="${animalForm.breedId == breed.id}">
-                                selected
-                            </c:if>>
-                            <c:out value="${breed.name}"/>
+                    	<c:if test="${breed.species == 'CAT'}">
+                        <option value="${breed.id}">
+                        	<c:out value="${breed.name}"/>
                         </option>
+                        </c:if>
                     </c:forEach>
+                    </optgroup>
+                 	<optgroup label="-- 犬 --">
+                 	<c:forEach var="breed" items="${breedList}">
+                 		<c:if test="${breed.species == 'DOG'}">
+                 		<option value="${breed.id}">
+                 			<c:out value="${breed.name}"/>
+                 		</option>
+                 		</c:if>
+                 	</c:forEach>
+                 	</optgroup>
                 </select>
                 <form:errors path="breedId" cssClass="error"/>
                 <br>
@@ -647,17 +655,27 @@
             </th>
             <td>
                 <select id="breedId" name="breedId">
-                    <option value="">
-                        未選択
-                    </option>
+                    <option value="">未選択</option>
+                    <%-- プルダウンに猫の品種か犬の品種かわかるように表示させる --%>
+                    <optgroup label="-- 猫 --">
                     <c:forEach var="breed" items="${breedList}">
-                        <option value="${breed.id}" data-species="${breed.species.label}"
-                            <c:if test="${animalForm.breedId == breed.id}">
-                                selected
-                            </c:if>>
+                    	<c:if test="${breed.species == 'CAT'}">
+                        <option value="${breed.id}" >
                             <c:out value="${breed.name}"/>
                         </option>
+                        </c:if>
                     </c:forEach>
+                    </optgroup>
+                    
+                    <optgroup label="-- 犬 --">
+                    <c:forEach var="breed" items="${breedList}">
+            			<c:if test="${breed.species == 'DOG'}">
+                		<option value="${breed.id}">
+                    		<c:out value="${breed.name}"/>
+                		</option>
+            			</c:if>
+        			</c:forEach>
+    				</optgroup>
                 </select>
                 <form:errors path="breedId" cssClass="error"/>
                 <br>
@@ -915,6 +933,39 @@
     <table class="form-table">
 
 </div>
+<%-- 選択した画像を表示させるJavaScript --%>
+<script>
+document.getElementById("photoInput").addEventListener("change", function(event) {
+
+    const file = event.target.files[0];
+
+    const preview = document.getElementById("photoPreview");
+    const placeholder = document.getElementById("photoPlaceholder");
+
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = "block";
+
+            if (placeholder) {
+                placeholder.style.display = "none";
+            }
+        };
+
+        reader.readAsDataURL(file);
+
+    } else {
+        preview.src = "";
+        preview.style.display = "none";
+
+        if (placeholder) {
+            placeholder.style.display = "flex";
+        }
+    }
+});
+</script>
 </body>
 
 </html>

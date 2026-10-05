@@ -76,12 +76,24 @@ public class AnimalController {
 	}
 	// 個体新規登録処理
 	@PostMapping("/animal/new")
-	public String create(@Validated @ModelAttribute("animalForm") AnimalForm form,BindingResult result) {
+	public String create(@Validated @ModelAttribute("animalForm") AnimalForm form,BindingResult result,Model model) {
 	    if (result.hasErrors()) {
+	    	setFormModel(model);
+	    	model.addAttribute("mode","new");
 	        return "animal/form";
 	    }
-	    Animal animal = animalService.create(form,loginUser.getOrganizationId());
-	    return "redirect:/animal/" + animal.getId();
+	    try {
+		    Animal animal = animalService.create(form,loginUser.getOrganizationId());
+		    return "redirect:/animal/" + animal.getId();
+	    }catch(ResponseStatusException e) {
+	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+	            result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
+	            setFormModel(model);
+	            model.addAttribute("mode", "new");
+	            return "animal/form";
+	        }
+	        throw e;
+	    }
 	}
 	// 個体詳細画面
 	@GetMapping("/animal/{id}")
@@ -112,25 +124,46 @@ public class AnimalController {
 	    model.addAttribute("breedList",breedRepository.findAllByOrderBySpeciesAscNameAsc());
 	    model.addAttribute("adopterList",adopterRepository.findByOrganizationIdOrderByNameAsc(organizationId));
 	    Animal animal = animalService.findById(id, organizationId);
+	    model.addAttribute("animal", animal);
 	    model.addAttribute("imagePath", animal.getImagePath());
 	    model.addAttribute("loginUser", loginUser);
 	    return "animal/form";
 	}
 	// 個体編集処理
 	@PostMapping("/animal/{id}/edit")
-	public String update(@PathVariable Integer id,@Validated @ModelAttribute("animalForm") AnimalForm form,BindingResult result) {
+	public String update(@PathVariable Integer id,@Validated @ModelAttribute("animalForm") AnimalForm form,BindingResult result,Model model) {
 	    Integer organizationId = loginUser.getOrganizationId();
 
-	    // バリデーションエラーがあれば編集画面に戻る
+	    // 犬・猫の品種の選択に間違いがあれば編集画面に戻る
 	    if (result.hasErrors()) {
+	        setFormModel(model);
+	        model.addAttribute("animalId", id);
+	        model.addAttribute("mode", "edit");
+	        Animal animal = animalService.findById(id, organizationId);
+	        model.addAttribute("animal", animal);
+	        model.addAttribute("imagePath", animal.getImagePath());
 	        return "animal/form";
 	    }
+	    try {
+		    // 個体を更新
+		    animalService.update(id, organizationId, form);
 
-	    // 個体を更新
-	    animalService.update(id, organizationId, form);
-
-	    // PRGパターン：更新後は詳細画面へリダイレクト
-	    return "redirect:/animal/" + id;
+		    // PRGパターン：更新後は詳細画面へリダイレクト
+		    return "redirect:/animal/" + id;	
+		    
+	    }catch(ResponseStatusException e) {
+	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+	            result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
+	            setFormModel(model);
+	            model.addAttribute("animalId", id);
+	            model.addAttribute("mode", "edit");
+	            Animal animal = animalService.findById(id, organizationId);
+	            model.addAttribute("animal", animal);
+	            model.addAttribute("imagePath", animal.getImagePath());
+	            return "animal/form";
+	        }
+	        throw e;
+	    }
 	}
 	//個体IDと団体IDで絞って取得する
 	public Animal detail(Integer id,Integer organizationId) {
@@ -152,5 +185,15 @@ public class AnimalController {
 
 	    // 削除後は一覧へ
 	    return "redirect:/animal";
+	}
+	private void setFormModel(Model model) {
+	    Integer organizationId = loginUser.getOrganizationId();
+	    model.addAttribute("speciesList", Species.values());
+	    model.addAttribute("sexList", Sex.values());
+	    model.addAttribute("neuterStatusList", NeuterStatus.values());
+	    model.addAttribute("statusList", Status.values());
+	    model.addAttribute("breedList",breedRepository.findAllByOrderBySpeciesAscNameAsc());
+	    model.addAttribute("adopterList",adopterRepository.findByOrganizationIdOrderByNameAsc(organizationId));
+	    model.addAttribute("loginUser", loginUser);
 	}
 }
