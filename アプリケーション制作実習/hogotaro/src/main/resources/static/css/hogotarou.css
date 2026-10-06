@@ -1,0 +1,341 @@
+@charset "UTF-8";
+/* =========================================================
+   ホゴタロウ 共通スタイル
+   読み込みは head.jspf で行う（Bootstrap → このファイルの順。後に読んだ方が優先される）
+   ========================================================= */
+
+
+/* ===== 1. 配色・全体の設定 ===== */
+:root {
+  /* Bootstrapはこの変数でフォント・文字色・背景色を決めている */
+  --bs-body-font-family: 'Zen Maru Gothic', sans-serif; /* 丸ゴシックでやわらかい印象に */
+  --bs-body-color: #4a3f38;               /* 真っ黒ではなく、こげ茶寄りの文字色 */
+  --bs-body-bg: #fffaf5;                  /* ほんのり温かみのある白 */
+  --bs-body-line-height: 1.8;             /* 行間を広げて読みやすく */
+  --bs-link-color-rgb: 196, 98, 45;       /* リンクの色（オレンジ寄りの茶色） */
+  --bs-link-hover-color-rgb: 150, 70, 30; /* リンクにマウスを乗せたときの色 */
+
+  /* ホゴタロウの配色。色はここにまとめて、下のCSSでは変数名で使う */
+  --hogo-peach: #FFD1A0;        /* ロゴ・ヘッダーと同じピーチ色 */
+  --hogo-peach-light: #fff1e4;  /* ピーチをうすくした色（背景・ホバー用） */
+  --hogo-accent: #c4622d;       /* ボタンなどの強調色（オレンジ寄りの茶色） */
+  --hogo-accent-dark: #a34f22;  /* 強調色にマウスを乗せたときの色 */
+  --hogo-brown: #6b4226;        /* 見出し・ラベルの茶色 */
+  --hogo-border: #ecd6c4;       /* 淡いベージュの線 */
+  --hogo-danger: #b23b3b;       /* 削除ボタンの色（やわらかめの赤） */
+}
+
+/* ページの見出し */
+h1 {
+  color: var(--hogo-brown);
+  font-weight: 700;
+}
+
+
+/* ===== 2. ヘッダー（common/header.jspf） ===== */
+/* ヘッダー全体。背景はロゴと同じピーチ色にして、ロゴと一体に見せる */
+.hogo-header {
+  background-color: var(--hogo-peach);
+  padding: 0.75rem 0;                            /* 上下の余白。ヘッダーの縦幅はここで調整 */
+  border-bottom: 1px solid #f0b985;              /* 下に細い線を引いて本文と区切る */
+  box-shadow: 0 2px 6px rgba(160, 90, 40, 0.12); /* うっすら影を付けて浮かせる */
+}
+
+/* ロゴ。マウスを乗せると少し薄くなり、押せることがわかる */
+.hogo-logo img {
+  height: 64px;               /* 元画像(高さ138px)を約半分で表示するので、高解像度画面でもくっきり */
+  transition: opacity 0.2s;
+}
+.hogo-logo:hover img {
+  opacity: 0.75;
+}
+
+/* メニューのリンク */
+.hogo-nav-link {
+  color: var(--hogo-brown);
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;       /* 角を丸くして、やわらかいボタン風に */
+  transition: background-color 0.2s, color 0.2s; /* 色がふわっと変わる */
+}
+/* マウスを乗せたとき：白っぽい背景＋オレンジ寄りの文字 */
+.hogo-nav-link:hover {
+  background-color: var(--hogo-peach-light);
+  color: var(--hogo-accent);
+}
+/* 今開いている画面のリンク：白い背景＋太字で「ここにいる」とわかるように */
+.hogo-nav-link.active {
+  background-color: #ffffff;
+  color: var(--hogo-accent);
+  font-weight: 700;
+}
+
+/* ログイン中のユーザー情報 */
+.hogo-user {
+  color: #7a5a44;
+  font-size: 0.9rem;
+}
+
+/* ログアウトボタン。普段は枠線だけ、マウスを乗せると塗りつぶし */
+.hogo-logout {
+  font-family: inherit;       /* ボタンは親のフォントを引き継がないので、明示的に引き継ぐ */
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--hogo-accent);
+  background-color: transparent;
+  border: 1.5px solid var(--hogo-accent);
+  border-radius: 999px;
+  padding: 0.3rem 1rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+.hogo-logout:hover {
+  background-color: var(--hogo-accent);
+  color: #ffffff;
+}
+
+
+/* ===== 3. カード（検索フォーム・詳細の各セクション・入力フォーム） ===== */
+/* 白いカード。角を丸く・影をうっすら付ける */
+.hogo-card {
+  background-color: #ffffff;
+  border: 1px solid var(--hogo-border);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(160, 90, 40, 0.08);
+  overflow: hidden;           /* 中の見出し帯の角も丸く切り取る */
+}
+/* カード上部の見出し帯（うすいピーチ色） */
+.hogo-card-head {
+  background-color: var(--hogo-peach-light);
+  border-bottom: 1px solid var(--hogo-border);
+  color: var(--hogo-brown);
+  font-weight: 700;
+  padding: 0.6rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* 見出しの左に付ける丸い縦棒（目印） */
+.hogo-card-head::before {
+  content: "";
+  width: 5px;
+  height: 1.1em;
+  border-radius: 999px;
+  background-color: var(--hogo-accent);
+}
+.hogo-card-body {
+  padding: 1.25rem;
+}
+/* カード下部のボタンを並べる帯（入力フォームで使う） */
+.hogo-card-foot {
+  background-color: #fffdfb;
+  border-top: 1px solid var(--hogo-border);
+  padding: 1rem 1.25rem;
+}
+/* 見出し帯の右側に出す件数バッジ */
+.hogo-badge {
+  margin-left: auto;          /* 右端に寄せる */
+  background-color: var(--hogo-peach);
+  color: var(--hogo-brown);
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+
+
+/* ===== 4. 入力欄（検索・新規登録・編集フォームで共通） ===== */
+/* 入力欄のラベル */
+.form-label {
+  color: var(--hogo-brown);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+/* 入力欄・セレクトボックス。枠線を淡いベージュ、角を丸く */
+.form-control,
+.form-select {
+  border-color: var(--hogo-border);
+  border-radius: 10px;
+  background-color: #fffdfb;
+}
+/* 選んだとき。Bootstrap標準の青い光を、ピーチ色の光に変える */
+.form-control:focus,
+.form-select:focus {
+  border-color: #e8a066;
+  box-shadow: 0 0 0 0.25rem rgba(255, 170, 110, 0.3);
+}
+/* 入力欄の中の薄い例文 */
+.form-control::placeholder {
+  color: #c8b3a3;
+}
+/* チェックボックス・ラジオボタンを選んだときの色（Bootstrap標準の青 → 強調色） */
+.form-check-input:checked {
+  background-color: var(--hogo-accent);
+  border-color: var(--hogo-accent);
+}
+.form-check-input:focus {
+  border-color: #e8a066;
+  box-shadow: 0 0 0 0.25rem rgba(255, 170, 110, 0.3);
+}
+
+/* 「必須」の小さなバッジ */
+.hogo-required {
+  display: inline-block;
+  background-color: var(--hogo-accent);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
+
+/* ===== 5. ボタン ===== */
+/* メインのボタン（検索・新規登録・編集・登録する・更新する）。強調色で塗りつぶし、両端を丸く */
+.btn-hogo {
+  background-color: var(--hogo-accent);
+  border: 1.5px solid var(--hogo-accent);
+  color: #ffffff;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 0.4rem 1.4rem;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+.btn-hogo:hover,
+.btn-hogo:focus-visible {
+  background-color: var(--hogo-accent-dark);
+  border-color: var(--hogo-accent-dark);
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(163, 79, 34, 0.25); /* ふわっと浮く */
+}
+
+/* サブのボタン（クリア・一覧へ戻る・キャンセル）。普段は文字だけ、マウスを乗せるとうすいピーチ色 */
+.btn-hogo-sub {
+  background-color: transparent;
+  border: 1.5px solid transparent;
+  color: var(--hogo-brown);
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  transition: background-color 0.2s;
+}
+.btn-hogo-sub:hover,
+.btn-hogo-sub:focus-visible {
+  background-color: var(--hogo-peach-light);
+  color: var(--hogo-accent);
+}
+
+/* 削除ボタン。普段は赤い枠線だけ、マウスを乗せると赤く塗りつぶし（うっかり押さないよう控えめに） */
+.btn-hogo-danger {
+  background-color: #ffffff;
+  border: 1.5px solid #e5b4b4;
+  color: var(--hogo-danger);
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 0.4rem 1.4rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+.btn-hogo-danger:hover,
+.btn-hogo-danger:focus-visible {
+  background-color: var(--hogo-danger);
+  border-color: var(--hogo-danger);
+  color: #ffffff;
+}
+
+/* キーボード操作(Tabキー)で選んだときにも、どこを選んでいるかわかるようにする */
+.hogo-nav-link:focus-visible,
+.hogo-logout:focus-visible,
+.hogo-logo:focus-visible {
+  outline: 2px solid var(--hogo-accent);
+  outline-offset: 2px;
+}
+
+
+/* ===== 6. 表 ===== */
+/* 表全体の文字色と境界線の色（境界線は黒っぽい灰色ではなく、淡いベージュに） */
+.table {
+  --bs-table-color: var(--bs-body-color);
+  --bs-table-border-color: var(--hogo-border);
+  --bs-table-hover-bg: var(--hogo-peach-light); /* マウスを乗せた行もピーチ系に */
+}
+
+/* セルの内側の余白を少し広げて、ゆったり見せる */
+.table > :not(caption) > * > * {
+  padding: 0.75rem 1rem;
+}
+
+/* 項目の色（ヘッダーと同じピーチ色）。thead にも th にも付けられる */
+.table-peach {
+  --bs-table-bg: var(--hogo-peach);
+  --bs-table-color: var(--hogo-brown); /* 項目名は茶色にして、背景となじませる */
+  font-weight: 500;                    /* 太すぎない太字 */
+}
+
+/* 詳細ページの表の左側（項目名の列）。幅を固定して、折り返さない */
+.hogo-th-label {
+  width: 9rem;
+  white-space: nowrap;
+}
+
+/* 表の中のリンクは普段は下線なし、マウスを乗せたときだけ下線を出す */
+.table a {
+  text-decoration: none;
+}
+.table a:hover {
+  text-decoration: underline;
+}
+
+
+/* ===== 7. 小さな部品 ===== */
+/* 件数の表示（一覧ページ） */
+.hogo-count {
+  color: var(--hogo-brown);
+}
+.hogo-count strong {
+  color: var(--hogo-accent);
+  font-size: 1.2rem;
+}
+
+/* 状態のバッジ（済＝やさしい緑、未＝ピーチ） */
+.hogo-status {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 0.05rem 0.8rem;
+}
+.hogo-status-done {
+  background-color: #e3f1e1;
+  color: #3d7a3a;
+}
+.hogo-status-todo {
+  background-color: var(--hogo-peach-light);
+  color: var(--hogo-accent);
+  border: 1px solid var(--hogo-peach);
+}
+
+/* 0件のとき・中身が空のときの表示 */
+.hogo-empty {
+  background-color: var(--hogo-peach-light);
+  border: 1px dashed var(--hogo-border);
+  border-radius: 12px;
+  color: var(--hogo-brown);
+  text-align: center;
+  padding: 1.25rem;
+  margin: 0;
+}
+
+/* 複数行のテキスト（メモなど）。入力したときの改行をそのまま表示する */
+.hogo-notes {
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* 一覧の写真カード。高さをそろえ、はみ出た部分は切り取る */
+.hogo-card-img {
+  height: 200px;
+  object-fit: cover;
+}
