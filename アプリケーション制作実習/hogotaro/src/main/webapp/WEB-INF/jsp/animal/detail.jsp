@@ -70,19 +70,45 @@
     .notes {
         white-space: pre-wrap;
     }
+    
+    /* イベント履歴 */
+	.event-history {
+    margin-top: 40px;
+	}
+
+	.event-history h2 {
+    margin-bottom: 15px;
+	}
+
+	.event-table {
+    width: 100%;
+    border-collapse: collapse;
+	}
+
+	.event-table th,
+	.event-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+	}
+
+	.event-table th {
+    background-color: #f5f5f5;
+	}
 
     /* ボタン */
     .button-area {
-        margin-top: 30px;
-        display: flex;
-        gap: 10px;
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
     }
 
     .button-area a,
     .button-area button {
-        padding: 8px 20px;
-        text-decoration: none;
-        cursor: pointer;
+    padding: 8px 20px;
+    text-decoration: none;
+    cursor: pointer;
     }
 
 </style>
@@ -93,6 +119,12 @@
     <%@ include file="/WEB-INF/jsp/common/header.jspf" %>
     <div class="detail-container">
         <h1 class="detail-title">個体詳細</h1>
+        <%-- フラッシュメッセージを表示 --%>
+    		<c:if test="${not empty message}">
+        		<div id="flash-message">
+            	<c:out value="${message}"/>
+        		</div>
+    		</c:if>
         
         <%-- 写真 --%>
         <div class="photo-area">
@@ -331,6 +363,94 @@
             </tr>
 
         </table>
+        <%-- イベント履歴 --%>
+	<div class="event-history">
+    	<h2>イベント履歴</h2>
+    	<c:choose>
+
+        <%-- イベントがある場合 --%>
+        <c:when test="${not empty eventList}">
+            <table class="event-table">
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>時間</th>
+                        <th>イベント種別</th>
+                        <th>場所</th>
+                        <th>担当者</th>
+                        <th>実施状況</th>
+                        <th>費用</th>
+                        <th>備考</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <c:forEach var="event" items="${eventList}">
+                        <tr>
+                            <td>
+                                ${event.eventDate}
+                            </td>
+                            <td>
+                                ${event.eventTime}
+                            </td>
+                            <td>
+                                ${event.eventType.name}
+                            </td>
+                            <td>
+                                <c:out value="${event.place}" />
+                            </td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${not empty event.staff}">
+                                        <c:out value="${event.staff.name}" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        -
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${event.done}">
+                                        済
+                                    </c:when>
+                                    <c:otherwise>
+                                        未
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${not empty event.cost}">
+                                        ${event.cost}円
+                                    </c:when>
+                                    <c:otherwise>
+                                        -
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td class="notes">
+                                <c:choose>
+                                    <c:when test="${not empty event.notes}">
+                                        <c:out value="${event.notes}" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        -
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </c:when>
+
+        <%-- イベントがない場合 --%>
+        <c:otherwise>
+            <p>イベント履歴はありません。</p>
+        </c:otherwise>
+    	</c:choose>
+	</div>
 
         <%-- 操作 --%>
         <div class="button-area">
@@ -360,9 +480,7 @@
             <%-- 一覧へ戻る --%>
             <a href="${pageContext.request.contextPath}/animal">一覧へ戻る</a>
         </div>
-
     </div>
-
 </body>
 
 </html>

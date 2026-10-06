@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.hogotaro.entity.Animal;
 import com.example.hogotaro.entity.NeuterStatus;
@@ -37,9 +39,8 @@ public class AnimalController {
 	private final AnimalRepository animalRepository;
 
 	@GetMapping("/animal") //URLでlocalhost:8080/animalをリクエストすると呼ばれる
-	public String list( @ModelAttribute("searchForm") AnimalSearchForm form,@org.springframework.web.bind.annotation.RequestParam(value = "search",required = false) String search,Model model) { //Model: JSPに渡すデータを入れる箱。引数に書くだけでSpringが用意して渡してくれる(自分でnewしない)
-		// 初めて一覧を開いたときだけ、
-	    // 保護状況を「保護中・入院中・トライアル中」の4つにする
+	public String list(@ModelAttribute("searchForm") AnimalSearchForm form,@RequestParam(value = "search",required = false) String search,Model model) { //Model: JSPに渡すデータを入れる箱。引数に書くだけでSpringが用意して渡してくれる(自分でnewしない)
+	    // 初めて一覧を開いたときだけ、保護状況を「保護中・入院中・トライアル中」の4つにする
 	    if (search == null && (form.getStatuses() == null || form.getStatuses().isEmpty())) {
 	        form.setStatuses(Status.inCare());
 	    }
@@ -50,7 +51,8 @@ public class AnimalController {
 
 	    // 保護状況の選択肢
 	    model.addAttribute("statusList", Status.values());
-		return "animal/list"; //		/WEB-INF/jsp/animal/list.jspを表示する
+	    model.addAttribute("loginUser", loginUser);
+		return "animal/list"; //WEB-INF/jsp/animal/list.jspを表示する
 	}
 	// 個体新規登録画面
 	@GetMapping("/animal/new")
@@ -88,7 +90,7 @@ public class AnimalController {
 	}
 	// 個体新規登録処理
 	@PostMapping("/animal/new")
-	public String create(@Validated @ModelAttribute("animalForm") AnimalForm form,BindingResult result,Model model) {
+	public String create(@Validated @ModelAttribute("animalForm") AnimalForm form,BindingResult result,Model model,RedirectAttributes redirectAttributes) {
 	    if (result.hasErrors()) {
 	    	setFormModel(model);
 	    	model.addAttribute("mode","new");
@@ -96,25 +98,21 @@ public class AnimalController {
 	    }
 	    try {
 		    Animal animal = animalService.create(form,loginUser.getOrganizationId());
+		    //新規登録のフラッシュメッセージ
+		    redirectAttributes.addFlashAttribute("message", "個体新規登録が完了しました");
 		    return "redirect:/animal/" + animal.getId();
 	    }catch(ResponseStatusException e) {
 	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-
-	            result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
-
-	            if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
+	        	if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
 	                result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
 	            } else {
-	            	// トライアル・譲渡で里親を選択しなかった時にエラー
 	                result.rejectValue("adopterId","adopter.required",e.getReason());
 	            }
-
 	            setFormModel(model);
 	            model.addAttribute("mode", "new");
 	            return "animal/form";
 	        }
 	        throw e;
-
 	    }
 	}
 	// 個体詳細画面
@@ -122,10 +120,13 @@ public class AnimalController {
 	public String detail(@PathVariable Integer id,Model model) {
 
 	    // 詳細表示する個体を取得
-	    Animal animal = animalService.findById(id,loginUser.getOrganizationId());
+		Integer organizationId = loginUser.getOrganizationId();
+	    Animal animal = animalService.findById(id,organizationId);
 
 	    // JSPにanimalという名前で渡す
 	    model.addAttribute("animal", animal);
+	    // 個体に紐づくイベント履歴をJSPに渡す
+	    model.addAttribute("eventList",animalService.findEventList(id, organizationId));
 	    model.addAttribute("loginUser", loginUser);
 	    return "animal/detail";
 	}
@@ -153,7 +154,7 @@ public class AnimalController {
 	}
 	// 個体編集処理
 	@PostMapping("/animal/{id}/edit")
-	public String update(@PathVariable Integer id,@Validated @ModelAttribute("animalForm") AnimalForm form,BindingResult result,Model model) {
+	public String update(@PathVariable Integer id,@Validated @ModelAttribute("animalForm") AnimalForm form,BindingResult result,Model model,RedirectAttributes redirectAttributes) {
 	    Integer organizationId = loginUser.getOrganizationId();
 
 	    // 犬・猫の品種の選択に間違いがあれば編集画面に戻る
@@ -169,18 +170,19 @@ public class AnimalController {
 	    try {
 		    // 個体を更新
 		    animalService.update(id, organizationId, form);
+		  //編集のフラッシュメッセージ
+		    redirectAttributes.addFlashAttribute("message","個体を編集しました");
 
 		    // PRGパターン：更新後は詳細画面へリダイレクト
 		    return "redirect:/animal/" + id;	
 		    
 	    }catch(ResponseStatusException e) {
 	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-	            result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
-	            if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
+	        	if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
 	                // 品種エラー
 	                result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
 	            } else {
-	                // トライアル・譲渡で里親を選択しなかった時にエラー
+	                // 里親エラー
 	                result.rejectValue("adopterId","adopter.required",e.getReason());
 	            }
 	            setFormModel(model);
@@ -194,7 +196,7 @@ public class AnimalController {
 	        throw e;
 	    }
 	}
-	//個体IDと団体IDで絞って取得する
+	//個体IDと団体IDで絞って取得する(いらないかも…)
 	public Animal detail(Integer id,Integer organizationId) {
 		return animalRepository.findByIdAndOrganizationId(id,organizationId)
 				.orElseThrow(() ->
@@ -202,15 +204,16 @@ public class AnimalController {
 	}
 	//個体の情報を削除
 	@PostMapping("/animal/{id}/delete")
-	public String delete(@PathVariable Integer id) {
+	public String delete(@PathVariable Integer id,RedirectAttributes redirectAttributes) {
 
 	    // 管理ユーザーのみ削除可能
 	    if (!"ADMIN".equals(loginUser.getRole())) {
 	        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "権限がありません");
 	    }
 
-	    Animal animal = detail(id, loginUser.getOrganizationId());
-	    animalRepository.delete(animal);
+	    animalService.delete(id, loginUser.getOrganizationId());
+	    //削除のフラッシュメッセージ
+	    redirectAttributes.addFlashAttribute("message","個体を削除しました");
 
 	    // 削除後は一覧へ
 	    return "redirect:/animal";
