@@ -119,6 +119,11 @@
 .hogo-flash { border-radius: 12px; }
 @media (max-width: 1100px) { .calendar-layout { grid-template-columns: 1fr; } }
 @media (max-width: 575.98px) { .calendar-header { padding: 1rem; } .calendar-month-selector { gap: .5rem; } }
+/* 「2026-10-11のイベント」などの見出しに出る黒枠を消す */
+#pane-heading:focus,
+#pane-heading:focus-visible {
+    outline: none;
+}
 </style>
 </head>
 
@@ -184,8 +189,8 @@
 	</div>
 		
 		  <a class="btn btn-hogo-sub"
-		       href="${fn:escapeXml(currentUrl)}">
-		        今月
+		       href="${fn:escapeXml(currentUrl)}" title="今日が含まれる月のカレンダーを表示します">
+		        今月を表示
 		   </a>
 		</div>
 				
@@ -286,6 +291,8 @@
 																			
 																			            <form:form id="uncomplete-${e.id}" action="${uncompleteUrl}" method="post"
 																			                onsubmit="return confirm('未対応に戻しますか？');">
+                            <%-- 保存後も、このイベントの概要を表示する --%>
+                            <input type="hidden" name="reopenPane" value="true" />
 																			
 																			                <button type="submit"
 																			                        class="stamp-button stamp-done"
@@ -303,6 +310,8 @@
 																			
 																			            <form:form id="complete-${e.id}" action="${completeUrl}" method="post"
 																			                onsubmit="return confirm('イベントを完了にしますか？個体の情報は自動では変わりません');">
+                            <%-- 保存後も、このイベントの概要を表示する --%>
+                            <input type="hidden" name="reopenPane" value="true" />
 																			
 																			                <button type="submit"
 																			                        class="stamp-button"
@@ -510,6 +519,10 @@
     // 「選択を解除」を押したとき
     closeButton?.addEventListener("click", function () {
 
+        const url = new URL(window.location.href);
+        url.searchParams.delete("selectedEventId");
+        window.history.replaceState(window.history.state, "", url);
+
         paneHeading.textContent = "イベントを選択";
         paneContent.replaceChildren();
 
@@ -526,6 +539,20 @@
             selectedButton = null;
         }
     });
+
+    // スタンプの保存後は、サーバーから届いた最新の内容で概要を開き直す。
+    // URLの値はHTMLやCSSセレクターに埋め込まず、表示中のIDと比較する。
+    const selectedEventId = new URLSearchParams(window.location.search)
+        .get("selectedEventId");
+
+    if (selectedEventId && paneContent) {
+        for (const button of eventButtons) {
+            if (button.dataset.eventId === selectedEventId) {
+                button.click();
+                break;
+            }
+        }
+    }
 </script>
 
 </body>
