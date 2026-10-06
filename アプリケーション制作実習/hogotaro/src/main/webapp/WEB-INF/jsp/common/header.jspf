@@ -1,4 +1,5 @@
-<%--   <%@ include file="/WEB-INF/jsp/common/header.jspf" %>   でインクルード--%>
+<%--   <%@ include file="/WEB-INF/jsp/common/header.jspf" %>   でインクルード（<body>の直後）--%>
+<%--   見た目は static/css/hogotarou.css の「2. ヘッダー」に書いてある --%>
 
 <%@ page pageEncoding="UTF-8" %>
 
@@ -14,84 +15,6 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <%-- 今開いている画面のURL。ControllerからJSPへforwardされると、元のURLはこの属性に入っている --%>
 <c:set var="currentUri" value="${requestScope['jakarta.servlet.forward.request_uri']}"/>
-
-<%-- 丸ゴシック体（Zen Maru Gothic）を Google Fonts から読み込む --%>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
-
-<style>
-  /* ヘッダー全体。背景はロゴと同じピーチ色(#FFD1A0)にして、ロゴと一体に見せる */
-  .hogo-header {
-    background-color: #FFD1A0;
-    font-family: 'Zen Maru Gothic', sans-serif; /* 丸ゴシックでやわらかい印象に */
-    padding: 0.75rem 0;                         /* 上下の余白。ヘッダーの縦幅はここで調整 */
-    border-bottom: 1px solid #f0b985;           /* 下に細い線を引いて本文と区切る */
-    box-shadow: 0 2px 6px rgba(160, 90, 40, 0.12); /* うっすら影を付けて浮かせる */
-  }
-
-  /* ロゴ。マウスを乗せると少し薄くなり、押せることがわかる */
-  .hogo-logo img {
-    height: 64px;               /* ロゴの大きさ。元画像(高さ138px)を約半分で表示するので、高解像度画面でもくっきり */
-    transition: opacity 0.2s;
-  }
-  .hogo-logo:hover img {
-    opacity: 0.75;
-  }
-
-  /* メニューのリンク */
-  .hogo-nav-link {
-    color: #6b4226;             /* 真っ黒ではなく、ロゴの背景になじむ茶色 */
-    font-weight: 500;
-    font-size: 1rem;
-    text-decoration: none;
-    padding: 0.4rem 1rem;
-    border-radius: 999px;       /* 角を丸くして、やわらかいボタン風に */
-    transition: background-color 0.2s, color 0.2s; /* 色がふわっと変わる */
-  }
-  /* マウスを乗せたとき：白っぽい背景＋オレンジ寄りの文字 */
-  .hogo-nav-link:hover {
-    background-color: #fff3e6;
-    color: #c4622d;
-  }
-  /* 今開いている画面のリンク：白い背景＋太字で「ここにいる」とわかるように */
-  .hogo-nav-link.active {
-    background-color: #ffffff;
-    color: #c4622d;
-    font-weight: 700;
-  }
-
-  /* ログイン中のユーザー情報 */
-  .hogo-user {
-    color: #7a5a44;
-    font-size: 0.9rem;
-  }
-
-  /* ログアウトボタン。普段は枠線だけ、マウスを乗せると塗りつぶし */
-  .hogo-logout {
-    font-family: inherit;       /* ボタンは親のフォントを引き継がないので、明示的に引き継ぐ */
-    font-weight: 500;
-    font-size: 0.9rem;
-    color: #c4622d;
-    background-color: transparent;
-    border: 1.5px solid #c4622d;
-    border-radius: 999px;
-    padding: 0.3rem 1rem;
-    transition: background-color 0.2s, color 0.2s;
-  }
-  .hogo-logout:hover {
-    background-color: #c4622d;
-    color: #ffffff;
-  }
-
-  /* キーボード操作(Tabキー)で選んだときにも、どこを選んでいるかわかるようにする */
-  .hogo-nav-link:focus-visible,
-  .hogo-logout:focus-visible,
-  .hogo-logo:focus-visible {
-    outline: 2px solid #c4622d;
-    outline-offset: 2px;
-  }
-</style>
 
 <nav class="hogo-header">
   <%-- flex-wrap：画面がせまいときは、はみ出さずに折り返す --%>
