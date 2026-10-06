@@ -99,25 +99,22 @@ public class AnimalController {
 		    return "redirect:/animal/" + animal.getId();
 	    }catch(ResponseStatusException e) {
 	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-<<<<<<< HEAD
+
 	            result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
-=======
+
 	            if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
 	                result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
 	            } else {
 	            	// トライアル・譲渡で里親を選択しなかった時にエラー
 	                result.rejectValue("adopterId","adopter.required",e.getReason());
 	            }
->>>>>>> origin/kubota
+
 	            setFormModel(model);
 	            model.addAttribute("mode", "new");
 	            return "animal/form";
 	        }
 	        throw e;
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/kubota
 	    }
 	}
 	// 個体詳細画面
@@ -178,9 +175,7 @@ public class AnimalController {
 		    
 	    }catch(ResponseStatusException e) {
 	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-<<<<<<< HEAD
 	            result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
-=======
 	            if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
 	                // 品種エラー
 	                result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
@@ -188,7 +183,6 @@ public class AnimalController {
 	                // トライアル・譲渡で里親を選択しなかった時にエラー
 	                result.rejectValue("adopterId","adopter.required",e.getReason());
 	            }
->>>>>>> origin/kubota
 	            setFormModel(model);
 	            model.addAttribute("animalId", id);
 	            model.addAttribute("mode", "edit");
