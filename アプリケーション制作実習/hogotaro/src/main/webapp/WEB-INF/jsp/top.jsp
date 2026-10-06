@@ -2,7 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<%-- ここから「トップだけ」の前までは adopter/list.jsp と同じ。共通の head.jspf ができたら、その include 1行に置き換える --%>
 <style>
   /* ページ全体の文字。Bootstrapはこの変数でフォント・文字色・背景色を決めている */
   :root {
@@ -163,66 +164,135 @@
     text-align: center;
     padding: 2rem;
   }
+
+  /* ===== ここからトップだけ ===== */
+  /* カード（adopter/detail.jsp と同じ。共通CSS hogotarou.css にも同じ名前で入っている） */
+  /* 白いカード。角を丸く・影をうっすら付ける */
+  .hogo-card {
+    background-color: #ffffff;
+    border: 1px solid var(--hogo-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(160, 90, 40, 0.08);
+    overflow: hidden;           /* 中の見出し帯の角も丸く切り取る */
+  }
+  /* カード上部の見出し帯（うすいピーチ色） */
+  .hogo-card-head {
+    background-color: var(--hogo-peach-light);
+    border-bottom: 1px solid var(--hogo-border);
+    color: var(--hogo-brown);
+    font-weight: 700;
+    padding: 0.6rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  /* 見出しの左に付ける丸い縦棒（目印） */
+  .hogo-card-head::before {
+    content: "";
+    width: 5px;
+    height: 1.1em;
+    border-radius: 999px;
+    background-color: var(--hogo-accent);
+  }
+  .hogo-card-body {
+    padding: 1.25rem;
+  }
+  /* 見出し帯の右側に出す件数バッジ */
+  .hogo-badge {
+    margin-left: auto;          /* 右端に寄せる */
+    background-color: var(--hogo-peach);
+    color: var(--hogo-brown);
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 999px;
+    padding: 0.1rem 0.7rem;
+  }
+
+  /* カレンダーの7列を同じ幅にする（無いと、文字の多い日の列だけ広がる） */
+  .mini-cal {
+    table-layout: fixed;
+  }
+  /* 前月・次月のはみ出したマスは文字を薄くする */
+  .mini-cal .other {
+    color: #c8b3a3;
+  }
+  /* マスの中のイベント。小さめの文字で1件ずつ */
+  .mini-cal .event-link {
+    display: block;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
 </style>
 </head>
 <body>
-	<%@ include file="common/header.jspf"%>
-	<h1 class="text-center my-5">トップページ</h1>
+<%@ include file="/WEB-INF/jsp/common/header.jspf" %>
 
-	<%-- 管理画面へのリンク --%>
-	<div class="container mb-5">
-	<ul>
-		<li><a href="/animal">個体管理へ</a></li>
-		<li><a href="/event">イベント管理へ</a></li>
-		<li><a href="/adopter">里親管理へ</a></li>
-		<li><a href="/staff">スタッフ管理へ</a></li>
-	</ul>
-	
+<h1 class="text-center my-5">トップページ</h1>
+<div class="container mb-5">
 
-	<section>
-		<h2>保護頭数</h2>
-		<p>
-			保護中：${inCare }/${organization.capacity }<br>
-			空き：${organization.capacity - inCare}
-		</p>
-	</section>
+  <%-- 管理画面へのリンク。ボタンを横に並べる（狭い画面では折り返す） --%>
+  <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+    <a href="/animal" class="btn btn-hogo">個体管理へ</a>
+    <a href="/event" class="btn btn-hogo">イベント管理へ</a>
+    <a href="/adopter" class="btn btn-hogo">里親管理へ</a>
+    <a href="/staff" class="btn btn-hogo">スタッフ管理へ</a>
+  </div>
 
+  <%-- 2列レイアウト。PC(lg以上)では左4：右8、スマホでは縦1列 --%>
+  <div class="row g-4">
 
-	<section>
-		<h2>カレンダー</h2>
-		<p>${calendar.year}年${calendar.month}月</p>
-		<table border="1">
+    <%-- ===== 左の列：保護頭数 ===== --%>
+    <div class="col-lg-4">
+      <section class="hogo-card">
+        <h2 class="hogo-card-head h6 m-0">保護頭数</h2>
+        <div class="hogo-card-body">
+          <%-- hogo-count：数字だけ強調色で大きくする（一覧の「検索結果 ○件」と同じ部品） --%>
+          <p class="hogo-count m-0">
+            保護中：<strong>${inCare}</strong> / ${organization.capacity}<br>
+            空き：<strong>${organization.capacity - inCare}</strong>
+          </p>
+        </div>
+      </section>
+    </div>
 
-			<tr>
-				<th>日</th>
-				<th>月</th>
-				<th>火</th>
-				<th>水</th>
-				<th>木</th>
-				<th>金</th>
-				<th>土</th>
-			</tr>
-			<c:forEach items="${calendar.weeks}" var="week">
-				<tr>
-					<c:forEach items="${week}" var="d">
-						<%-- 前月・次月のはみ出したマスには other を付ける（CSS で薄くする用） --%>
-						<td class="${d.inMonth ? '' : 'other'}">
-							${d.day} <%-- その日のイベント。「個体名 種別」で、時刻は出さない（10/1 の決定） --%>
-								<c:forEach items="${d.eventList}" var="e">
-																<%-- マスを押すと、その日の月のイベント管理へ。はみ出したマスはその月へ飛ぶように d.date の年・月を使う --%>
-									<a href="/event?year=${d.date.year}&month=${d.date.monthValue}">
-										<div>
-											<c:out value="${e.animal.name}" />
-											<c:out value="${e.eventType.name}" />
-										</div>
-									</a>
-								</c:forEach>
-						</td>
-					</c:forEach>
-				</tr>
-			</c:forEach>
-		</table>
-	</section>
+    <%-- ===== 右の列：カレンダー ===== --%>
+    <div class="col-lg-8">
+      <section class="hogo-card">
+        <h2 class="hogo-card-head h6 m-0">カレンダー（${calendar.year}年${calendar.month}月）</h2>
+        <div class="hogo-card-body">
+          <%-- table-bordered：各セルに境界線 / align-middle：上下中央ぞろえ / mini-cal：7列を同じ幅に（上の <style>） --%>
+          <table class="table table-bordered align-middle mb-0 mini-cal">
+            <thead class="table-peach"><%-- 曜日の行（ヘッダーと同じピーチ色） --%>
+              <tr>
+                <th>日</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th>
+              </tr>
+            </thead>
+            <tbody>
+              <c:forEach items="${calendar.weeks}" var="week">
+                <tr>
+                  <c:forEach items="${week}" var="d">
+                    <%-- 前月・次月のはみ出したマスには other を付ける（上の <style> で薄くする） --%>
+                    <td class="${d.inMonth ? '' : 'other'}">
+                      ${d.day}
+                      <%-- その日のイベント。「個体名 種別」で、時刻は出さない（10/1 の決定）。
+                           押すと、その日の月のイベント管理へ。はみ出したマスはその月へ飛ぶように d.date の年・月を使う --%>
+                      <c:forEach items="${d.eventList}" var="e">
+                        <a href="/event?year=${d.date.year}&month=${d.date.monthValue}" class="event-link">
+                          <c:out value="${e.animal.name}" />
+                          <c:out value="${e.eventType.name}" />
+                        </a>
+                      </c:forEach>
+                    </td>
+                  </c:forEach>
+                </tr>
+              </c:forEach>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+  </div>
 </div>
 </body>
 </html>

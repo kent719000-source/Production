@@ -1,5 +1,7 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
@@ -8,12 +10,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>スタッフ一覧 | ホゴタロウ</title>
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 <%-- 丸ゴシック体（Zen Maru Gothic）を Google Fonts から読み込む --%>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<%-- ここから </style> までは adopter/list.jsp と同じ。共通の head.jspf ができたら、その include 1行に置き換える --%>
 <style>
   /* ページ全体の文字。Bootstrapはこの変数でフォント・文字色・背景色を決めている */
   :root {
@@ -168,77 +170,93 @@
 </style>
 </head>
 <body>
-    <%@ include file="/WEB-INF/jsp/common/header.jspf"%>
+<%@ include file="/WEB-INF/jsp/common/header.jspf" %>
 
-    
-        <h1 class="text-center my-5">スタッフ一覧</h1>
-        <div class="container mb-5">
+<h1 class="text-center my-5">スタッフ一覧</h1>
+<div class="container mb-5">
 
-        <c:if test="${not empty message}">
-            <div class="flash-message"><c:out value="${message}" /></div>
-        </c:if>
+  <%-- 登録・編集・削除のあとのメッセージ（フラッシュ。1回だけ表示される） --%>
+  <c:if test="${not empty message}">
+    <div class="alert alert-warning"><c:out value="${message}"/></div>
+  </c:if>
 
-        <sec:authorize access="hasRole('ADMIN')">
-            <div class="top-actions">
-                <a href="/staff/new" class="btn-primary">新規登録</a>
-            </div>
-        </sec:authorize>
-
-        <form:form modelAttribute="searchForm" method="get" action="/staff" cssClass="search-box">
-            <div class="search-title">条件検索</div>
-            <div class="search-fields">
-                <div class="search-field">
-                    <label for="staff-name">名前</label>
-                    <form:input path="name" id="staff-name" />
-                </div>
-                <div class="search-field">
-                    <label for="staff-phone">電話番号</label>
-                    <form:input path="phoneNumber" id="staff-phone" />
-                </div>
-                <button type="submit" class="btn-search">検索</button>
-            </div>
-        </form:form>
-
-        <c:choose>
-            <c:when test="${empty staffList}">
-                <p class="empty-message">該当するスタッフはいません</p>
-            </c:when>
-            <c:otherwise>
-                <div class="table-wrap">
-                    <table class="staff-table">
-                        <thead>
-                            <tr>
-                                <th>名前</th>
-                                <th>性別</th>
-                                <th>電話番号</th>
-                                <th>メールアドレス</th>
-                                <th>ユーザー種別</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="s" items="${staffList}">
-                                <tr>
-                                    <td>
-                                        <a class="staff-name" href="/staff/${s.id}">
-                                            <c:out value="${s.name}" />
-                                        </a>
-                                    </td>
-                                    <td><c:out value="${s.gender.label}" /></td>
-                                    <td><c:out value="${s.phoneNumber}" /></td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${not empty s.email}"><c:out value="${s.email}" /></c:when>
-                                            <c:otherwise><span class="not-entered">未入力</span></c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td><c:out value="${s.userType.name}" /></td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
-            </c:otherwise>
-        </c:choose>
+  <%-- 検索フォーム。method="get"。modelAttribute="searchForm"で、Controller の @ModelAttribute("searchForm") とつながる(検索後も入力が残る) --%>
+  <form:form modelAttribute="searchForm" method="get" action="${pageContext.request.contextPath}/staff" cssClass="hogo-search mb-4">
+    <%-- 見出し帯（虫めがねのアイコン＋タイトル） --%>
+    <div class="hogo-search-head">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+      </svg>
+      絞り込み検索
     </div>
+    <div class="hogo-search-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md">
+          <form:label path="name" cssClass="form-label">名前</form:label>
+          <form:input path="name" cssClass="form-control" placeholder="例：山田 太郎"/>
+        </div>
+        <div class="col-md">
+          <form:label path="phoneNumber" cssClass="form-label">電話番号</form:label>
+          <form:input path="phoneNumber" cssClass="form-control" placeholder="例：090-1234-5678"/>
+        </div>
+        <div class="col-md-auto d-flex gap-2">
+          <%-- クリア：条件なしの一覧ページへ移動して、入力をリセットする --%>
+          <a href="${pageContext.request.contextPath}/staff" class="btn btn-hogo-sub">クリア</a>
+          <button type="submit" class="btn btn-hogo">検索</button>
+        </div>
+      </div>
+    </div>
+  </form:form>
+
+  <%-- 件数（左）と新規登録ボタン（右）を1行に並べる --%>
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <%-- fn:length：リストの件数を数える関数 --%>
+    <span class="hogo-count">検索結果 <strong>${fn:length(staffList)}</strong> 件</span>
+
+    <%-- スタッフの新規登録は管理ユーザー(A)だけ（決定 2-14）。里親と違って常勤スタッフにも出さない --%>
+    <sec:authorize access="hasRole('ADMIN')"><%-- アクセス制限タグ --%>
+      <a href="${pageContext.request.contextPath}/staff/new" class="btn btn-hogo">＋ 新規登録</a>
+    </sec:authorize>
+  </div>
+
+  <c:choose><%-- 条件分岐 --%>
+    <c:when test="${empty staffList}"><%-- if --%>
+      <p class="hogo-empty">該当するスタッフはいません</p>
+    </c:when>
+    <c:otherwise><%-- else --%>
+      <%-- table-bordered：各セルに境界線 / table-hover：マウスを乗せた行に色 / align-middle：上下中央ぞろえ --%>
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-peach"><%-- 項目行（ヘッダーと同じピーチ色） --%>
+          <tr>
+            <th>名前</th>
+            <th>性別</th>
+            <th>電話番号</th>
+            <th>メールアドレス</th>
+            <th>ユーザー種別</th>
+          </tr>
+        </thead>
+        <tbody><%-- データ行 --%>
+          <%-- staffList を1件ずつ s に入れて繰り返す --%>
+          <c:forEach items="${staffList}" var="s"><%-- 繰り返しタグ --%>
+            <tr>
+              <td><a href="${pageContext.request.contextPath}/staff/${s.id}"><c:out value="${s.name}"/></a></td>
+              <td><c:out value="${s.gender.label}"/></td>
+              <td><c:out value="${s.phoneNumber}"/></td>
+              <%-- メールアドレスは任意。空なら「未登録」（10/1 の表示ルール） --%>
+              <td>
+                <c:choose>
+                  <c:when test="${empty s.email}">未登録</c:when>
+                  <c:otherwise><c:out value="${s.email}"/></c:otherwise>
+                </c:choose>
+              </td>
+              <td><c:out value="${s.userType.name}"/></td>
+            </tr>
+          </c:forEach>
+        </tbody>
+      </table>
+    </c:otherwise>
+  </c:choose>
+
+</div>
 </body>
 </html>
