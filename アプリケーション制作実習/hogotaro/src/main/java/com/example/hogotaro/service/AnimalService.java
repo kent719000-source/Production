@@ -161,6 +161,10 @@ public class AnimalService {
         // 避妊去勢・ワクチン
         animal.setNeutered(form.getNeutered());
         animal.setComboVaccine(form.getComboVaccine());
+        // 犬の場合は狂犬病ワクチンを必須にする
+        if (form.getSpecies() == Species.DOG && form.getRabiesVaccine() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"犬の場合は狂犬病ワクチンを選択してください。");
+        }
         //猫は狂犬病ワクチン関係ないのでifで分岐
         if (form.getSpecies() == Species.CAT) {
             animal.setRabiesVaccine(false);
@@ -256,6 +260,10 @@ public class AnimalService {
         // 避妊去勢・ワクチン
         animal.setNeutered(form.getNeutered());
         animal.setComboVaccine(form.getComboVaccine());
+        // 犬の場合は狂犬病ワクチンを必須にする
+        if (form.getSpecies() == Species.DOG && form.getRabiesVaccine() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"犬の場合は狂犬病ワクチンを選択してください。");
+        }
         //猫は狂犬病ワクチン関係ないのでifで分岐
         if (form.getSpecies() == Species.CAT) {
             animal.setRabiesVaccine(false);

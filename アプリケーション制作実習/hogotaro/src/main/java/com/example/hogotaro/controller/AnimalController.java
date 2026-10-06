@@ -103,9 +103,14 @@ public class AnimalController {
 		    return "redirect:/animal/" + animal.getId();
 	    }catch(ResponseStatusException e) {
 	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-	        	if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
+	            if ("犬の場合は狂犬病ワクチンを選択してください。".equals(e.getReason())) {
+	                // 狂犬病ワクチンエラー
+	                result.rejectValue("rabiesVaccine","rabiesVaccine.required",e.getReason());
+	            } else if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
+	                // 品種エラー
 	                result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
 	            } else {
+	                // 里親エラー
 	                result.rejectValue("adopterId","adopter.required",e.getReason());
 	            }
 	            setFormModel(model);
@@ -178,7 +183,11 @@ public class AnimalController {
 		    
 	    }catch(ResponseStatusException e) {
 	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-	        	if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
+
+	            if ("犬の場合は狂犬病ワクチンを選択してください。".equals(e.getReason())) {
+	                // 狂犬病ワクチンエラー
+	                result.rejectValue("rabiesVaccine","rabiesVaccine.required",e.getReason());
+	            } else if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
 	                // 品種エラー
 	                result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
 	            } else {
