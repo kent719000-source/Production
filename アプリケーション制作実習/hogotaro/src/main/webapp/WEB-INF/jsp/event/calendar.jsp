@@ -63,7 +63,7 @@ button {
     white-space: nowrap;
 }
 
-/* 月移動の矢印 */
+/* 月移動の矢印ボタン */
 .month-arrow {
     display: inline-flex;
     align-items: center;
