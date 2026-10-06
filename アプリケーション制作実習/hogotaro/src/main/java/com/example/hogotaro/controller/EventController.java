@@ -61,11 +61,17 @@ public class EventController {
         int year = event.getEventDate().getYear();
         int month = event.getEventDate().getMonthValue();
 
-        // 3. その年月のカレンダーに戻る
-        // 概要ペインからの操作なら、更新したイベントを再表示する
-        return "redirect:/event?year=" + year + "&month=" + month
-                + (reopenPane ? "&selectedEventId=" + event.getId() : "");
-    }
+        //スタンプ機能操作時の画面の状態
+	     // カレンダーの概要ペインから操作した場合
+        if (reopenPane) {
+            return "redirect:/event?year=" + year
+                    + "&month=" + month
+                    + "&selectedEventId=" + event.getId();
+        }
+
+        // イベント詳細ページから操作した場合
+        return "redirect:/event/" + event.getId();
+	}
     
     //イベント詳細画面の取得
     @GetMapping("/event/{id}")
@@ -99,11 +105,17 @@ public class EventController {
         // イベントの年月を取り出す
         int year = event.getEventDate().getYear();
         int month = event.getEventDate().getMonthValue();
+        
+      //スタンプ機能操作時の画面の状態
+     // カレンダーの概要ペインから操作した場合
+        if (reopenPane) {
+            return "redirect:/event?year=" + year
+                    + "&month=" + month
+                    + "&selectedEventId=" + event.getId();
+        }
 
-        // その月のカレンダーに戻る
-        // 概要ペインからの操作なら、更新したイベントを再表示する
-        return "redirect:/event?year=" + year + "&month=" + month
-                + (reopenPane ? "&selectedEventId=" + event.getId() : "");
+        // イベント詳細ページから操作した場合
+        return "redirect:/event/" + event.getId();
     }
     
  // 現在値入りの編集画面を表示する
