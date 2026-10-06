@@ -32,7 +32,7 @@ public class SecurityConfig {
                 // JSP への forward と /error への転送は認可の対象外にする（無いとログイン画面が無限リダイレクトする）
                 .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
                 // 誰でも
-                .requestMatchers("/login", "/css/**", "/js/**", "/img/**").permitAll()
+                .requestMatchers("/login", "/css/**", "/js/**", "/img/**","/images/**").permitAll()
                 // ログアウトはログイン済みなら誰でも（POST /** のルールより前に置く）
                 .requestMatchers("/logout").authenticated()
                 // 管理ユーザーだけ: スタッフの新規登録・編集（GET も POST も）と、全機能の削除（決定 2-14）

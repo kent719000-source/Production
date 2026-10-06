@@ -6,45 +6,69 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.hogotaro.entity.Event;
 import com.example.hogotaro.entity.Staff;
 import com.example.hogotaro.entity.UserType;
 import com.example.hogotaro.form.StaffForm;
+import com.example.hogotaro.form.StaffSearchForm;
+import com.example.hogotaro.repository.EventRepository;
 import com.example.hogotaro.repository.OrganizationRepository;
 import com.example.hogotaro.repository.StaffRepository;
 import com.example.hogotaro.repository.UserTypeRepository;
 
 import lombok.RequiredArgsConstructor;
 
-@Service //アプリ起動時にSpringが1個だけnewして管理する
-@RequiredArgsConstructor //コンストラクタの記述を省略(Requiredはfinal の付いたフィールドを受け取るコンストラクタの意味)、コンストラクタが注入の窓口になる
-@Transactional //このクラスのメソッドは、途中で失敗したらDBへの変更を全部取り消す
+@Service // アプリ起動時にSpringが1個だけnewして管理する
+@RequiredArgsConstructor // finalフィールドを受け取るコンストラクタをLombokが生成する
+@Transactional // このクラスのDB処理を1トランザクションで扱う
 public class StaffService {
-	private final StaffRepository staffRepository; //Springが管理しているStaffRepository(の参照値)を受け取る(自分でnewしない)
-	private final UserTypeRepository userTypeRepository; // ユーザー種別のプルダウンと、選んだ種別を入れるのに使う
-	private final OrganizationRepository organizationRepository; // 団体を設定するために使う
-	private final PasswordEncoder passwordEncoder; // SecurityConfig の @Bean（BCrypt）が入る。ログインの照合と同じものでハッシュにする
 
-	//団体ID(OrganizationId)で絞って取得する。他の団体のデータを出さないため、Repository を呼ぶときは必ず団体IDを渡す
-	public List<Staff> findAll(Integer organizationId) {
-		return staffRepository.findByOrganizationIdOrderByIdDesc(organizationId);
-		
+    private final StaffRepository staffRepository;
+    private final UserTypeRepository userTypeRepository;
+    private final OrganizationRepository organizationRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EventRepository eventRepository;
 
-	}
-	
-	public Staff find(Integer id,Integer organizationId) {
-		return staffRepository.findByIdAndOrganizationId(id,organizationId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));   // 無ければ 404。Spring Boot が error.jsp を出す
-	}
+    // 団体IDで絞ってスタッフを取得する
+    public List<Staff> findAll(Integer organizationId) {
+        return staffRepository.findByOrganizationIdOrderByIdDesc(organizationId);
+    }
 
-	public List<UserType> findUserTypes() {
-		return userTypeRepository.findAllByOrderById();
-	}
+    // スタッフ一覧検索。名前・電話番号とも部分一致、電話番号はハイフン無視
+    public List<Staff> search(Integer organizationId, StaffSearchForm form) {
+        String name = form.getName() == null ? "" : form.getName().trim();
+        String phone = form.getPhoneNumber() == null
+                ? ""
+                : form.getPhoneNumber().replace("-", "").trim();
 
-	public StaffForm toForm(Staff staff) {
-		StaffForm form = new StaffForm();
-        form.setUserTypeId(staff.getUserType().getId());   // プルダウンは id で選ぶので、UserType から id を取り出して入れる
+        return staffRepository.search(organizationId, name, phone);
+    }
+
+    // スタッフ1件取得。団体IDも条件に含める
+    public Staff find(Integer id, Integer organizationId) {
+        return staffRepository.findByIdAndOrganizationId(id, organizationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    // スタッフ詳細に出す、このスタッフが完了にしたイベント
+    public List<Event> findEventList(Integer id, Integer organizationId) {
+        return eventRepository
+                .findByOrganizationIdAndStaffIdOrderByEventDateDescEventTimeDesc(
+                        organizationId,
+                        id);
+    }
+
+    public List<UserType> findUserTypes() {
+        return userTypeRepository.findAllByOrderById();
+    }
+
+    // Entity → 編集Form
+    public StaffForm toForm(Staff staff) {
+        StaffForm form = new StaffForm();
+        form.setUserTypeId(staff.getUserType().getId());
         form.setName(staff.getName());
         form.setGender(staff.getGender());
         form.setBirthday(staff.getBirthday());
@@ -54,43 +78,150 @@ public class StaffService {
         form.setEmail(staff.getEmail());
         form.setNotes(staff.getNotes());
         return form;
-	}
+    }
 
-	// F-30 新規登録。保存した id を返す（今の create(Integer, StaffForm, BindingResult) と置き換え）
-	public Integer create(StaffForm form, Integer organizationId) {
-		Staff staff = new Staff();
-		staff.setOrganization(organizationRepository.getReferenceById(organizationId)); // 団体は画面から受け取らず、ログイン中の人の団体
-		staff.setLoginId(form.getLoginId());
-		staff.setPasswordHash(passwordEncoder.encode(form.getPassword())); // 平文は保存しない。BCrypt のハッシュにしてから入れる
-		staff.setUserType(userTypeRepository.getReferenceById(form.getUserTypeId())); // プルダウンは id で届くので、id から UserType にする
-		staff.setName(form.getName());
-		staff.setGender(form.getGender());
-		staff.setBirthday(form.getBirthday());
-		staff.setJoinedDate(form.getJoinedDate());
-		staff.setAddress(form.getAddress());
-		staff.setPhoneNumber(form.getPhoneNumber());
-		staff.setEmail(form.getEmail());
-		staff.setNotes(form.getNotes());
-		staffRepository.save(staff); // 保存すると、DB が決めた id が staff に入る
-		return staff.getId();
-	}
+    // F-30 新規登録
+    public Integer create(
+            StaffForm form,
+            BindingResult result,
+            Integer organizationId) {
 
-	// F-32 編集。ログインIDは変えない
-	public void update(Integer id, StaffForm form, Integer organizationId) {
-		Staff staff = find(id, organizationId); // 他団体・無い id なら 404
-		if (form.getPassword() != null && !form.getPassword().isEmpty()) {
-			staff.setPasswordHash(passwordEncoder.encode(form.getPassword())); // 空なら今のパスワードのまま
-		}
-		staff.setUserType(userTypeRepository.getReferenceById(form.getUserTypeId()));
-		staff.setName(form.getName());
-		staff.setGender(form.getGender());
-		staff.setBirthday(form.getBirthday());
-		staff.setJoinedDate(form.getJoinedDate());
-		staff.setAddress(form.getAddress());
-		staff.setPhoneNumber(form.getPhoneNumber());
-		staff.setEmail(form.getEmail());
-		staff.setNotes(form.getNotes());
-		staffRepository.save(staff);
-	}
+        String loginId = form.getLoginId();
 
+        // ログインIDは新規登録時必須
+        if (loginId == null || loginId.isBlank()) {
+            result.rejectValue(
+                    "loginId",
+                    "required",
+                    "ログインIDを入力してください");
+        }
+        // ログインIDは全団体で一意
+        else if (staffRepository.existsByLoginId(loginId)) {
+            result.rejectValue(
+                    "loginId",
+                    "duplicate",
+                    "既に登録済みのログインIDです");
+        }
+
+        // パスワードは新規登録時必須
+        if (form.getPassword() == null || form.getPassword().isBlank()) {
+            result.rejectValue(
+                    "password",
+                    "required",
+                    "パスワードを入力してください");
+        }
+
+        // ユーザー種別の存在確認
+        UserType userType = null;
+        if (form.getUserTypeId() != null) {
+            userType = userTypeRepository.findById(form.getUserTypeId()).orElse(null);
+            if (userType == null) {
+                result.rejectValue(
+                        "userTypeId",
+                        "invalid",
+                        "ユーザー種別の指定が不正です");
+            }
+        }
+
+        // エラーがあれば保存しない
+        if (result.hasErrors()) {
+            return null;
+        }
+
+        Staff staff = new Staff();
+        staff.setOrganization(
+                organizationRepository.getReferenceById(organizationId));
+        staff.setLoginId(form.getLoginId());
+        staff.setPasswordHash(passwordEncoder.encode(form.getPassword()));
+        staff.setUserType(userType);
+        staff.setName(form.getName());
+        staff.setGender(form.getGender());
+        staff.setBirthday(form.getBirthday());
+        staff.setJoinedDate(form.getJoinedDate());
+        staff.setAddress(blankToNull(form.getAddress()));
+        staff.setPhoneNumber(form.getPhoneNumber());
+        staff.setEmail(blankToNull(form.getEmail()));
+        staff.setNotes(blankToNull(form.getNotes()));
+
+        staffRepository.save(staff);
+        return staff.getId();
+    }
+
+    // F-32 編集。ログインID・団体は変更しない
+    public void update(
+            Integer id,
+            StaffForm form,
+            BindingResult result,
+            Integer organizationId,
+            Integer loginStaffId) {
+
+        Staff staff = find(id, organizationId);
+
+        // ユーザー種別の存在確認
+        UserType userType = null;
+        if (form.getUserTypeId() != null) {
+            userType = userTypeRepository.findById(form.getUserTypeId()).orElse(null);
+            if (userType == null) {
+                result.rejectValue(
+                        "userTypeId",
+                        "invalid",
+                        "ユーザー種別の指定が不正です");
+            }
+        }
+
+        // 自分自身はユーザー種別を変更できない
+        if (userType != null
+                && id.equals(loginStaffId)
+                && !staff.getUserType().getId().equals(userType.getId())) {
+            result.rejectValue(
+                    "userTypeId",
+                    "self",
+                    "自分自身のユーザー種別は変更できません");
+        }
+
+        // エラーがあればここではEntityを書き換えない
+        if (result.hasErrors()) {
+            return;
+        }
+
+        staff.setUserType(userType);
+        staff.setName(form.getName());
+        staff.setGender(form.getGender());
+        staff.setBirthday(form.getBirthday());
+        staff.setJoinedDate(form.getJoinedDate());
+        staff.setAddress(blankToNull(form.getAddress()));
+        staff.setPhoneNumber(form.getPhoneNumber());
+        staff.setEmail(blankToNull(form.getEmail()));
+        staff.setNotes(blankToNull(form.getNotes()));
+
+        // パスワードが入力されたときだけ変更
+        if (form.getPassword() != null && !form.getPassword().isEmpty()) {
+            staff.setPasswordHash(passwordEncoder.encode(form.getPassword()));
+        }
+
+        staffRepository.save(staff);
+    }
+
+    // F-33 スタッフ削除
+    public boolean delete(
+            Integer id,
+            Integer organizationId,
+            Integer loginStaffId) {
+
+        Staff staff = find(id, organizationId);
+
+        // 自分自身は削除できない
+        if (id.equals(loginStaffId)) {
+            return false;
+        }
+
+        // staff_idを参照するイベントはDBのON DELETE SET NULLで対応スタッフが空になる
+        staffRepository.delete(staff);
+        return true;
+    }
+
+    // 任意項目の空文字をnullにする
+    private String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
+    }
 }
