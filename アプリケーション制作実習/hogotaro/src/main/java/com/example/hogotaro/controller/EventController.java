@@ -48,7 +48,8 @@ public class EventController {
     //概要ペイン上でイベントを対応済にする
     @PostMapping("/event/{id}/complete")
     public String complete(
-            @PathVariable("id") Integer id) {
+            @PathVariable("id") Integer id,
+            @RequestParam(name = "reopenPane", defaultValue = "false") boolean reopenPane) {
 
         // 1. Serviceに「この予定を完了にして」とお願いする
         Event event = eventService.complete(
@@ -61,7 +62,9 @@ public class EventController {
         int month = event.getEventDate().getMonthValue();
 
         // 3. その年月のカレンダーに戻る
-        return "redirect:/event?year=" + year + "&month=" + month;
+        // 概要ペインからの操作なら、更新したイベントを再表示する
+        return "redirect:/event?year=" + year + "&month=" + month
+                + (reopenPane ? "&selectedEventId=" + event.getId() : "");
     }
     
     //イベント詳細画面の取得
@@ -84,7 +87,9 @@ public class EventController {
     
     //イベント詳細画面から対応済を未対応に戻す受付
     @PostMapping("/event/{id}/uncomplete")
-    public String uncomplete(@PathVariable("id") Integer id) {
+    public String uncomplete(
+            @PathVariable("id") Integer id,
+            @RequestParam(name = "reopenPane", defaultValue = "false") boolean reopenPane) {
 
         // Serviceに、未対応へ戻す処理をお願いする
         Event event = eventService.uncomplete(
@@ -96,7 +101,9 @@ public class EventController {
         int month = event.getEventDate().getMonthValue();
 
         // その月のカレンダーに戻る
-        return "redirect:/event?year=" + year + "&month=" + month;
+        // 概要ペインからの操作なら、更新したイベントを再表示する
+        return "redirect:/event?year=" + year + "&month=" + month
+                + (reopenPane ? "&selectedEventId=" + event.getId() : "");
     }
     
  // 現在値入りの編集画面を表示する
