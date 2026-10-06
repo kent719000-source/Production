@@ -13,11 +13,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.hogotaro.entity.Adopter;
 import com.example.hogotaro.entity.Animal;
 import com.example.hogotaro.entity.Breed;
 import com.example.hogotaro.entity.Organization;
 import com.example.hogotaro.entity.Species;
+import com.example.hogotaro.entity.Status;
 import com.example.hogotaro.form.AnimalForm;
+import com.example.hogotaro.form.AnimalSearchForm;
+import com.example.hogotaro.repository.AdopterRepository;
 import com.example.hogotaro.repository.AnimalRepository;
 import com.example.hogotaro.repository.BreedRepository;
 import com.example.hogotaro.repository.OrganizationRepository;
@@ -31,12 +35,35 @@ public class AnimalService {
 	private final AnimalRepository animalRepository; //Springが管理しているAnimalRepository(の参照値)を受け取る(自分でnewしない)
 	private final OrganizationRepository organizationRepository;
 	private final BreedRepository breedRepository;
+	private final AdopterRepository adopterRepository;
 
 	//団体ID(OrganizationId)で絞って取得する。他の団体のデータを出さないため、Repository を呼ぶときは必ず団体IDを渡す
 	public List<Animal> findAll(Integer organizationId) {
 		return animalRepository.findByOrganizationIdOrderByIdDesc(organizationId);
-
 	}
+	
+	// 個体一覧の検索
+	public List<Animal> search(Integer organizationId, AnimalSearchForm form) {
+	    // 犬猫が未選択なら、すべての種別を対象にする
+	    List<Species> speciesList = form.getSpecies();
+	    if (speciesList == null || speciesList.isEmpty()) {
+	        speciesList = List.of(Species.values());
+	    }
+
+	    // 保護状況が未選択なら、すべての保護状況を対象にする
+	    List<Status> statusList = form.getStatuses();
+	    if (statusList == null || statusList.isEmpty()) {
+	        statusList = List.of(Status.values());
+	    }
+	    // 名前が未入力なら空文字にする
+	    String name = form.getName();
+	    if (name == null) {
+	        name = "";
+	    }
+	    return animalRepository
+	            .findByOrganizationIdAndSpeciesInAndStatusInAndNameContainingOrderByIdDesc(organizationId,speciesList,statusList,name);
+	}
+	
 	public Animal findById(Integer id, Integer organizationId) {
 	    return animalRepository.findByIdAndOrganizationId(id, organizationId)
 	            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -111,6 +138,19 @@ public class AnimalService {
         animal.setIntakePlace(form.getIntakePlace());
         animal.setIntakeMethod(form.getIntakeMethod());
         animal.setStatus(form.getStatus());
+        
+        // 譲渡・トライアルの場合は里親を必須にする
+        if ((form.getStatus() == Status.TRIAL || form.getStatus() == Status.ADOPTED) && form.getAdopterId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"このステータスの場合は里親を選択してください。");
+        }
+        // 里親IDに紐づける
+        if (form.getAdopterId() != null) {
+            Adopter adopter = adopterRepository
+                .findByIdAndOrganizationId(form.getAdopterId(),organizationId)
+                .orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND));
+            animal.setAdopter(adopter);
+        }
 
         // 避妊去勢・ワクチン
         animal.setNeutered(form.getNeutered());
@@ -179,6 +219,18 @@ public class AnimalService {
         animal.setIntakePlace(form.getIntakePlace());
         animal.setIntakeMethod(form.getIntakeMethod());
         animal.setStatus(form.getStatus());
+        
+        // 譲渡・トライアルの場合は里親を必須にする
+        if ((form.getStatus() == Status.TRIAL || form.getStatus() == Status.ADOPTED) && form.getAdopterId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"このステータスの場合は里親を選択してください。");
+        }
+        // 里親IDに紐づける
+        if (form.getAdopterId() != null) {
+            Adopter adopter = adopterRepository.findByIdAndOrganizationId(form.getAdopterId(),organizationId)
+                .orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND));
+            animal.setAdopter(adopter);
+        }
 
         // 避妊去勢・ワクチン
         animal.setNeutered(form.getNeutered());
