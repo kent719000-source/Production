@@ -1,5 +1,6 @@
 <%--   <%@ include file="/WEB-INF/jsp/common/header.jspf" %>   でインクルード（<body>の直後）--%>
-<%--   見た目は static/css/hogotarou.css の「2. ヘッダー」に書いてある --%>
+<%--   ヘッダーは全画面で使うので、見た目(CSS)もこのファイルの中に書いておく。
+       ページ側がBootstrapや hogotarou.css を読み込んでいなくても、同じ見た目になる --%>
 
 <%@ page pageEncoding="UTF-8" %>
 
@@ -16,9 +17,136 @@
 <%-- 今開いている画面のURL。ControllerからJSPへforwardされると、元のURLはこの属性に入っている --%>
 <c:set var="currentUri" value="${requestScope['jakarta.servlet.forward.request_uri']}"/>
 
+<%-- 丸ゴシック体（Zen Maru Gothic）を Google Fonts から読み込む --%>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  /* セレクタの先頭に必ず .hogo-header を付ける。
+     ページ側のCSS（a や button への指定など）に負けないように、またページ側を巻き込まないようにするため */
+
+  /* ヘッダー全体。背景はロゴと同じピーチ色(#FFD1A0)にして、ロゴと一体に見せる */
+  .hogo-header {
+    background-color: #FFD1A0;
+    font-family: 'Zen Maru Gothic', sans-serif; /* 丸ゴシックでやわらかい印象に */
+    line-height: 1.5;
+    padding: 0.75rem 0;                         /* 上下の余白。ヘッダーの縦幅はここで調整 */
+    border-bottom: 1px solid #f0b985;           /* 下に細い線を引いて本文と区切る */
+    box-shadow: 0 2px 6px rgba(160, 90, 40, 0.12); /* うっすら影を付けて浮かせる */
+  }
+  /* 幅の計算に余白と枠線を含める（Bootstrapが無い画面でも同じ大きさにするため） */
+  .hogo-header,
+  .hogo-header * {
+    box-sizing: border-box;
+  }
+
+  /* 中身を並べる箱。Bootstrapの container と同じ幅にして、本文と左右の端をそろえる */
+  .hogo-header .hogo-header-inner {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 0.75rem;
+    display: flex;
+    flex-wrap: wrap;            /* 画面がせまいときは、はみ出さずに折り返す */
+    align-items: center;
+    gap: 1rem;
+  }
+  @media (min-width: 576px)  { .hogo-header .hogo-header-inner { max-width: 540px; } }
+  @media (min-width: 768px)  { .hogo-header .hogo-header-inner { max-width: 720px; } }
+  @media (min-width: 992px)  { .hogo-header .hogo-header-inner { max-width: 960px; } }
+  @media (min-width: 1200px) { .hogo-header .hogo-header-inner { max-width: 1140px; } }
+  @media (min-width: 1400px) { .hogo-header .hogo-header-inner { max-width: 1320px; } }
+
+  /* ロゴ。マウスを乗せると少し薄くなり、押せることがわかる */
+  .hogo-header .hogo-logo {
+    display: inline-block;
+    line-height: 0;             /* 画像の下にできるすき間をなくす */
+  }
+  .hogo-header .hogo-logo img {
+    height: 64px;               /* 元画像(高さ138px)を約半分で表示するので、高解像度画面でもくっきり */
+    width: auto;
+    transition: opacity 0.2s;
+  }
+  .hogo-header .hogo-logo:hover img {
+    opacity: 0.75;
+  }
+
+  /* メニューを横に並べる箱 */
+  .hogo-header .hogo-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  /* メニューのリンク */
+  .hogo-header .hogo-nav-link {
+    display: inline-block;
+    color: #6b4226;             /* 真っ黒ではなく、ロゴの背景になじむ茶色 */
+    font-weight: 500;
+    font-size: 1rem;
+    text-decoration: none;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;       /* 角を丸くして、やわらかいボタン風に */
+    transition: background-color 0.2s, color 0.2s; /* 色がふわっと変わる */
+  }
+  /* マウスを乗せたとき：白っぽい背景＋オレンジ寄りの文字 */
+  .hogo-header .hogo-nav-link:hover {
+    background-color: #fff3e6;
+    color: #c4622d;
+  }
+  /* 今開いている画面のリンク：白い背景＋太字で「ここにいる」とわかるように */
+  .hogo-header .hogo-nav-link.active {
+    background-color: #ffffff;
+    color: #c4622d;
+    font-weight: 700;
+  }
+
+  /* ユーザー情報とログアウト。margin-left: auto で右端に寄せる */
+  .hogo-header .hogo-account {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  /* ログイン中のユーザー情報 */
+  .hogo-header .hogo-user {
+    color: #7a5a44;
+    font-size: 0.9rem;
+  }
+  /* ログアウトのフォーム。フォームの下にできる余白を消す */
+  .hogo-header .hogo-logout-form {
+    margin: 0;
+  }
+
+  /* ログアウトボタン。普段は枠線だけ、マウスを乗せると塗りつぶし */
+  .hogo-header .hogo-logout {
+    font-family: inherit;       /* ボタンは親のフォントを引き継がないので、明示的に引き継ぐ */
+    font-weight: 500;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #c4622d;
+    background-color: transparent;
+    border: 1.5px solid #c4622d;
+    border-radius: 999px;
+    padding: 0.3rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .hogo-header .hogo-logout:hover {
+    background-color: #c4622d;
+    color: #ffffff;
+  }
+
+  /* キーボード操作(Tabキー)で選んだときにも、どこを選んでいるかわかるようにする */
+  .hogo-header .hogo-nav-link:focus-visible,
+  .hogo-header .hogo-logout:focus-visible,
+  .hogo-header .hogo-logo:focus-visible {
+    outline: 2px solid #c4622d;
+    outline-offset: 2px;
+  }
+</style>
+
 <nav class="hogo-header">
-  <%-- flex-wrap：画面がせまいときは、はみ出さずに折り返す --%>
-  <div class="container d-flex flex-wrap align-items-center gap-3">
+  <div class="hogo-header-inner">
 
     <%-- ロゴ（クリックでトップへ） --%>
     <a class="hogo-logo" href="${ctx}/">
@@ -26,22 +154,22 @@
     </a>
 
     <%-- メニュー。今開いている画面のリンクには active を付ける --%>
-    <div class="d-flex flex-wrap gap-1">
+    <div class="hogo-nav">
       <a href="${ctx}/animal"  class="hogo-nav-link ${fn:startsWith(currentUri, ctx += '/animal')  ? 'active' : ''}">個体管理</a>
       <a href="${ctx}/event"   class="hogo-nav-link ${fn:startsWith(currentUri, ctx += '/event')   ? 'active' : ''}">イベント管理</a>
       <a href="${ctx}/adopter" class="hogo-nav-link ${fn:startsWith(currentUri, ctx += '/adopter') ? 'active' : ''}">里親管理</a>
       <a href="${ctx}/staff"   class="hogo-nav-link ${fn:startsWith(currentUri, ctx += '/staff')   ? 'active' : ''}">スタッフ管理</a>
     </div>
 
-    <%-- ユーザー情報とログアウト。ms-auto で右端に寄せる。ログインしていないときは出さない --%>
+    <%-- ユーザー情報とログアウト。ログインしていないときは出さない --%>
     <c:if test="${not empty loginUser}">
-      <div class="ms-auto d-flex align-items-center gap-3">
+      <div class="hogo-account">
         <%-- loginUserはLoginUserModelAdviceが全画面に渡している --%>
         <span class="hogo-user">
           <c:out value="${loginUser.organizationName}"/> / <c:out value="${loginUser.name}"/>（<c:out value="${loginUser.userTypeName}"/>）
         </span>
         <%-- ログアウトはPOST。ほかのPOSTと同じく<form:form>で書く（CSRFトークンのhiddenが自動で入る。無いと403） --%>
-        <form:form action="${ctx}/logout" method="post" cssClass="m-0">
+        <form:form action="${ctx}/logout" method="post" cssClass="hogo-logout-form">
           <button type="submit" class="hogo-logout">ログアウト</button>
         </form:form>
       </div>

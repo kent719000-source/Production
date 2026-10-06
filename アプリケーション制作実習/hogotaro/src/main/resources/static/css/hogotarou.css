@@ -32,15 +32,6 @@ h1 {
 }
 
 
-/* ===== 2. ヘッダー（common/header.jspf） ===== */
-/* ヘッダー全体。背景はロゴと同じピーチ色にして、ロゴと一体に見せる */
-.hogo-header {
-  background-color: var(--hogo-peach);
-  padding: 0.75rem 0;                            /* 上下の余白。ヘッダーの縦幅はここで調整 */
-  border-bottom: 1px solid #f0b985;              /* 下に細い線を引いて本文と区切る */
-  box-shadow: 0 2px 6px rgba(160, 90, 40, 0.12); /* うっすら影を付けて浮かせる */
-}
-
 /* ロゴ。マウスを乗せると少し薄くなり、押せることがわかる */
 .hogo-logo img {
   height: 64px;               /* 元画像(高さ138px)を約半分で表示するので、高解像度画面でもくっきり */
