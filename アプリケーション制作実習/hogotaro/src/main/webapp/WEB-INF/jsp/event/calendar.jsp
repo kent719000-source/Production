@@ -12,437 +12,130 @@
 
 <title>イベントカレンダー | ホゴタロウ</title>
 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+<%-- 丸ゴシック体（Zen Maru Gothic）を Google Fonts から読み込む --%>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-* {
-	box-sizing: border-box;
-}
+/* 里親一覧と共通の配色・フォント */
+:root {
+    --bs-body-font-family: 'Zen Maru Gothic', sans-serif; /* 丸ゴシックでやわらかい印象に */
+    --bs-body-color: #4a3f38;              /* 真っ黒ではなく、こげ茶寄りの文字色 */
+    --bs-body-bg: #fffaf5;                 /* ほんのり温かみのある白 */
+    --bs-body-line-height: 1.8;            /* 行間を広げて読みやすく */
+    --bs-link-color-rgb: 196, 98, 45;      /* リンクの色（オレンジ寄りの茶色） */
+    --bs-link-hover-color-rgb: 150, 70, 30;/* リンクにマウスを乗せたときの色 */
 
-body {
-	margin: 0;
-	background-color: #f7f8fa;
-	color: #333;
-	font-family: sans-serif;
-}
+    /* ホゴタロウの配色。色はここにまとめて、下のCSSでは変数名で使う */
+    --hogo-peach: #FFD1A0;        /* ロゴ・ヘッダーと同じピーチ色 */
+    --hogo-peach-light: #fff1e4;  /* ピーチをうすくした色（背景・ホバー用） */
+    --hogo-accent: #c4622d;       /* ボタンなどの強調色（オレンジ寄りの茶色） */
+    --hogo-accent-dark: #a34f22;  /* 強調色にマウスを乗せたときの色 */
+    --hogo-brown: #6b4226;        /* 見出し・ラベルの茶色 */
+    --hogo-border: #ecd6c4;       /* 淡いベージュの線 */
+  }
+  .btn-hogo {
+    background-color: var(--hogo-accent);
+    border: 1.5px solid var(--hogo-accent);
+    color: #ffffff;
+    font-weight: 500;
+    border-radius: 999px;
+    padding: 0.4rem 1.4rem;
+    transition: background-color 0.2s, box-shadow 0.2s;
+  }
+  .btn-hogo:hover,
+  .btn-hogo:focus-visible {
+    background-color: var(--hogo-accent-dark);
+    border-color: var(--hogo-accent-dark);
+    color: #ffffff;
+    box-shadow: 0 3px 8px rgba(163, 79, 34, 0.25); /* ふわっと浮く */
+  }
+  /* サブのボタン（クリア）。普段は文字だけ、マウスを乗せるとうすいピーチ色 */
+  .btn-hogo-sub {
+    background-color: transparent;
+    border: 1.5px solid transparent;
+    color: var(--hogo-brown);
+    font-weight: 500;
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
+    transition: background-color 0.2s;
+  }
+  .btn-hogo-sub:hover,
+  .btn-hogo-sub:focus-visible {
+    background-color: var(--hogo-peach-light);
+    color: var(--hogo-accent);
+  }
 
-button {
-	font: inherit;
-}
 
-[hidden] {
-	display: none !important;
+[hidden] { display: none !important; }
+.hogo-calendar-page { max-width: 1400px; }
+.hogo-calendar-page h1, .hogo-calendar-page h2, .hogo-calendar-page h3 {
+    color: var(--hogo-brown); font-weight: 700;
 }
-
-.page-container {
-	max-width: 1400px;
-	margin: 32px auto;
-	padding: 0 16px;
-}
-
-/* 年月の見出しと月移動 */
-/* 月移動と「今月」ボタンを並べる */
-.calendar-header {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 20px;
-}
-
-/* 左矢印・年月・右矢印をひとまとまりにする */
-.calendar-month-selector {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-/* 年月 */
-.calendar-month-selector h1 {
-    margin: 0;
-    font-size: clamp(20px, 4vw, 26px);
-    white-space: nowrap;
-}
-
-/* 月移動の矢印ボタン */
-.month-arrow {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #fff;
-    color: #333;
-    font-size: 24px;
-    line-height: 1;
-    text-decoration: none;
-}
-
-.month-arrow:hover {
-    background-color: #edf2f7;
-}
-.nav-button, .close-button {
-	display: inline-block;
-	padding: 8px 14px;
-	border: 1px solid #ccc;
-	border-radius: 6px;
-	background-color: #fff;
-	color: #333;
-	text-decoration: none;
-	cursor: pointer;
-}
-
-.nav-button:hover, .close-button:hover {
-	background-color: #edf2f7;
-}
-
-a:focus-visible, button:focus-visible {
-	outline: 3px solid #2563eb;
-	outline-offset: 2px;
-}
-
-/* 左：カレンダー、右：概要ペイン */
-.calendar-layout {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) 320px;
-	gap: 20px;
-	align-items: start;
-}
-
-.calendar-area {
-	min-width: 0;
-}
-
-.calendar-scroll {
-	overflow-x: auto;
-}
-
-.calendar-table {
-	width: 100%;
-	min-width: 700px;
-	table-layout: fixed;
-	border-collapse: collapse;
-	background-color: #fff;
-}
-
-.calendar-table caption {
-	padding: 8px 0;
-	color: #666;
-	text-align: left;
-}
-
-.calendar-table th, .calendar-table td {
-	border: 1px solid #ddd;
-}
-
-.calendar-table th {
-	padding: 12px 4px;
-	background-color: #f0f3f6;
-	font-weight: normal;
-}
-
-/* 日付のマス全体 */
-.calendar-day {
-	height: 140px;
-	padding: 8px;
-	vertical-align: top;
-	cursor: pointer;
-}
-
-.calendar-day:hover {
-	background-color: #edf4ff;
-}
-
-.calendar-day.outside {
-	background-color: #f3f4f6;
-}
-
-.calendar-day.outside:hover {
-	background-color: #e5ecf5;
-}
-
-.calendar-day.is-selected {
-	box-shadow: inset 0 0 0 3px #2563eb;
-	background-color: #edf4ff;
-}
-
-/* キーボードでも日付を選べるよう、ボタンにする */
-.day-button {
-	display: block;
-	width: 100%;
-	min-height: 112px;
-	padding: 0;
-	border: 0;
-	background-color: transparent;
-	color: inherit;
-	text-align: left;
-	cursor: pointer;
-}
-
-.day-number {
-	display: block;
-	margin-bottom: 8px;
-	font-weight: bold;
-}
-
-.calendar-table th:first-child, .calendar-day:first-child .day-number {
-	color: #c0392b;
-}
-
-.calendar-table th:last-child, .calendar-day:last-child .day-number {
-	color: #2563eb;
-}
-
-.calendar-day.outside .day-number {
-	color: #888;
-}
-
-/* マスの中の予定の帯 */
-.event-bar {
-	display: block;
-	margin-top: 5px;
-	padding: 5px 7px;
-	border-left: 4px solid;
-	border-radius: 4px;
-	font-size: 12px;
-	line-height: 1.5;
-	overflow-wrap: anywhere;
-}
-
-.event-time {
-	font-weight: bold;
-}
-
-.pending {
-	border-left-color: #c48a16;
-	background-color: #fff0cc;
-	color: #654800;
-}
-
-.done {
-	border-left-color: #398451;
-	background-color: #d9efdf;
-	color: #245c35;
-}
-
-.calendar-legend {
-	display: flex;
-	gap: 16px;
-	margin-top: 16px;
-	font-size: 13px;
-}
-
-.legend-item, .status-badge {
-	display: inline-block;
-	padding: 4px 10px;
-	border-radius: 4px;
-	font-size: 12px;
-}
-
-/* 概要ペイン */
-.event-pane {
-	padding: 20px;
-	border: 1px solid #ddd;
-	border-radius: 10px;
-	background-color: #fff;
-	overflow-wrap: anywhere;
-}
-
-.event-pane h2 {
-	margin: 0 0 16px;
-	font-size: 20px;
-}
-
-.pane-message {
-	color: #666;
-	line-height: 1.8;
-}
-
-/* 概要ペイン内の予定1件分 */
-.event-card {
-	margin-top: 16px;
-	padding-top: 16px;
-	border-top: 1px solid #ddd;
-}
-
-.event-card h3 {
-	margin: 0 0 10px;
-	font-size: 17px;
-	line-height: 1.5;
-}
-
-.event-details {
-	margin: 12px 0;
-}
-
-.event-details dt {
-	margin-top: 10px;
-	color: #666;
-	font-size: 13px;
-}
-
-.event-details dd {
-	margin: 3px 0 0;
-	line-height: 1.6;
-}
-
-.notes {
-	white-space: pre-wrap;
-}
-
-.close-button {
-	margin-top: 20px;
-}
-
-/* 狭い画面では概要ペインを下へ */
-@media ( max-width : 1000px) {
-	.calendar-layout {
-		grid-template-columns: 1fr;
-	}
-}
-
-.stamp-button {
-    width: 64px;
-    height: 64px;
-    border: 2px dashed #777;
-    border-radius: 50%;
-    background: #fff;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/*　対応済のスタンプ　*/
-.stamp-done {
-    border: 3px solid #b02a37;
-    color: #b02a37;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.stamp-button:focus-visible {
-    outline: 3px solid #2563eb;
-    outline-offset: 3px;
-}
-
-/* イベントごとに押せるカラーバー */
-button.event-bar {
-    width: 100%;
-    border-top: 0;
-    border-right: 0;
-    border-bottom: 0;
-    text-align: left;
-    cursor: pointer;
-}
-
-/* 選択中のイベントを示す */
-button.event-bar[aria-pressed="true"] {
-    outline: 2px solid #2563eb;
-    outline-offset: 2px;
-}
-
-.calendar-table .calendar-day {
-    height: auto;
-    padding: 0;
-    vertical-align: top;
-    cursor: default;
-}
-
-.day-content {
-    box-sizing: border-box;
-    padding: 6px;
-    height: auto;
-    overflow: visible;
-}
-
-/* 日付は常に左上 */
-.calendar-day .day-number {
-    display: block;
-    height: 22px;
-    line-height: 22px;
-    margin: 0 0 4px;
-}
-
-/* 4件分の予定欄 */
-.day-events {
-    min-height: 108px;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-/* カラーバーは細い1行表示 */
-.day-events > button.event-bar {
-    box-sizing: border-box;
-    flex: 0 0 auto;
-    width: 100%;
-    height: auto;
-    min-height: 44px;
-    margin: 0;
-    padding: 5px 7px;
-    font-size: 12px;
-    line-height: 1.5;
-    text-align: left;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    overflow: visible;
-    text-overflow: clip;
-}
-
-/* 5件目以降は「他○件」から確認する */
-.day-events > button.event-bar:nth-child(n + 5) {
-    display: none;
-}
-
-/* 残りの予定を開くボタン */
-.more-events {
-    display: block;
-    width: 100%;
-    height: 24px;
-    padding: 0 5px;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
-    color: #2458a6;
-    font-size: 12px;
-    text-align: left;
-    cursor: pointer;
-}
-
-.more-events:hover {
-    background: #e5ecf5;
-}
-
-/* 右側で予定を選ぶときは、名前を省略しない */
-.event-choice-list > button.event-bar {
-    width: 100%;
-    white-space: normal;
-    overflow-wrap: anywhere;
-}
-
+.calendar-header { padding: 1.25rem; border-bottom: 1px solid var(--hogo-border); background: var(--hogo-peach-light); border-radius: 16px 16px 0 0; }
+.calendar-month-selector { display: flex; align-items: center; gap: .75rem; }
+.calendar-month-selector h2 { margin: 0; font-size: clamp(1.15rem, 3vw, 1.6rem); white-space: nowrap; }
+.month-arrow { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border: 1px solid var(--hogo-border); border-radius: 50%; background: white; color: var(--hogo-brown); font-size: 1.5rem; line-height: 1; }
+.month-arrow:hover { background: var(--hogo-peach); color: var(--hogo-brown); }
+.calendar-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 1.5rem; align-items: start; }
+.calendar-area, .event-pane { min-width: 0; border: 1px solid var(--hogo-border); border-radius: 16px; background: #fff; box-shadow: 0 4px 12px rgba(160,90,40,.08); }
+.calendar-scroll { overflow-x: auto; }
+.calendar-table { width: 100%; min-width: 700px; table-layout: fixed; border-collapse: collapse; --bs-table-color: var(--bs-body-color); --bs-table-border-color: var(--hogo-border); margin-bottom: 0; }
+.calendar-table caption { caption-side: top; padding: .8rem 1.25rem; font-size: .85rem; color: #806957; }
+.calendar-table th { padding: .7rem .25rem; text-align: center; --bs-table-bg: var(--hogo-peach); color: var(--hogo-brown); }
+.calendar-table th, .calendar-table td { border: 1px solid var(--hogo-border); }
+.calendar-table .calendar-day { padding: 0; vertical-align: top; }
+.calendar-day.outside { --bs-table-bg: #f7f2ec; }
+.calendar-day.is-selected { --bs-table-bg: #fff1e4; box-shadow: inset 0 0 0 2px var(--hogo-accent); }
+.day-content { padding: 7px; }
+.day-number { display: block; margin: 0 0 8px; font-weight: 700; }
+.calendar-table th:first-child, .calendar-day:first-child .day-number { color: #b95143; }
+.calendar-table th:last-child, .calendar-day:last-child .day-number { color: #426b8c; }
+.calendar-day.outside .day-number { color: #93867b; }
+.day-events { min-height: 110px; display: flex; flex-direction: column; gap: 5px; }
+/* 全件表示。文字を省略せず、長いタイトルは折り返す */
+.event-bar { display: block; width: 100%; min-height: 44px; padding: 6px 7px; border: 0; border-left: 3px solid; border-radius: 7px; text-align: left; font: inherit; font-size: .78rem; line-height: 1.6; white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
+.event-bar:hover { filter: brightness(.97); }
+.event-time { display: block; font-weight: 700; }
+.pending { border-color: #ca8b3a; background: #fff0d5; color: #75501f; }
+.done { border-color: #6c9470; background: #e4f1e3; color: #355c3c; }
+.event-bar[aria-pressed="true"] { outline: 2px solid var(--hogo-accent); outline-offset: 1px; }
+.calendar-legend { padding: 1rem 1.25rem; }
+.legend-item { display: inline-block; border-left: 3px solid; border-radius: 6px; padding: .2rem .7rem; font-size: .8rem; }
+.event-pane { padding: 1.25rem; overflow-wrap: anywhere; }
+.event-pane > h2 { font-size: 1.1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--hogo-border); margin-bottom: 1rem; }
+.pane-message { color: #806957; font-size: .9rem; line-height: 1.9; background: var(--hogo-peach-light); padding: 1rem; border-radius: 12px; }
+.event-card h3 { font-size: 1.1rem; line-height: 1.7; margin-bottom: 1rem; }
+.event-card small { display: block; margin-top: .5rem; color: #806957; }
+.event-details { margin: 1.25rem 0; }
+.event-details dt { font-size: .8rem; color: #806957; margin-top: .85rem; }
+.event-details dd { margin: .15rem 0 0; padding-bottom: .65rem; border-bottom: 1px solid #f2e6dc; }
+.notes { white-space: pre-wrap; }
+.stamp-button { width: 64px; height: 64px; display: inline-flex; align-items: center; justify-content: center; border: 2px dashed #bca28d; border-radius: 50%; background: #fffaf5; cursor: pointer; }
+.stamp-button:hover { background: var(--hogo-peach-light); }
+.stamp-done { border: 3px solid #b95143; color: #b95143; font-size: 28px; font-weight: 700; }
+.hogo-calendar-page a:focus-visible, .hogo-calendar-page button:focus-visible { outline: 3px solid var(--hogo-accent); outline-offset: 3px; }
+.hogo-flash { border-radius: 12px; }
+@media (max-width: 1100px) { .calendar-layout { grid-template-columns: 1fr; } }
+@media (max-width: 575.98px) { .calendar-header { padding: 1rem; } .calendar-month-selector { gap: .5rem; } }
 </style>
 </head>
 
 <body>
 	<%@ include file="/WEB-INF/jsp/common/header.jspf"%>
-	<main class="page-container">
-	<sec:authorize access="hasAnyRole('ADMIN', 'STAFF')">
-    <c:url var="newEventUrl" value="/event/new" />
-	    <p>
-	        <a href="${fn:escapeXml(newEventUrl)}">
-	            イベントを新規登録
-	        </a>
-	    </p>
-	</sec:authorize>
-	<c:if test="${not empty message}">
-    <p role="status">
-        <c:out value="${message}" />
-    </p>
-	</c:if>
+	<main class="container-fluid hogo-calendar-page px-3 px-lg-4 mb-5">
+    <h1 class="text-center my-5">イベント管理</h1>
+    <c:if test="${not empty message}">
+        <div class="alert alert-success hogo-flash" role="status"><c:out value="${message}" /></div>
+    </c:if>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <p class="mb-0 small">保護している子たちの予定を、カレンダーで確認できます。</p>
+        <sec:authorize access="hasAnyRole('ADMIN', 'STAFF')">
+            <c:url var="newEventUrl" value="/event/new" />
+            <a class="btn btn-hogo" href="${fn:escapeXml(newEventUrl)}">＋ 新規登録</a>
+        </sec:authorize>
+    </div>
 
 		<c:choose>
 			<c:when test="${not empty calendar}">
@@ -460,12 +153,15 @@ button.event-bar[aria-pressed="true"] {
 
 				<c:url var="currentUrl" value="/event" />
 
-	<div class="calendar-header">
+	<div class="calendar-layout">
+
+					<section class="calendar-area" aria-label="月間カレンダー">
+<div class="calendar-header d-flex flex-wrap align-items-center gap-3">
 	    <div class="calendar-month-selector">
 	
 	        <%-- 前月へ --%>
 	        <c:if test="${calendar.prevYear >= 1900}">
-	            <a class="month-arrow"
+	            <a class="btn month-arrow"
 	               href="${fn:escapeXml(prevUrl)}"
 	               aria-label="前月へ"
 	               title="前月へ">
@@ -474,11 +170,11 @@ button.event-bar[aria-pressed="true"] {
 	        </c:if>
 	
 	        <%-- 表示中の年月 --%>
-	        <h1>${calendar.year}年${calendar.month}月</h1>
+	        <h2>${calendar.year}年${calendar.month}月</h2>
 	
 	        <%-- 次月へ --%>
 	        <c:if test="${calendar.nextYear <= 2100}">
-	            <a class="month-arrow"
+	            <a class="btn month-arrow"
 	               href="${fn:escapeXml(nextUrl)}"
 	               aria-label="次月へ"
 	               title="次月へ">
@@ -487,19 +183,17 @@ button.event-bar[aria-pressed="true"] {
 	        </c:if>
 	</div>
 		
-		  <a class="nav-button"
+		  <a class="btn btn-hogo-sub"
 		       href="${fn:escapeXml(currentUrl)}">
 		        今月
 		   </a>
 		</div>
-				<div class="calendar-layout">
-
-					<section class="calendar-area" aria-label="月間カレンダー">
+				
 
 						<div class="calendar-scroll">
-							<table class="calendar-table">
+							<table class="table calendar-table">
 
-								<caption>日付のマスをクリックすると、その日の予定を表示します</caption>
+								<caption>色付きの予定をクリックすると、イベントの概要を表示します。</caption>
 
 								<thead>
 									<tr>
@@ -555,13 +249,7 @@ button.event-bar[aria-pressed="true"] {
 														        </c:forEach>
 														    </div>
 														
-														    <c:if test="${fn:length(d.eventList) > 4}">
-														        <button type="button"
-														                class="more-events"
-														                aria-controls="event-pane">
-														            他${fn:length(d.eventList) - 4}件
-														        </button>
-														    </c:if>
+														    
 														</div>
 														
 														<template class="day-details">
@@ -596,7 +284,7 @@ button.event-bar[aria-pressed="true"] {
 																			            <c:url var="uncompleteUrl"
 																			                   value="/event/${e.id}/uncomplete" />
 																			
-																			            <form:form action="${uncompleteUrl}" method="post"
+																			            <form:form id="uncomplete-${e.id}" action="${uncompleteUrl}" method="post"
 																			                onsubmit="return confirm('未対応に戻しますか？');">
 																			
 																			                <button type="submit"
@@ -613,7 +301,7 @@ button.event-bar[aria-pressed="true"] {
 																			            <c:url var="completeUrl"
 																			                   value="/event/${e.id}/complete" />
 																			
-																			            <form:form action="${completeUrl}" method="post"
+																			            <form:form id="complete-${e.id}" action="${completeUrl}" method="post"
 																			                onsubmit="return confirm('イベントを完了にしますか？個体の情報は自動では変わりません');">
 																			
 																			                <button type="submit"
@@ -694,7 +382,7 @@ button.event-bar[aria-pressed="true"] {
 																	<c:url var="detailUrl" value="/event/${e.id}" />
 
 																	<p>
-																	    <a href="${fn:escapeXml(detailUrl)}">詳細を見る</a>
+																	    <a class="btn btn-hogo w-100" href="${fn:escapeXml(detailUrl)}">詳細を見る</a>
 																	</p>
 																	
 																	</article>
@@ -716,7 +404,7 @@ button.event-bar[aria-pressed="true"] {
 							</table>
 						</div>
 
-						<div class="calendar-legend">
+						<div class="calendar-legend d-flex flex-wrap gap-3">
 							<span class="legend-item pending">未対応</span> <span
 								class="legend-item done">対応済</span>
 						</div>
@@ -727,14 +415,14 @@ button.event-bar[aria-pressed="true"] {
 					<aside id="event-pane" class="event-pane"
 						aria-labelledby="pane-heading">
 
-						<h2 id="pane-heading" tabindex="-1">日付を選択</h2>
+						<h2 id="pane-heading" tabindex="-1">イベントを選択</h2>
 
 						<p id="pane-placeholder" class="pane-message">
-							カレンダーの日付をクリックしてください。</p>
+							カレンダーの色付きの予定を選ぶと、ここに内容が表示されます。</p>
 
 						<div id="pane-content" hidden></div>
 
-						<button type="button" id="pane-close" class="close-button" hidden>
+						<button type="button" id="pane-close" class="btn btn-hogo-sub w-100 mt-3" hidden>
 							選択を解除</button>
 
 					</aside>
@@ -820,7 +508,7 @@ button.event-bar[aria-pressed="true"] {
     }
 
     // 「選択を解除」を押したとき
-    closeButton.addEventListener("click", function () {
+    closeButton?.addEventListener("click", function () {
 
         paneHeading.textContent = "イベントを選択";
         paneContent.replaceChildren();
