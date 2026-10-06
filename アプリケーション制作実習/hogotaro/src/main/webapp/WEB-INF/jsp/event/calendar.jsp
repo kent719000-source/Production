@@ -39,25 +39,50 @@ button {
 }
 
 /* 年月の見出しと月移動 */
+/* 月移動と「今月」ボタンを並べる */
 .calendar-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 16px;
-	margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
 }
 
-.calendar-header h1 {
-	margin: 0;
-	font-size: 26px;
+/* 左矢印・年月・右矢印をひとまとまりにする */
+.calendar-month-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.calendar-navigation {
-	display: flex;
-	gap: 8px;
+/* 年月 */
+.calendar-month-selector h1 {
+    margin: 0;
+    font-size: clamp(20px, 4vw, 26px);
+    white-space: nowrap;
 }
 
+/* 月移動の矢印 */
+.month-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #333;
+    font-size: 24px;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.month-arrow:hover {
+    background-color: #edf2f7;
+}
 .nav-button, .close-button {
 	display: inline-block;
 	padding: 8px 14px;
@@ -435,24 +460,38 @@ button.event-bar[aria-pressed="true"] {
 
 				<c:url var="currentUrl" value="/event" />
 
-				<div class="calendar-header">
-					<h1>${calendar.year}年${calendar.month}月</h1>
-
-					<nav class="calendar-navigation" aria-label="表示する月の変更">
-
-						<c:if test="${calendar.prevYear >= 1900}">
-							<a class="nav-button" href="${fn:escapeXml(prevUrl)}"> 前月 </a>
-						</c:if>
-
-						<a class="nav-button" href="${fn:escapeXml(currentUrl)}"> 今月 </a>
-
-						<c:if test="${calendar.nextYear <= 2100}">
-							<a class="nav-button" href="${fn:escapeXml(nextUrl)}"> 次月 </a>
-						</c:if>
-
-					</nav>
-				</div>
-
+	<div class="calendar-header">
+	    <div class="calendar-month-selector">
+	
+	        <%-- 前月へ --%>
+	        <c:if test="${calendar.prevYear >= 1900}">
+	            <a class="month-arrow"
+	               href="${fn:escapeXml(prevUrl)}"
+	               aria-label="前月へ"
+	               title="前月へ">
+	                ◁
+	            </a>
+	        </c:if>
+	
+	        <%-- 表示中の年月 --%>
+	        <h1>${calendar.year}年${calendar.month}月</h1>
+	
+	        <%-- 次月へ --%>
+	        <c:if test="${calendar.nextYear <= 2100}">
+	            <a class="month-arrow"
+	               href="${fn:escapeXml(nextUrl)}"
+	               aria-label="次月へ"
+	               title="次月へ">
+	                ▷
+	            </a>
+	        </c:if>
+	</div>
+		
+		  <a class="nav-button"
+		       href="${fn:escapeXml(currentUrl)}">
+		        今月
+		   </a>
+		</div>
 				<div class="calendar-layout">
 
 					<section class="calendar-area" aria-label="月間カレンダー">
