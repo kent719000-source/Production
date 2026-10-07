@@ -32,10 +32,6 @@ public class StaffService {
     private final PasswordEncoder passwordEncoder;
     private final EventRepository eventRepository;
 
-    // 団体IDで絞ってスタッフを取得する
-    public List<Staff> findAll(Integer organizationId) {
-        return staffRepository.findByOrganizationIdOrderByIdDesc(organizationId);
-    }
 
     // スタッフ一覧検索。名前・電話番号とも部分一致、電話番号はハイフン無視
     public List<Staff> search(Integer organizationId, StaffSearchForm form) {

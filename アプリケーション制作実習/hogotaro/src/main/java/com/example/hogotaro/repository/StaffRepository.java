@@ -1,11 +1,13 @@
 package com.example.hogotaro.repository;
 
-import com.example.hogotaro.entity.Staff;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.hogotaro.entity.Staff;
 
 /**
  * スタッフ（Entity: Staff）の Repository。
@@ -27,8 +29,6 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
     /** 詳細・編集・削除（F-28 / F-31 / F-32 / F-33）の 1 件取得。空なら 404 */
     Optional<Staff> findByIdAndOrganizationId(Integer id, Integer organizationId);
 
-    /** 団体の全スタッフを新しい順で（WHERE organization_id = ? ORDER BY id DESC）。チームの StaffService.findAll が使う */
-    List<Staff> findByOrganizationIdOrderByIdDesc(Integer organizationId);
 
     /**
      * スタッフ一覧のキーワード検索（F-27）。名前・電話番号とも部分一致。電話番号はハイフンを無視して比べる。

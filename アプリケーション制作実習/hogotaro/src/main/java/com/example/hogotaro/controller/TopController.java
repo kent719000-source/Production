@@ -32,5 +32,14 @@ public class TopController {
 
 		return "top";
 	}
+	
+	// F-02 ログイン画面（S-01）。ログイン済みならトップへ。POST /login は Spring Security が処理するので書かない
+	@GetMapping("/login")
+	public String login() {
+		if (loginUser.isLoggedIn()) {
+			return "redirect:/";
+		}
+		return "login";
+	}
 
 }

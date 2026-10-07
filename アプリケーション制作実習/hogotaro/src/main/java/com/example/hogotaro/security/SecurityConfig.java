@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-//                .loginPage("/login")             // GET /login は TopController が login.jsp を返す
+                .loginPage("/login")             // GET /login は TopController が login.jsp を返す
                 .loginProcessingUrl("/login")    // POST /login は Spring Security が処理する
                 .usernameParameter("loginId")
                 .passwordParameter("password")
@@ -54,7 +54,7 @@ public class SecurityConfig {
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")            // POST /logout
-//                .logoutSuccessUrl("/login?logout")
+                .logoutSuccessUrl("/login?logout")
             );
         return http.build();
     }
