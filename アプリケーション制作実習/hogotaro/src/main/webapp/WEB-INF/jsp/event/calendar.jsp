@@ -82,7 +82,7 @@
 .calendar-area, .event-pane { min-width: 0; border: 1px solid var(--hogo-border); border-radius: 16px; background: #fff; box-shadow: 0 4px 12px rgba(160,90,40,.08); }
 .calendar-scroll { overflow-x: auto; }
 .calendar-table { width: 100%; min-width: 700px; table-layout: fixed; border-collapse: collapse; --bs-table-color: var(--bs-body-color); --bs-table-border-color: var(--hogo-border); margin-bottom: 0; }
-.calendar-table caption { caption-side: top; padding: .8rem 1.25rem; font-size: .85rem; color: #806957; }
+.calendar-table caption {caption-side: top; padding: .8rem 1.25rem; font-size: .85rem; color: #806957; text-align: center; font-weight: 600;}
 .calendar-table th { padding: .7rem .25rem; text-align: center; --bs-table-bg: var(--hogo-peach); color: var(--hogo-brown); }
 .calendar-table th, .calendar-table td { border: 1px solid var(--hogo-border); }
 .calendar-table .calendar-day { padding: 0; vertical-align: top; }
@@ -124,24 +124,39 @@
 #pane-heading:focus-visible {
     outline: none;
 }
+
+/*イベント管理画面の説明テキスト*/
+.calendar-page-description {
+    color: #806957;
+    font-weight: 600;
+}
+
 </style>
 </head>
 
 <body>
 	<%@ include file="/WEB-INF/jsp/common/header.jspf"%>
 	<main class="container-fluid hogo-calendar-page px-3 px-lg-4 mb-5">
-    <h1 class="text-center my-5">イベント管理</h1>
-    <c:if test="${not empty message}">
-        <div class="alert alert-success hogo-flash" role="status"><c:out value="${message}" /></div>
-    </c:if>
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-        <p class="mb-0 small">保護している子たちの予定を、カレンダーで確認できます。</p>
-        <sec:authorize access="hasAnyRole('ADMIN', 'STAFF')">
-            <c:url var="newEventUrl" value="/event/new" />
-            <a class="btn btn-hogo" href="${fn:escapeXml(newEventUrl)}">＋ 新規登録</a>
-        </sec:authorize>
-    </div>
+<h1 class="text-center mt-5 mb-2">イベント管理</h1>
 
+<p class="calendar-page-description text-center mb-4">
+    保護している子たちの予定を、カレンダーで確認できます。
+</p>
+
+<c:if test="${not empty message}">
+    <div class="alert alert-success hogo-flash" role="status">
+        <c:out value="${message}" />
+    </div>
+</c:if>
+
+<div class="d-flex justify-content-end mb-3">
+    <sec:authorize access="hasAnyRole('ADMIN', 'STAFF')">
+        <c:url var="newEventUrl" value="/event/new" />
+        <a class="btn btn-hogo" href="${fn:escapeXml(newEventUrl)}">
+            ＋ 新規登録
+        </a>
+    </sec:authorize>
+</div>
 		<c:choose>
 			<c:when test="${not empty calendar}">
 
