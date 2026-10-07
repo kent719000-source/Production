@@ -106,12 +106,18 @@
             <form:errors path="adopterId" cssClass="invalid-feedback d-block" />
         </div>
 
-        <div class="col-12 col-md-6">
-            <label for="cost" class="form-label">費用（円）</label>
-            <form:input cssClass="form-control" cssErrorClass="form-control is-invalid" path="cost" id="cost" aria-describedby="cost.errors" type="number"
-                        min="0" step="1" />
-            <form:errors path="cost" cssClass="invalid-feedback d-block" />
-        </div>
+		<div class="col-12 col-md-6">
+		    <label for="cost" class="form-label">費用（円）</label>
+		    <form:input
+		        cssClass="form-control"
+		        cssErrorClass="form-control is-invalid"
+		        path="cost"
+		        id="cost"
+		        aria-describedby="cost.errors"
+		        type="text"
+		        inputmode="numeric" />
+		    <form:errors path="cost" cssClass="invalid-feedback d-block" />
+		</div>
 
         <div class="col-12">
             <label for="notes" class="form-label">特記事項</label>
