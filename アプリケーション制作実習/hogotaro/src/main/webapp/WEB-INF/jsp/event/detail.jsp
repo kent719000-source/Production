@@ -362,7 +362,7 @@
                            value="/event/${event.id}/uncomplete" />
 
                     <form:form id="event-uncomplete" cssClass="m-0" action="${uncompleteUrl}" method="post"
-                        onsubmit="return confirm('未対応に戻しますか？');">
+                        onsubmit="return confirm('イベントを未対応に戻しますか？個体の情報は自動では変わりません');">
 
                         <button type="submit"
                                 class="stamp-button stamp-done"

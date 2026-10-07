@@ -125,7 +125,7 @@
     outline: none;
 }
 
-/*イベント管理画面の説明テキスト位置*/
+/*イベント管理画面の説明テキスト*/
 .calendar-page-description {
     color: #806957;
     font-weight: 600;
@@ -305,7 +305,7 @@
 																			                   value="/event/${e.id}/uncomplete" />
 																			
 																			            <form:form id="uncomplete-${e.id}" action="${uncompleteUrl}" method="post"
-																			                onsubmit="return confirm('未対応に戻しますか？');">
+																			                onsubmit="return confirm(イベントを未対応に戻しますか？個体の情報は自動では変わりません');">
                             <%-- 保存後も、このイベントの概要を表示する --%>
                             <input type="hidden" name="reopenPane" value="true" />
 																			
