@@ -6,202 +6,157 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<%@ include file="/WEB-INF/jsp/common/head.jspf" %>
 <title>個体一覧 | ホゴタロウ</title>
 </head>
-<%-- CSSもどき --%>
-    <style>
-        /* == 新規登録ボタン == */
-        .new-button {
-            display: inline-block;
-            padding: 8px 25px;
-            background-color: #0077c8;
-            color: white;
-            text-decoration: none;
-            border-radius: 20px;
-            margin-bottom: 20px;
-        }
-        .new-button:hover {
-            opacity: 0.8;
-        }
-
-        /* == 検索エリア == */
-
-        .search-box {
-            background-color: #f8e4cf;
-            border: 1px solid #888;
-            padding: 25px;
-            margin-bottom: 40px;
-        }
-        .search-row {
-            margin-bottom: 20px;
-        }
-        .search-label {
-            display: inline-block;
-            width: 80px;
-            font-weight: bold;
-        }
-        .search-button {
-            display: block;
-            margin-left: auto;
-            padding: 8px 25px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        
-        /* == 個体カード == */
-
-        .animal-list {
-            display: grid;
-            grid-template-columns:
-                repeat(4, 1fr);
-            gap: 15px;
-        }
-        .animal-card {
-            background-color: #f8e4cf;
-            padding: 10px;
-            text-decoration: none;
-            color: black;
-            border: 2px solid transparent;
-            transition:
-                border 0.2s,
-                box-shadow 0.2s;
-        }
-        .animal-card:hover {
-            border: 2px solid #0077c8;
-            box-shadow:
-                0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        /* == 写真 == */
-
-        .animal-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-
-        /* == 写真ない場合 == */
-        .no-image {
-            width: 100%;
-            height: 150px;
-            background-color: #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #777;
-        }
-
-        /* == カード情報 == */
-
-        .animal-name {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            margin: 8px 0;
-        }
-
-        .animal-info {
-            font-size: 13px;
-            line-height: 1.6;
-        }
-    </style>
 
 <body>
 <%@ include file="/WEB-INF/jsp/common/header.jspf" %>
-<h1>個体一覧</h1>
+<main class="container py-4">
+<%-- ページタイトル --%>
+<div class="d-flex justify-content-between align-items-center mb-4">
+<h1 class="mb-0">個体一覧</h1>
 <%-- 新規登録ボタン：ボランティア以外に表示) --%>
 	<c:if test="${loginUser.role == 'ADMIN' || loginUser.role == 'STAFF'}">
-    	<a href="/animal/new" class="new-button">新規登録</a>
+    	<a href="${pageContext.request.contextPath}/animal/new" class="btn btn-hogo">新規登録</a>
 	</c:if>
-<%-- ファセット検索(になる予定) --%>
-    <form action="${pageContext.request.contextPath}/animal" method="get">
-    	<div class="search-box">
-     <%-- 犬猫 --%>
-     		<div class="search-row">
-     			<span class="search-label">種別：</span>
-        			<c:forEach var="species" items="${speciesList}">
-            			<label>
-                		<input type="checkbox" name="species" value="${species}"
-    						<c:if test="${searchForm.species != null && searchForm.species.contains(species)}">
-        					checked
-    						</c:if>>
-                    			${species.label}
-                 		</label>
-             		</c:forEach>
-      		</div>
-      <%-- 保護状況 --%>
-      		<div class="search-row">
-      			<span class="search-label">保護状況：</span>
-        			<c:forEach var="status" items="${statusList}">
-            			<label>
-                			<input type="checkbox" name="statuses" value="${status}"
-    							<c:if test="${searchForm.statuses != null && searchForm.statuses.contains(status)}">
-        						checked
-    							</c:if>>
-                    			${status.label}
-                		</label>
-            		</c:forEach>
-       		</div>
-       <%-- 名前 --%>
-       		<div class="search-row">
-                		<label for="name" class="search-label">名前：</label>
-                    		<input type="text" id="name" name="name" value="${searchForm.name}">
-                    		<button type="submit" name="search" value="1" class="search-button">検索</button>
-       		</div>
-         </div>
-     </form>    
-     <br>
-<%-- フラッシュメッセージを表示 --%>
+</div>
+<%-- フラッシュメッセージ --%>
     <c:if test="${not empty message}">
-        <div id="flash-message">
+        <div class="alert alert-success mb-4" role="alert">
             <c:out value="${message}"/>
         </div>
     </c:if>
-<%-- 個体カード一覧 --%>
-	<table>
-		<tr>
-			<th>写真</th><th>名前</th><th>性別</th><th>品種</th><th>年齢</th>
-		</tr>
-    	<c:forEach var="animal" items="${animalList}">
-        	<tr>
-            	<td>
-                	<a href="${pageContext.request.contextPath}/animal/${animal.id}">
-                   	<c:choose>
-                        	<c:when test="${not empty animal.imagePath}">
-                            	<img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${animal.name}" style="width: 100px; height: 100px; object-fit: cover;">
-                        	</c:when>
-                        	<c:otherwise>
-								<img src="${pageContext.request.contextPath}/NoPhotos/NoPhotos.png" alt="画像なし" style="width: 100px; height: 100px; object-fit: cover;">
-                        	</c:otherwise>
-                    </c:choose>
-                	</a>
-            	</td>
-            	<td>
-                	<a href="${pageContext.request.contextPath}/animal/${animal.id}">${animal.name}</a>
-            	</td>
-            	<td>
-                	${animal.sex.label}
-            	</td>
-            	<td>
-                	<c:choose>
-                    	<c:when test="${not empty animal.breed}">${animal.breed.name}
-                    	</c:when>
-                    	<c:otherwise>
-                    	    -
-                    	</c:otherwise>
-                	</c:choose>
-            	</td>
-            	<td>
-                	<c:choose>
-                    	<c:when test="${not empty animal.age}">${animal.age}歳
-                    	</c:when>
-                    	<c:otherwise>
-                     	   -
-                    	</c:otherwise>
-                	</c:choose>
-            	</td>
-        	</tr>
-    	</c:forEach>
-	</table>
+<%-- 検索フォーム --%>
+    <div class="hogo-card mb-4">
+        <div class="hogo-card-head">個体を検索
+        </div>
+        <div class="hogo-card-body">
+        <form action="${pageContext.request.contextPath}/animal" method="get">
+                 <%-- 犬・猫 --%>
+                <div class="mb-4">
+                    <label class="form-label">
+                        種別
+                    </label>
+                    <div class="d-flex flex-wrap gap-3">
+                        <c:forEach var="species" items="${speciesList}">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="species" value="${species}" id="species-${species}"
+                                    <c:if test="${searchForm.species != null && searchForm.species.contains(species)}">
+                                        checked
+                                    </c:if>>
+                                <label class="form-check-label" for="species-${species}">
+                                    ${species.label}
+                                </label>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </div>
+                <%-- 保護状況 --%>
+                <div class="mb-4">
+                    <label class="form-label">
+                        保護状況
+                    </label>
+                    <div class="d-flex flex-wrap gap-3">
+                        <c:forEach var="status" items="${statusList}">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="statuses" value="${status}" id="status-${status}"
+                                    <c:if test="${searchForm.statuses != null && searchForm.statuses.contains(status)}">
+                                        checked
+                                    </c:if>>
+                                <label class="form-check-label" for="status-${status}">
+                                    ${status.label}
+                                </label>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </div>
+                <%-- 名前 --%>
+                <div class="row align-items-end">
+                    <div class="col-md-8 col-lg-6">
+                        <label for="name" class="form-label">
+                            名前
+                        </label>
+                        <input type="text" id="name" name="name" class="form-control" value="${searchForm.name}" placeholder="個体名を入力してください">
+                    </div>
+                    <div class="col-md-auto mt-3 mt-md-0">
+                        <button type="submit" name="search" value="1" class="btn btn-hogo">
+                            検索
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+<%-- 個体カード --%>
+    <c:if test="${not empty animalList}">
+        <div class="row g-4">
+            <c:forEach var="animal" items="${animalList}">
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                    <a href="${pageContext.request.contextPath}/animal/${animal.id}" class="text-decoration-none">
+                        <div class="hogo-card h-100">
+
+                            <%-- 写真 --%>
+                            <c:choose>
+                                <c:when test="${not empty animal.imagePath}">
+                                    <img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${animal.name}" class="w-100 hogo-card-img">
+                                </c:when>
+                                <c:otherwise>
+                                    <img src="${pageContext.request.contextPath}/NoPhotos/NoPhotos.png" alt="画像なし" class="w-100 hogo-card-img"style="object-fit: contain;">
+                                </c:otherwise>
+                            </c:choose>
+
+                            <%-- 個体情報 --%>
+                            <div class="hogo-card-body">
+
+                             <%-- 名前 --%>
+                                <h3 class="h5 mb-3 text-center" style="color: var(--hogo-brown);">
+                                    <c:out value="${animal.name}"/>
+                                </h3>
+
+                                <%-- 種別・性別 --%>
+                                <div class="d-flex justify-content-center gap-2 mb-3">
+                                    <span class="badge rounded-pill" style="background-color: var(--hogo-peach); color: var(--hogo-brown);">
+                                        ${animal.species.label}
+                                    </span>
+                                    <span class="badge rounded-pill" style="background-color: var(--hogo-peach-light); color: var(--hogo-brown);">
+                                        ${animal.sex.label}
+                                    </span>
+                                </div>
+
+                                <%-- 品種・年齢 --%>
+                                <div class="small">
+                                    <div class="mb-1">
+                                        <strong>品種：</strong>
+                                        <c:choose>
+                                            <c:when test="${not empty animal.breed}">
+                                                <c:out value="${animal.breed.name}"/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                -
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                    <div>
+                                        <strong>年齢：</strong>
+                                        <c:choose>
+                                            <c:when test="${not empty animal.age}">
+                                                ${animal.age}歳
+                                            </c:when>
+                                            <c:otherwise>
+                                                -
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </c:forEach>
+        </div>
+    </c:if>
+</main>
+
 </body>
 </html>
