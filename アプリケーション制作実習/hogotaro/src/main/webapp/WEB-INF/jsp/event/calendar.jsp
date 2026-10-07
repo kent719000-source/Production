@@ -125,7 +125,7 @@
     outline: none;
 }
 
-/*イベント管理画面の説明テキスト*/
+/*イベント管理画面の説明テキスト位置*/
 .calendar-page-description {
     color: #806957;
     font-weight: 600;
