@@ -8,479 +8,451 @@
 
 <head>
 <meta charset="UTF-8">
+<%@ include file="/WEB-INF/jsp/common/head.jspf" %>
 <title>個体詳細</title>
-
-<%-- CSSもどき --%>
-<style>
-    .detail-container {
-        width: 80%;
-        max-width: 900px;
-        margin: 30px auto;
-    }
-
-    .detail-title {
-        margin-bottom: 30px;
-    }
-
-    /* 写真 */
-    .photo-area {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .animal-photo,
-    .photo-placeholder {
-        width: 300px;
-        height: 300px;
-    }
-
-    .animal-photo {
-        object-fit: cover;
-    }
-
-    .photo-placeholder {
-        margin: 0 auto;
-        background-color: #eee;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #666;
-    }
-
-    /* 個体情報 */
-    .detail-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .detail-table th,
-    .detail-table td {
-        border: 1px solid #ccc;
-        padding: 10px;
-        text-align: left;
-        vertical-align: top;
-    }
-
-    .detail-table th {
-        width: 200px;
-        background-color: #f5f5f5;
-    }
-
-    /* 特記事項 */
-    .notes {
-        white-space: pre-wrap;
-    }
-    
-    /* イベント履歴 */
-	.event-history {
-    margin-top: 40px;
-	}
-
-	.event-history h2 {
-    margin-bottom: 15px;
-	}
-
-	.event-table {
-    width: 100%;
-    border-collapse: collapse;
-	}
-
-	.event-table th,
-	.event-table td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-    vertical-align: top;
-	}
-
-	.event-table th {
-    background-color: #f5f5f5;
-	}
-
-    /* ボタン */
-    .button-area {
-    margin-top: 30px;
-    display: flex;
-    gap: 10px;
-    }
-
-    .button-area a,
-    .button-area button {
-    padding: 8px 20px;
-    text-decoration: none;
-    cursor: pointer;
-    }
-
-</style>
 
 </head>
 
 <body>
     <%@ include file="/WEB-INF/jsp/common/header.jspf" %>
-    <div class="detail-container">
-        <h1 class="detail-title">個体詳細</h1>
-        <%-- フラッシュメッセージを表示 --%>
+    <main class="container py-4">
+    <div class="detail-container mx-auto" style="max-width: 700px;">
+        <h1 class="detail-title mb-4">個体詳細</h1>
+     <%-- フラッシュメッセージを表示 --%>
     		<c:if test="${not empty message}">
-        		<div id="flash-message">
+        		<div id="flash-message" class="alert alert-success">
             	<c:out value="${message}"/>
         		</div>
     		</c:if>
-        
+     <%-- 基本情報 --%>
+	<div class="hogo-card mb-4">
+    <div class="hogo-card-head">
+        基本情報
+    </div>
+
+    <div class="hogo-card-body">
+
         <%-- 写真 --%>
-        <div class="photo-area">
+        <div class="mb-4 text-center">
             <c:choose>
-            <%-- 写真が登録されている場合 --%>
+
+                <%-- 写真が登録されている場合 --%>
                 <c:when test="${not empty animal.imagePath}">
-                    <img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${animal.name}" class="animal-photo">
+                    <img
+                        src="${pageContext.request.contextPath}${animal.imagePath}"
+                        alt="${animal.name}"
+                        class="img-fluid rounded"
+                        style="max-width: 300px;">
                 </c:when>
-            <%-- 写真が登録されていない場合 --%>
+
+                <%-- 写真が登録されていない場合 --%>
                 <c:otherwise>
-            		<img src="${pageContext.request.contextPath}/NoPhotos/NoPhotos.png" alt="写真なし" class="animal-photo">
+                    <img
+                        src="${pageContext.request.contextPath}/NoPhotos/NoPhotos.png"
+                        alt="写真なし"
+                        class="img-fluid rounded"
+                        style="max-width: 300px;">
                 </c:otherwise>
+
             </c:choose>
         </div>
 
-        <%-- 基本情報 --%>
-        <table class="detail-table">
-            <tr>
-                <th>名前</th>
-                <td>
-                    <c:out value="${animal.name}" />
-                </td>
-            </tr>
 
-            <tr>
-                <th>種別</th>
-                <td>
-                    ${animal.species.label}
-                </td>
-            </tr>
+        <%-- 名前 --%>
+        <div class="mb-3">
+            <div class="form-label fw-bold">
+                名前
+            </div>
 
-            <tr>
-                <th>性別</th>
-                <td>
-                    ${animal.sex.label}
-                </td>
-            </tr>
+            <div>
+                <c:out value="${animal.name}" />
+            </div>
+        </div>
 
-            <tr>
-                <th>品種</th>
-                <td>
+
+        <%-- 種別 --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                種別
+            </div>
+
+            <div>
+                ${animal.species.label}
+            </div>
+        </div>
+
+
+        <%-- 性別 --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                性別
+            </div>
+
+            <div>
+                ${animal.sex.label}
+            </div>
+        </div>
+
+
+        <%-- 品種 --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                品種
+            </div>
+
+            <div>
+                <c:choose>
+
+                    <c:when test="${not empty animal.breed}">
+                        <c:out value="${animal.breed.name}" />
+                    </c:when>
+
+                    <c:otherwise>
+                        不明
+                    </c:otherwise>
+
+                </c:choose>
+            </div>
+        </div>
+
+
+        <%-- 年齢 --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                年齢
+            </div>
+
+            <div>
+                <c:choose>
+
+                    <c:when test="${not empty animal.age}">
+                        ${animal.age}歳
+                    </c:when>
+
+                    <c:otherwise>
+                        不明
+                    </c:otherwise>
+
+                </c:choose>
+            </div>
+        </div>
+
+
+        <%-- 誕生日 --%>
+        <div class="mb-0">
+            <div class="form-label fw-bold">
+                誕生日
+            </div>
+
+            <div>
+                <c:choose>
+
+                    <c:when test="${not empty animal.birthday}">
+                        ${animal.birthday}
+
+                        <c:if test="${animal.isBirthdayEstimated}">
+                            （推定）
+                        </c:if>
+                    </c:when>
+
+                    <c:otherwise>
+                        不明
+                    </c:otherwise>
+
+                </c:choose>
+            </div>
+        </div>
+
+    </div>
+</div>
+<%-- 保護情報・健康情報 --%>
+<div class="hogo-card mb-4">
+
+    <div class="hogo-card-head">
+        保護情報・健康情報
+    </div>
+
+    <div class="hogo-card-body">
+
+        <%-- 保護日 --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                保護日
+            </div>
+            <div>
+                ${animal.intakeDate}
+            </div>
+        </div>
+
+        <%-- 保護場所 --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                保護場所
+            </div>
+            <div>
+                <c:out value="${animal.intakePlace}" />
+            </div>
+        </div>
+
+        <%-- 保護方法 --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                保護方法
+            </div>
+            <div>
+                <c:out value="${animal.intakeMethod}" />
+            </div>
+        </div>
+
+        <%-- 保護状況 --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                保護状況
+            </div>
+            <div>
+                ${animal.status.label}
+            </div>
+        </div>
+
+        <%-- 里親 --%>
+        <c:if test="${animal.status == 'TRIAL' || animal.status == 'ADOPTED'}">
+            <div class="mb-4">
+                <div class="form-label fw-bold">
+                    里親
+                </div>
+
+                <div>
                     <c:choose>
-                        <c:when test="${not empty animal.breed}">
-                            <c:out value="${animal.breed.name}" />
-                        </c:when>
-
-                        <c:otherwise>
-                            不明
-                        </c:otherwise>
-                    </c:choose>
-                </td>
-            </tr>
-
-            <tr>
-                <th>年齢</th>
-                <td>
-                    <c:choose>
-                        <c:when test="${not empty animal.age}">
-                            ${animal.age}歳
-                        </c:when>
-
-                        <c:otherwise>
-                            不明
-                        </c:otherwise>
-                    </c:choose>
-                </td>
-            </tr>
-
-            <tr>
-                <th>誕生日</th>
-                <td>
-                    <c:choose>
-
-                        <c:when test="${not empty animal.birthday}">
-                            ${animal.birthday}
-
-                            <c:if test="${animal.isBirthdayEstimated}">
-                                （推定）
-                            </c:if>
-                        </c:when>
-
-                        <c:otherwise>
-                            不明
-                        </c:otherwise>
-
-                    </c:choose>
-                </td>
-            </tr>
-
-            <tr>
-                <th>保護日</th>
-                <td>
-                    ${animal.intakeDate}
-                </td>
-            </tr>
-
-            <tr>
-                <th>保護場所</th>
-                <td>
-                    <c:out value="${animal.intakePlace}" />
-                </td>
-            </tr>
-
-            <tr>
-                <th>保護方法</th>
-                <td>
-                    <c:out value="${animal.intakeMethod}" />
-                </td>
-            </tr>
-
-            <tr>
-                <th>保護状況</th>
-                <td>
-                    ${animal.status.label}
-                </td>
-            </tr>
-
-            <%-- 里親 --%>
-            <%-- トライアル中・譲渡済の場合のみ表示 --%>
-            <c:if test="${animal.status == 'TRIAL' || animal.status == 'ADOPTED'}">
-
-                <tr>
-                    <th>里親</th>
-                    <td>
-
-                        <c:if test="${not empty animal.adopter}">
-
+                        <c:when test="${not empty animal.adopter}">
                             <a href="${pageContext.request.contextPath}/adopter/${animal.adopter.id}">
                                 <c:out value="${animal.adopter.name}" />
                             </a>
-
-                        </c:if>
-
-                    </td>
-                </tr>
-
-            </c:if>
-
-            <%-- 医療 --%>
-
-            <tr>
-                <th>避妊去勢</th>
-                <td>
-                    ${animal.neutered.label}
-                </td>
-            </tr>
-
-            <tr>
-                <th>混合ワクチン</th>
-                <td>
-
-                    <c:choose>
-
-                        <c:when test="${animal.comboVaccine}">
-                            済
                         </c:when>
 
+                        <c:otherwise>
+                            -
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </div>
+        </c:if>
+
+        <%-- 避妊去勢 --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                避妊去勢
+            </div>
+            <div>
+                ${animal.neutered.label}
+            </div>
+        </div>
+
+        <%-- 混合ワクチン --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                混合ワクチン
+            </div>
+            <div>
+                <c:choose>
+                    <c:when test="${animal.comboVaccine}">
+                        済
+                    </c:when>
+                    <c:otherwise>
+                        未
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
+
+        <%-- 狂犬病ワクチン：犬の場合のみ表示 --%>
+        <c:if test="${animal.species == 'DOG'}">
+            <div class="mb-4">
+                <div class="form-label fw-bold">
+                    狂犬病ワクチン
+                </div>
+
+                <div>
+                    <c:choose>
+                        <c:when test="${animal.rabiesVaccine}">
+                            済
+                        </c:when>
                         <c:otherwise>
                             未
                         </c:otherwise>
-
                     </c:choose>
+                </div>
+            </div>
+        </c:if>
 
-                </td>
-            </tr>
+        <%-- マイクロチップ --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                マイクロチップ
+            </div>
 
-            <%-- 狂犬病ワクチン：犬の場合のみ表示 --%>
-            <c:if test="${animal.species == 'DOG'}">
+            <div>
+                <c:choose>
+                    <c:when test="${not empty animal.microchipNo}">
+                        <c:out value="${animal.microchipNo}" />
+                    </c:when>
+                    <c:otherwise>
+                        -
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
 
-                <tr>
-                    <th>狂犬病ワクチン</th>
-                    <td>
+        <%-- 健康に関する特記事項 --%>
+        <div class="mb-4">
+            <div class="form-label fw-bold">
+                健康に関する特記事項
+            </div>
 
-                        <c:choose>
-                            <c:when test="${animal.rabiesVaccine}">
-                                済
-                            </c:when>
-                            <c:otherwise>
-                                未
-                            </c:otherwise>
-                        </c:choose>
-                    </td>
-                </tr>
+            <div>
+                <c:choose>
+                    <c:when test="${not empty animal.healthNotes}">
+                        <c:out value="${animal.healthNotes}" />
+                    </c:when>
+                    <c:otherwise>
+                        -
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </div>
 
-            </c:if>
+        <%-- その他の特記事項 --%>
+        <div class="mb-0">
+            <div class="form-label fw-bold">
+                その他の特記事項
+            </div>
 
-            <tr>
-                <th>マイクロチップ</th>
-                <td>
-
-                    <c:choose>
-                        <c:when test="${not empty animal.microchipNo}">
-                            <c:out value="${animal.microchipNo}" />
-                        </c:when>
-
-                        <c:otherwise>
-                            -
-                        </c:otherwise>
-
-                    </c:choose>
-
-                </td>
-            </tr>
-
-            <%-- 特記事項 --%>
-
-            <tr>
-                <th>健康に関する特記事項</th>
-                <td class="notes">
-                    <c:choose>
-                        <c:when test="${not empty animal.healthNotes}">
-                            <c:out value="${animal.healthNotes}" />
-                        </c:when>
-                        <c:otherwise>
-                            -
-                        </c:otherwise>
-                    </c:choose>
-                </td>
-            </tr>
-
-            <tr>
-                <th>その他の特記事項</th>
-                <td class="notes">
-                    <c:choose>
-
-                        <c:when test="${not empty animal.notes}">
-                            <c:out value="${animal.notes}" />
-                        </c:when>
-
-                        <c:otherwise>
-                            -
-                        </c:otherwise>
-
-                    </c:choose>
-                </td>
-            </tr>
-
-        </table>
-        <%-- イベント履歴 --%>
-	<div class="event-history">
-    	<h2>イベント履歴</h2>
-    	<c:choose>
-
-        <%-- イベントがある場合 --%>
-        <c:when test="${not empty eventList}">
-            <table class="event-table">
-                <thead>
-                    <tr>
-                        <th>日付</th>
-                        <th>時間</th>
-                        <th>イベント種別</th>
-                        <th>場所</th>
-                        <th>担当者</th>
-                        <th>実施状況</th>
-                        <th>費用</th>
-                        <th>備考</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <c:forEach var="event" items="${eventList}">
-                        <tr>
-                            <td>
-                                ${event.eventDate}
-                            </td>
-                            <td>
-                                ${event.eventTime}
-                            </td>
-                            <td>
-                                ${event.eventType.name}
-                            </td>
-                            <td>
-                                <c:out value="${event.place}" />
-                            </td>
-                            <td>
-                                <c:choose>
-                                    <c:when test="${not empty event.staff}">
-                                        <c:out value="${event.staff.name}" />
-                                    </c:when>
-                                    <c:otherwise>
-                                        -
-                                    </c:otherwise>
-                                </c:choose>
-                            </td>
-                            <td>
-                                <c:choose>
-                                    <c:when test="${event.done}">
-                                        済
-                                    </c:when>
-                                    <c:otherwise>
-                                        未
-                                    </c:otherwise>
-                                </c:choose>
-                            </td>
-                            <td>
-                                <c:choose>
-                                    <c:when test="${not empty event.cost}">
-                                        ${event.cost}円
-                                    </c:when>
-                                    <c:otherwise>
-                                        -
-                                    </c:otherwise>
-                                </c:choose>
-                            </td>
-                            <td class="notes">
-                                <c:choose>
-                                    <c:when test="${not empty event.notes}">
-                                        <c:out value="${event.notes}" />
-                                    </c:when>
-                                    <c:otherwise>
-                                        -
-                                    </c:otherwise>
-                                </c:choose>
-                            </td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
-        </c:when>
-
-        <%-- イベントがない場合 --%>
-        <c:otherwise>
-            <p>イベント履歴はありません。</p>
-        </c:otherwise>
-    	</c:choose>
-	</div>
-
-        <%-- 操作 --%>
-        <div class="button-area">
-        
-    		<%-- 管理ユーザー・常勤スタッフだけ編集を表示 --%>
-    		<c:if test="${loginUser.role == 'ADMIN' || loginUser.role == 'STAFF'}">
-
-        	<%-- 編集 --%>
-        		<a href="${pageContext.request.contextPath}/animal/${animal.id}/edit">
-            		編集
-        		</a>
-    		</c:if>
-
-    		<%-- 管理ユーザーだけ削除を表示 --%>
-    		<c:if test="${loginUser.role == 'ADMIN'}">
-
-           	<%-- 削除 --%>
-            <form action="${pageContext.request.contextPath}/animal/${animal.id}/delete" method="post" style="display: inline;">
-
-    			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-    			
-                <button type="submit" onclick="return confirm('紐づくイベントと写真も削除されます。本当に削除しますか？');">削除
-                </button>
-            </form>
-            </c:if>
-
-            <%-- 一覧へ戻る --%>
-            <a href="${pageContext.request.contextPath}/animal">一覧へ戻る</a>
+            <div>
+                <c:choose>
+                    <c:when test="${not empty animal.notes}">
+                        <c:out value="${animal.notes}" />
+                    </c:when>
+                    <c:otherwise>
+                        -
+                    </c:otherwise>
+                </c:choose>
+            </div>
         </div>
     </div>
+</div>
+ <%-- イベント履歴 --%>
+<div class="hogo-card mb-4">
+
+    <div class="hogo-card-head">
+        イベント履歴
+    </div>
+
+    <div class="hogo-card-body">
+
+        <c:choose>
+
+            <c:when test="${not empty eventList}">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead>
+                            <tr>
+                                <th>日付</th>
+                                <th>イベント種別</th>
+                                <th>内容</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <c:forEach var="event" items="${eventList}">
+
+                                <tr>
+                                    <td>
+                                        ${event.eventDate}
+                                    </td>
+
+                                    <td>
+                                        ${event.eventType.name}
+                                    </td>
+
+                                    <td>
+                                        <c:out value="${event.notes}" />
+                                    </td>
+                                </tr>
+
+                            </c:forEach>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </c:when>
+
+            <c:otherwise>
+
+                <div class="hogo-empty">
+                    イベント履歴はありません。
+                </div>
+
+            </c:otherwise>
+
+        </c:choose>
+
+    </div>
+
+</div>
+<%-- 操作ボタン --%>
+<div class="d-flex flex-wrap gap-2 mb-4">
+
+    <%-- ADMIN / STAFF：編集 --%>
+    <sec:authorize access="hasAnyRole('ADMIN','STAFF')">
+
+        <a
+            href="${pageContext.request.contextPath}/animal/${animal.id}/edit"
+            class="btn btn-hogo">
+            編集する
+        </a>
+
+    </sec:authorize>
+
+
+    <%-- ADMIN：削除 --%>
+    <sec:authorize access="hasRole('ADMIN')">
+
+        <form
+            action="${pageContext.request.contextPath}/animal/${animal.id}/delete"
+            method="post"
+            class="d-inline"
+            onsubmit="return confirm('この個体を削除してもよろしいですか？');">
+
+            <input
+                type="hidden"
+                name="${_csrf.parameterName}"
+                value="${_csrf.token}" />
+
+            <button
+                type="submit"
+                class="btn btn-hogo-danger">
+                削除する
+            </button>
+
+        </form>
+
+    </sec:authorize>
+
+
+    <%-- 一覧へ戻る --%>
+    <a
+        href="${pageContext.request.contextPath}/animal"
+        class="btn btn-hogo-sub">
+        一覧へ戻る
+    </a>
+
+</div>
 </body>
 
 </html>
