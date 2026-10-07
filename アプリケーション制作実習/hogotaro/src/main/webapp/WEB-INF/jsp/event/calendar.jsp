@@ -93,8 +93,8 @@
 .calendar-table th:first-child, .calendar-day:first-child .day-number { color: #b95143; }
 .calendar-table th:last-child, .calendar-day:last-child .day-number { color: #426b8c; }
 .calendar-day.outside .day-number { color: #93867b; }
-.day-events { min-height: 110px; display: flex; flex-direction: column; gap: 5px; }
-/* 全件表示。文字を省略せず、長いタイトルは折り返す */
+/* 1日に5件以上イベントがある場合だけ縦スクロール */
+.day-events.is-scrollable { max-height: 200px; overflow-y: scroll; padding-right: 4px; scrollbar-width: thin;}
 .event-bar { display: block; width: 100%; min-height: 44px; padding: 6px 7px; border: 0; border-left: 3px solid; border-radius: 7px; text-align: left; font: inherit; font-size: .78rem; line-height: 1.6; white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
 .event-bar:hover { filter: brightness(.97); }
 .event-time { display: block; font-weight: 700; }
@@ -244,7 +244,7 @@
 														        ${d.day}
 														    </time>
 														
-														    <div class="day-events">
+														  	<div class="day-events ${fn:length(d.eventList) >= 5 ? 'is-scrollable' : ''}">
 														        <c:forEach var="e" items="${d.eventList}">
 														            <button type="button"
 														                    class="event-bar ${e.done ? 'done' : 'pending'}"
