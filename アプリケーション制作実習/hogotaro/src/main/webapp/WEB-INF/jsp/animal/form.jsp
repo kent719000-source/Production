@@ -517,7 +517,7 @@
 </div>
 </form:form>
 </c:when>
-        <%-- 新規登録 --%>
+<%-- 新規登録 --%>
         <c:otherwise>
             <form:form id="animalForm" modelAttribute="animalForm" method="post" enctype="multipart/form-data" action="/animal/new">
 
@@ -624,7 +624,7 @@
                 <optgroup label="-- 猫 --">
                     <c:forEach var="breed" items="${breedList}">
                         <c:if test="${breed.species == 'CAT'}">
-                            <option value="${breed.id}">
+                            <option value="${breed.id}"${animalForm.breedId == breed.id ? 'selected="selected"' : ''}>
                                 <c:out value="${breed.name}"/>
                             </option>
                         </c:if>
@@ -633,7 +633,7 @@
                 <optgroup label="-- 犬 --">
                     <c:forEach var="breed" items="${breedList}">
                         <c:if test="${breed.species == 'DOG'}">
-                            <option value="${breed.id}">
+                            <option value="${breed.id}"${animalForm.breedId == breed.id ? 'selected="selected"' : ''}>
                                 <c:out value="${breed.name}"/>
                             </option>
                         </c:if>

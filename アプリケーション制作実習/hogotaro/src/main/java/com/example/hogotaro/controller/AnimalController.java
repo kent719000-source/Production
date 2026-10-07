@@ -61,6 +61,10 @@ public class AnimalController {
 
 		// 誕生日は「推定」を初期値にする
 		animalForm.setIsBirthdayEstimated(true);
+	    animalForm.setStatus(Status.NOT_ADOPTABLE);
+	    animalForm.setNeutered(NeuterStatus.UNKNOWN);
+	    animalForm.setComboVaccine(false);
+	    animalForm.setRabiesVaccine(false);
 
 		model.addAttribute("animalForm", animalForm);
 		model.addAttribute("mode", "new");
