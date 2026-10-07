@@ -111,7 +111,7 @@
 .event-details { margin: 1.25rem 0; }
 .event-details dt { font-size: .8rem; color: #806957; margin-top: .85rem; }
 .event-details dd { margin: .15rem 0 0; padding-bottom: .65rem; border-bottom: 1px solid #f2e6dc; }
-.notes { white-space: pre-wrap; }
+.notes { white-space: pre-wrap; text-align: left;}
 .stamp-button { width: 64px; height: 64px; display: inline-flex; align-items: center; justify-content: center; border: 2px dashed #bca28d; border-radius: 50%; background: #fffaf5; cursor: pointer; }
 .stamp-button:hover { background: var(--hogo-peach-light); }
 .stamp-done { border: 3px solid #b95143; color: #b95143; font-size: 28px; font-weight: 700; }
@@ -400,10 +400,8 @@
 																			</c:if>
 
 																			<c:if test="${not empty e.notes}">
-																				<dt>特記事項</dt>
-																				<dd class="notes">
-																					<c:out value="${e.notes}" />
-																				</dd>
+																			    <dt>特記事項</dt>
+																			    <dd class="notes"><c:out value="${e.notes}" /></dd>
 																			</c:if>
 
 																		</dl>
