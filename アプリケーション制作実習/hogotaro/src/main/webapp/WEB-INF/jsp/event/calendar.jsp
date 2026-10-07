@@ -111,7 +111,7 @@
 .event-details { margin: 1.25rem 0; }
 .event-details dt { font-size: .8rem; color: #806957; margin-top: .85rem; }
 .event-details dd { margin: .15rem 0 0; padding-bottom: .65rem; border-bottom: 1px solid #f2e6dc; }
-.notes { white-space: pre-wrap; }
+.notes { white-space: pre-wrap; text-align: left;}
 .stamp-button { width: 64px; height: 64px; display: inline-flex; align-items: center; justify-content: center; border: 2px dashed #bca28d; border-radius: 50%; background: #fffaf5; cursor: pointer; }
 .stamp-button:hover { background: var(--hogo-peach-light); }
 .stamp-done { border: 3px solid #b95143; color: #b95143; font-size: 28px; font-weight: 700; }
@@ -125,7 +125,7 @@
     outline: none;
 }
 
-/*イベント管理画面の説明テキスト位置*/
+/*イベント管理画面の説明テキスト*/
 .calendar-page-description {
     color: #806957;
     font-weight: 600;
@@ -305,7 +305,7 @@
 																			                   value="/event/${e.id}/uncomplete" />
 																			
 																			            <form:form id="uncomplete-${e.id}" action="${uncompleteUrl}" method="post"
-																			                onsubmit="return confirm('未対応に戻しますか？');">
+																			                onsubmit="return confirm('イベントを未対応に戻しますか？個体の情報は自動では変わりません');">
                             <%-- 保存後も、このイベントの概要を表示する --%>
                             <input type="hidden" name="reopenPane" value="true" />
 																			
@@ -363,10 +363,14 @@
 																			</c:if>
 
 																			<dt>個体名</dt>
+																			
+																			<c:url var="animalDetailUrl" value="/animal/${e.animal.id}" />
+																			
 																			<dd>
-																				<c:out value="${e.animal.name}" />
+																			    <a href="${fn:escapeXml(animalDetailUrl)}">
+																			        <c:out value="${e.animal.name}" />
+																			    </a>
 																			</dd>
-
 																			<dt>イベント種別</dt>
 																			<dd>
 																				<c:out value="${e.eventType.name}" />
@@ -395,10 +399,8 @@
 																			</c:if>
 
 																			<c:if test="${not empty e.notes}">
-																				<dt>特記事項</dt>
-																				<dd class="notes">
-																					<c:out value="${e.notes}" />
-																				</dd>
+																			    <dt>特記事項</dt>
+																			    <dd class="notes"><c:out value="${e.notes}" /></dd>
 																			</c:if>
 
 																		</dl>
@@ -531,7 +533,7 @@
         });
     }
 
-    // 「選択を解除」を押したとき
+    // 「選択を解除」を押したとき。
     closeButton?.addEventListener("click", function () {
 
         const url = new URL(window.location.href);
@@ -556,7 +558,7 @@
     });
 
     // スタンプの保存後は、サーバーから届いた最新の内容で概要を開き直す。
-    // URLの値はHTMLやCSSセレクターに埋め込まず、表示中のIDと比較する。
+    // URLの値はHTMLやCSSセレクターに埋め込まず、表示中のIDと比較をする。
     const selectedEventId = new URLSearchParams(window.location.search)
         .get("selectedEventId");
 
