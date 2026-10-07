@@ -125,7 +125,7 @@
     outline: none;
 }
 
-/*イベント管理画面の説明テキスト位置*/
+/*イベント管理画面の説明テキスト*/
 .calendar-page-description {
     color: #806957;
     font-weight: 600;
@@ -305,7 +305,7 @@
 																			                   value="/event/${e.id}/uncomplete" />
 																			
 																			            <form:form id="uncomplete-${e.id}" action="${uncompleteUrl}" method="post"
-																			                onsubmit="return confirm('未対応に戻しますか？');">
+																			                onsubmit="return confirm('イベントを未対応に戻しますか？個体の情報は自動では変わりません');">
                             <%-- 保存後も、このイベントの概要を表示する --%>
                             <input type="hidden" name="reopenPane" value="true" />
 																			
@@ -363,10 +363,14 @@
 																			</c:if>
 
 																			<dt>個体名</dt>
+																			
+																			<c:url var="animalDetailUrl" value="/animal/${e.animal.id}" />
+																			
 																			<dd>
-																				<c:out value="${e.animal.name}" />
+																			    <a href="${fn:escapeXml(animalDetailUrl)}">
+																			        <c:out value="${e.animal.name}" />
+																			    </a>
 																			</dd>
-
 																			<dt>イベント種別</dt>
 																			<dd>
 																				<c:out value="${e.eventType.name}" />
@@ -531,7 +535,7 @@
         });
     }
 
-    // 「選択を解除」を押したとき
+    // 「選択を解除」を押したとき。
     closeButton?.addEventListener("click", function () {
 
         const url = new URL(window.location.href);
@@ -556,7 +560,7 @@
     });
 
     // スタンプの保存後は、サーバーから届いた最新の内容で概要を開き直す。
-    // URLの値はHTMLやCSSセレクターに埋め込まず、表示中のIDと比較する。
+    // URLの値はHTMLやCSSセレクターに埋め込まず、表示中のIDと比較をする。
     const selectedEventId = new URLSearchParams(window.location.search)
         .get("selectedEventId");
 
