@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -95,6 +96,7 @@ public class AnimalController {
 	// 個体新規登録処理
 	@PostMapping("/animal/new")
 	public String create(@Validated @ModelAttribute("animalForm") AnimalForm form,BindingResult result,Model model,RedirectAttributes redirectAttributes) {
+	    checkPhotoType(form, result);
 	    if (result.hasErrors()) {
 	    	setFormModel(model);
 	    	model.addAttribute("mode","new");
@@ -165,6 +167,7 @@ public class AnimalController {
 	@PostMapping("/animal/{id}/edit")
 	public String update(@PathVariable Integer id,@Validated @ModelAttribute("animalForm") AnimalForm form,BindingResult result,Model model,RedirectAttributes redirectAttributes) {
 	    Integer organizationId = loginUser.getOrganizationId();
+	    checkPhotoType(form, result);
 
 	    // 犬・猫の品種の選択に間違いがあれば編集画面に戻る
 	    if (result.hasErrors()) {
@@ -231,6 +234,15 @@ public class AnimalController {
 	    // 削除後は一覧へ
 	    return "redirect:/animal";
 	}
+	// 写真の種類のチェック（U-02）。画面の accept と Cropper.js は JPEG にして送るが、それ以外の方法で送られた JPEG・PNG 以外のファイルははじく
+	private void checkPhotoType(AnimalForm form, BindingResult result) {
+	    MultipartFile photo = form.getPhoto();
+	    if (photo != null && !photo.isEmpty()
+	            && !"image/jpeg".equals(photo.getContentType()) && !"image/png".equals(photo.getContentType())) {
+	        result.rejectValue("photo", "photo.type", "写真は JPEG または PNG を選択してください");
+	    }
+	}
+
 	private void setFormModel(Model model) {
 	    Integer organizationId = loginUser.getOrganizationId();
 	    model.addAttribute("speciesList", Species.values());

@@ -159,6 +159,10 @@ public class AnimalService {
                     new ResponseStatusException(HttpStatus.NOT_FOUND));
             animal.setAdopter(adopter);
         }
+        // トライアル中・譲渡済以外なら里親は外す（P-03。選んであっても保存しない）
+        if (!hasAdopter(form.getStatus())) {
+            animal.setAdopter(null);
+        }
 
         // 避妊去勢・ワクチン
         animal.setNeutered(form.getNeutered());
@@ -174,12 +178,12 @@ public class AnimalService {
             animal.setRabiesVaccine(form.getRabiesVaccine());
         }
 
-        // マイクロチップ
-        animal.setMicrochipNo(form.getMicrochipNo());
+        // マイクロチップ（空欄なら null。U-03）
+        animal.setMicrochipNo(blankToNull(form.getMicrochipNo()));
 
-        // 特記事項
-        animal.setHealthNotes(form.getHealthNotes());
-        animal.setNotes(form.getNotes());
+        // 特記事項（空欄なら null。U-03）
+        animal.setHealthNotes(blankToNull(form.getHealthNotes()));
+        animal.setNotes(blankToNull(form.getNotes()));
         
         // 画像が選択されていたら保存
         if (form.getPhoto() != null && !form.getPhoto().isEmpty()) {
@@ -248,6 +252,10 @@ public class AnimalService {
                             new ResponseStatusException(HttpStatus.NOT_FOUND));
             animal.setAdopter(adopter);
         }
+        // トライアル中・譲渡済以外なら里親は外す（P-03。トライアル返却などで保護中に戻したとき、前の里親が残らないように）
+        if (!hasAdopter(form.getStatus())) {
+            animal.setAdopter(null);
+        }
 
         // 避妊去勢・ワクチン
         animal.setNeutered(form.getNeutered());
@@ -266,12 +274,12 @@ public class AnimalService {
             animal.setRabiesVaccine(form.getRabiesVaccine());
         }
 
-        // マイクロチップ
-        animal.setMicrochipNo(form.getMicrochipNo());
+        // マイクロチップ（空欄なら null。U-03）
+        animal.setMicrochipNo(blankToNull(form.getMicrochipNo()));
 
-        // 特記事項
-        animal.setHealthNotes(form.getHealthNotes());
-        animal.setNotes(form.getNotes());
+        // 特記事項（空欄なら null。U-03）
+        animal.setHealthNotes(blankToNull(form.getHealthNotes()));
+        animal.setNotes(blankToNull(form.getNotes()));
 
         // ★ P-02対応
         // 入力チェックがすべて終わった後に写真を処理する
@@ -341,6 +349,16 @@ public class AnimalService {
 		}
 		return "/photos/" + fileName;
 	}
+    // 里親を持てる保護状況か（トライアル中・譲渡済だけ）
+    private boolean hasAdopter(Status status) {
+        return status == Status.TRIAL || status == Status.ADOPTED;
+    }
+
+    // 空文字・空白だけなら null にする（里親・スタッフの blankToNull と同じ）
+    private String blankToNull(String value) {
+        return (value == null || value.isBlank()) ? null : value;
+    }
+
     public List<Event> findEventList(Integer animalId, Integer organizationId) {
         return eventRepository.findByOrganizationIdAndAnimalIdOrderByEventDateDescEventTimeDesc(organizationId, animalId);
     }
