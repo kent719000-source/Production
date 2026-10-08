@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions"%>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -239,6 +240,14 @@
     background-color: #e4f1e3;
     color: #355c3c;
   }
+  /* イベントが多い日は、マスの中だけスクロールさせる（イベント管理のカレンダーの .day-events.is-scrollable と同じ考え方）。
+     トップはマスが狭く1件が2〜3行に折り返すので、3件以上・高さ 9rem で区切る */
+  .mini-cal .mini-events.is-scrollable {
+    max-height: 9rem;
+    overflow-y: scroll;
+    padding-right: 4px;
+    scrollbar-width: thin;
+  }
   /* 保護頭数カード*/
   /* 空きの状態ごとの色。 is-ok / is-few / is-full のクラスで切り替える*/
   .hogo-capacity {--status-color: #3f8f5a;} /*受け入れOK：緑*/
@@ -424,6 +433,7 @@
                            押すと、イベント管理のカレンダーで、このイベントを選んだ状態で開く。
                            selectedEventId はカレンダー側（event/calendar.jsp）の JS が読む名前なので、変えるときはイベント担当とそろえる。
                            はみ出したマスはその月へ飛ぶように d.date の年・月を使う --%>
+                      <div class="mini-events ${fn:length(d.eventList) >= 3 ? 'is-scrollable' : ''}">
                       <c:forEach items="${d.eventList}" var="e">
                         <a href="/event?year=${d.date.year}&month=${d.date.monthValue}&selectedEventId=${e.id}"
                            class="event-link ${e.done ? 'done' : 'pending'}">
@@ -432,6 +442,7 @@
                           （${e.done ? '済' : '未'}）
                         </a>
                       </c:forEach>
+                      </div>
                     </td>
                   </c:forEach>
                 </tr>
