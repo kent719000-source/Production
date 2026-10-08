@@ -114,7 +114,7 @@
 		        path="cost"
 		        id="cost"
 		        aria-describedby="cost.errors"
-		        type="text"
+		        type="number"
 		        inputmode="numeric" />
 		    <form:errors path="cost" cssClass="invalid-feedback d-block" />
 		</div>
