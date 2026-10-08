@@ -7,16 +7,15 @@
 <html>
 
 <head>
-<meta charset="UTF-8">
 <%@ include file="/WEB-INF/jsp/common/head.jspf" %>
-<title>個体詳細</title>
+<title>個体詳細 | ホゴタロウ</title>
 
 </head>
 
 <body>
     <%@ include file="/WEB-INF/jsp/common/header.jspf" %>
+    <%-- 横幅はほかの詳細画面（里親・スタッフ・イベント）と同じ container いっぱい。PC では左5：右7 の2列、スマホでは縦1列 --%>
     <main class="container py-4">
-    <div class="detail-container mx-auto" style="max-width: 700px;">
         <h1 class="detail-title mb-4">個体詳細</h1>
      <%-- フラッシュメッセージを表示 --%>
     		<c:if test="${not empty message}">
@@ -24,6 +23,10 @@
             	<c:out value="${message}"/>
         		</div>
     		</c:if>
+  <%-- gx-4: 列の間だけ空ける（縦の間はカードの mb-4。スマホで縦に並んだときに間が二重にならないように） --%>
+  <div class="row gx-4">
+    <%-- 左の列：写真と基本情報 --%>
+    <div class="col-lg-5">
      <%-- 基本情報 --%>
 	<div class="hogo-card mb-4">
     <div class="hogo-card-head">
@@ -40,7 +43,7 @@
                 <c:when test="${not empty animal.imagePath}">
                     <img
                         src="${pageContext.request.contextPath}${animal.imagePath}"
-                        alt="${animal.name}"
+                        alt="${fn:escapeXml(animal.name)}"
                         class="img-fluid rounded"
                         style="max-width: 300px;">
                 </c:when>
@@ -165,6 +168,9 @@
 
     </div>
 </div>
+    </div>
+    <%-- 右の列：保護情報・健康情報とイベント履歴 --%>
+    <div class="col-lg-7">
 <%-- 保護情報・健康情報 --%>
 <div class="hogo-card mb-4">
 
@@ -405,6 +411,8 @@
     </div>
 
 </div>
+    </div>
+  </div>
 <%-- 操作ボタン --%>
 <div class="d-flex flex-wrap gap-2 mb-4">
 
@@ -453,6 +461,7 @@
     </a>
 
 </div>
+    </main>
 </body>
 
 </html>
