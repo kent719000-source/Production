@@ -94,6 +94,8 @@ public class AnimalService {
 	    form.setRabiesVaccine(animal.getRabiesVaccine());
 	    form.setMicrochipNo(animal.getMicrochipNo());
 	    form.setHealthNotes(animal.getHealthNotes());
+	    //★ P01対応
+	    form.setNotes(animal.getNotes());
 	    return form;
 	}
 
@@ -187,49 +189,37 @@ public class AnimalService {
         return animalRepository.save(animal);
        }    
     public void update(Integer id, Integer organizationId, AnimalForm form) {
-    	Animal animal = animalRepository.findByIdAndOrganizationId(id, organizationId)
-    	        .orElseThrow(() ->
-    	                new ResponseStatusException(HttpStatus.NOT_FOUND));
-    	
-    	 // 新しい写真がアップロードされた場合だけ処理
-        if (form.getPhoto() != null && !form.getPhoto().isEmpty()) {
-            // 更新前の古い画像パスを保存しておく
-            String oldImagePath = animal.getImagePath();
-            // 新しい画像を保存
-            String newImagePath = savePhoto(form.getPhoto());
-            // DBの画像パスを新しい画像に変更
-            animal.setImagePath(newImagePath);
-            // 古い画像を削除
-            if (oldImagePath != null && !oldImagePath.isBlank()) {
-                Path oldPhotoPath = Paths.get("uploads" + oldImagePath);
-                try {
-                    Files.deleteIfExists(oldPhotoPath);
-                } catch (IOException e) {
-                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"古い写真を削除できませんでした", e);
-                }
-            }
-        }
+        Animal animal = animalRepository.findByIdAndOrganizationId(id, organizationId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // 更新前の古い画像パスを保存しておく
+        String oldImagePath = animal.getImagePath();
+
         animal.setName(form.getName());
         animal.setSpecies(form.getSpecies());
         animal.setSex(form.getSex());
 
         // 品種
-        Breed breed = null;///品種を入れるための変数を用意(現時点ではnull)
+        Breed breed = null; // 品種を入れるための変数を用意
 
         // 「新しい品種」が入力されている場合はこちらを優先
         if (form.getNewBreedName() != null && !form.getNewBreedName().isBlank()) {
             breed = breedRepository.findBySpeciesAndName(form.getSpecies(),form.getNewBreedName())
-                    .orElseGet(() -> {
-                        Breed newBreed = new Breed();
-                        newBreed.setSpecies(form.getSpecies());
-                        newBreed.setName(form.getNewBreedName());
-                        return breedRepository.save(newBreed);});
+            	.orElseGet(() -> {
+                Breed newBreed = new Breed();
+                newBreed.setSpecies(form.getSpecies());
+                newBreed.setName(form.getNewBreedName());
+                return breedRepository.save(newBreed);
+            });
 
         // 既存の品種が選択されている場合
         } else if (form.getBreedId() != null) {
-           breed = breedRepository.findById(form.getBreedId())
+            breed = breedRepository.findById(form.getBreedId())
                     .orElseThrow(() ->
-                            new ResponseStatusException(HttpStatus.NOT_FOUND));}
+                            new ResponseStatusException(HttpStatus.NOT_FOUND));
+        }
+
         // 犬猫と品種の組み合わせが正しいかチェック
         if (breed != null && breed.getSpecies() != form.getSpecies()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"犬猫と品種の組み合わせが不正です。");
@@ -245,26 +235,31 @@ public class AnimalService {
         animal.setIntakePlace(form.getIntakePlace());
         animal.setIntakeMethod(form.getIntakeMethod());
         animal.setStatus(form.getStatus());
+
         // 譲渡・トライアルの場合は里親を必須にする
         if ((form.getStatus() == Status.TRIAL || form.getStatus() == Status.ADOPTED) && form.getAdopterId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"このステータスの場合は里親を選択してください。");
         }
-        //里親Idと紐づける
+
+        // 里親Idと紐づける
         if (form.getAdopterId() != null) {
             Adopter adopter = adopterRepository.findByIdAndOrganizationId(form.getAdopterId(),organizationId)
-                .orElseThrow(() ->
-                    new ResponseStatusException(HttpStatus.NOT_FOUND));
+                    .orElseThrow(() ->
+                            new ResponseStatusException(HttpStatus.NOT_FOUND));
             animal.setAdopter(adopter);
         }
 
         // 避妊去勢・ワクチン
         animal.setNeutered(form.getNeutered());
         animal.setComboVaccine(form.getComboVaccine());
+
         // 犬の場合は狂犬病ワクチンを必須にする
         if (form.getSpecies() == Species.DOG && form.getRabiesVaccine() == null) {
+
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"犬の場合は狂犬病ワクチンを選択してください。");
         }
-        //猫は狂犬病ワクチン関係ないのでifで分岐
+
+        // 猫は狂犬病ワクチン関係ないのでifで分岐
         if (form.getSpecies() == Species.CAT) {
             animal.setRabiesVaccine(false);
         } else {
@@ -276,12 +271,34 @@ public class AnimalService {
 
         // 特記事項
         animal.setHealthNotes(form.getHealthNotes());
-        animal.setNotes(form.getNotes());       
+        animal.setNotes(form.getNotes());
+
+        // ★ P-02対応
+        // 入力チェックがすべて終わった後に写真を処理する
+        if (form.getPhoto() != null && !form.getPhoto().isEmpty()) {
+
+            // 新しい写真を保存
+            String newImagePath = savePhoto(form.getPhoto());
+
+            // DB上の画像パスを新しい画像に変更
+            animal.setImagePath(newImagePath);
+
+            // 古い写真を削除
+            if (oldImagePath != null && !oldImagePath.isBlank()) {
+
+                Path oldPhotoPath = Paths.get("uploads" + oldImagePath);
+
+                try {
+                    Files.deleteIfExists(oldPhotoPath);
+                } catch (IOException e) {
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"古い写真を削除できませんでした",e);
+                }
+            }
+        }
 
         // DBに登録
         animalRepository.save(animal);
-    }
-    // 個体削除時に写真ファイルも削除する
+    }    // 個体削除時に写真ファイルも削除する
     public void delete(Integer id, Integer organizationId) {
 
         // 団体IDも指定して個体を取得
