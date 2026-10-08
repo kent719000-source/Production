@@ -317,7 +317,8 @@
             <div>
                 <c:choose>
                     <c:when test="${not empty animal.healthNotes}">
-                        <c:out value="${animal.healthNotes}" />
+                        <%-- hogo-notes：入力したときの改行をそのまま表示する（white-space: pre-wrap。U-10）。c:out とタグの間に改行を入れない（入れると余分な空白・改行まで表示される） --%>
+                        <div class="hogo-notes"><c:out value="${animal.healthNotes}" /></div>
                     </c:when>
                     <c:otherwise>
                         -
@@ -335,7 +336,7 @@
             <div>
                 <c:choose>
                     <c:when test="${not empty animal.notes}">
-                        <c:out value="${animal.notes}" />
+                        <div class="hogo-notes"><c:out value="${animal.notes}" /></div>
                     </c:when>
                     <c:otherwise>
                         -
@@ -384,7 +385,8 @@
                                     </td>
 
                                     <td>
-                                        <c:out value="${event.notes}" />
+                                        <%-- イベントの特記事項も改行をそのまま表示する（td に pre-wrap を付けるとタグの前後の空白まで出るので、中の span に付ける） --%>
+                                        <span class="hogo-notes"><c:out value="${event.notes}" /></span>
                                     </td>
                                 </tr>
 
