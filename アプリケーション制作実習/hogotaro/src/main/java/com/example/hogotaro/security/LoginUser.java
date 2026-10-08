@@ -1,6 +1,9 @@
 package com.example.hogotaro.security;
 
+import java.util.Optional;
+
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -32,17 +35,28 @@ public class LoginUser {
         return auth;
     }
 
-    /** ログイン中の staff。1 回呼ぶごとに SELECT が 1 回走る（この規模では気にしなくてよい） */
-    private Staff staff() {
+    /** ログイン中の staff。ログインしていない・staff の行が無ければ空 */
+    private Optional<Staff> findStaff() {
         Authentication auth = auth();
         if (auth == null) {
-            throw new IllegalStateException("ログインしていません");
+            return Optional.empty();
         }
-        return staffRepository.findByLoginId(auth.getName()).orElseThrow();
+        return staffRepository.findByLoginId(auth.getName());
     }
 
+    /** ログイン中の staff。1 回呼ぶごとに SELECT が 1 回走る（この規模では気にしなくてよい） */
+    private Staff staff() {
+        if (auth() == null) {
+            throw new IllegalStateException("ログインしていません");
+        }
+        // ログインしたまま、管理ユーザーにこのスタッフが削除された場合。
+        // 認証の例外にすると Spring Security がログイン画面へリダイレクトする（以前は NoSuchElementException で 500 になっていた）
+        return findStaff().orElseThrow(() -> new InsufficientAuthenticationException("このスタッフは削除されています"));
+    }
+
+    /** ログインしていて、staff の行もあれば true。header.jspf と error.jsp と GET /login が使う */
     public boolean isLoggedIn() {
-        return auth() != null;
+        return findStaff().isPresent();
     }
 
     /** ログイン中のスタッフの団体 ID。Repository の絞り込みは必ずこれを使う */
