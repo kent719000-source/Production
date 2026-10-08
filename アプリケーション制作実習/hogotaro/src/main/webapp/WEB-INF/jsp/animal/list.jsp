@@ -5,7 +5,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <%@ include file="/WEB-INF/jsp/common/head.jspf" %>
 <title>個体一覧 | ホゴタロウ</title>
 </head>
@@ -77,7 +76,7 @@
                         <label for="name" class="form-label">
                             名前
                         </label>
-                        <input type="text" id="name" name="name" class="form-control" value="${searchForm.name}" placeholder="個体名を入力してください">
+                        <input type="text" id="name" name="name" class="form-control" value="${fn:escapeXml(searchForm.name)}" placeholder="個体名を入力してください">
                     </div>
                     <div class="col-md-auto mt-3 mt-md-0">
                         <button type="submit" name="search" value="1" class="btn btn-hogo">
@@ -99,7 +98,7 @@
                             <%-- 写真 --%>
                             <c:choose>
                                 <c:when test="${not empty animal.imagePath}">
-                                    <img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${animal.name}" class="w-100 hogo-card-img">
+                                    <img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${fn:escapeXml(animal.name)}" class="w-100 hogo-card-img">
                                 </c:when>
                                 <c:otherwise>
                                     <img src="${pageContext.request.contextPath}/NoPhotos/NoPhotos.png" alt="画像なし" class="w-100 hogo-card-img"style="object-fit: contain;">

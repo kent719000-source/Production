@@ -7,8 +7,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<meta charset="UTF-8">
 <%@ include file="/WEB-INF/jsp/common/head.jspf" %>
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
@@ -64,7 +62,7 @@
                 <c:choose>
                     <%-- 編集時に現在の写真がある場合 --%>
                     <c:when test="${mode == 'edit' and not empty animal.imagePath}">
-                        <img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${animal.name}" class="img-fluid rounded" id="photoPreview" style="max-width: 300px;">
+                        <img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${fn:escapeXml(animal.name)}" class="img-fluid rounded" id="photoPreview" style="max-width: 300px;">
                     </c:when>
 
                     <%-- 写真がない場合 --%>
