@@ -1,5 +1,6 @@
 package com.example.hogotaro.controller;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -84,10 +85,18 @@ public class StaffController {
         }
 
         // アノテーションだけでは確認できない項目をServiceでチェック
-        Integer id = staffService.create(
-                staffForm,
-                result,
-                loginUser.getOrganizationId());
+        Integer id;
+        try {
+            id = staffService.create(
+                    staffForm,
+                    result,
+                    loginUser.getOrganizationId());
+        } catch (DataIntegrityViolationException e) {
+            // ログインIDの重複は Service でも調べるが、ほぼ同時に2回送られる（二重クリック）と両方がその調べを通り抜け、
+            // 2回目は DB の UNIQUE で失敗する。500 にせず、同じ入力エラーとして返す（1回目の登録は済んでいる）
+            result.rejectValue("loginId", "duplicate", "既に登録済みのログインIDです");
+            id = null;
+        }
 
         // ログインID重複、ユーザー種別不正、パスワード未入力など
         if (result.hasErrors()) {
