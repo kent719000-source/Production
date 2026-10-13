@@ -198,11 +198,11 @@ public class AnimalService {
         }
 
         // マイクロチップ
-        animal.setMicrochipNo(form.getMicrochipNo());
+        animal.setMicrochipNo(blankToNull(form.getMicrochipNo()));
 
         // 特記事項
-        animal.setHealthNotes(form.getHealthNotes());
-        animal.setNotes(form.getNotes());
+        animal.setHealthNotes(blankToNull(form.getHealthNotes()));
+        animal.setNotes(blankToNull(form.getNotes()));
         
         // 画像が選択されていたら保存
         if (form.getPhoto() != null && !form.getPhoto().isEmpty()) {
@@ -292,11 +292,11 @@ public class AnimalService {
         }
 
         // マイクロチップ
-        animal.setMicrochipNo(form.getMicrochipNo());
+        animal.setMicrochipNo(blankToNull(form.getMicrochipNo()));
 
         // 特記事項
-        animal.setHealthNotes(form.getHealthNotes());
-        animal.setNotes(form.getNotes());
+        animal.setHealthNotes(blankToNull(form.getHealthNotes()));
+        animal.setNotes(blankToNull(form.getNotes()));
 
         // ★ P-02対応
         // 入力チェックがすべて終わった後に写真を処理する
@@ -351,6 +351,11 @@ public class AnimalService {
             }
         }
     }    
+    // 空文字（空白だけも含む）なら null にする。里親・スタッフと同じく、未入力は null で保存する
+    private String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
+    }
+
     // 写真をプロジェクト直下の uploads/photos/ に保存し、画面から見る URL（/photos/ファイル名）を返す。選ばれていなければ null
     private String savePhoto(MultipartFile photo) {
 		if (photo == null || photo.isEmpty()) {

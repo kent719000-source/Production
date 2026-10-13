@@ -314,7 +314,7 @@
             <div>
                 <c:choose>
                     <c:when test="${not empty animal.healthNotes}">
-                        <c:out value="${animal.healthNotes}" />
+                        <p class="hogo-notes"><c:out value="${animal.healthNotes}" /></p>
                     </c:when>
                     <c:otherwise>
                         -
@@ -332,7 +332,7 @@
             <div>
                 <c:choose>
                     <c:when test="${not empty animal.notes}">
-                        <c:out value="${animal.notes}" />
+                        <p class="hogo-notes"><c:out value="${animal.notes}" /></p>
                     </c:when>
                     <c:otherwise>
                         -
