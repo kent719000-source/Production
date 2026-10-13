@@ -7,40 +7,10 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<%@ include file="/WEB-INF/jsp/common/head.jspf" %>
 <title>スタッフ一覧 | ホゴタロウ</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-<%-- 丸ゴシック体（Zen Maru Gothic）を Google Fonts から読み込む --%>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
-<%-- ここから </style> までは adopter/list.jsp と同じ。共通の head.jspf ができたら、その include 1行に置き換える --%>
 <style>
-  /* ページ全体の文字。Bootstrapはこの変数でフォント・文字色・背景色を決めている */
-  :root {
-    --bs-body-font-family: 'Zen Maru Gothic', sans-serif; /* 丸ゴシックでやわらかい印象に */
-    --bs-body-color: #4a3f38;              /* 真っ黒ではなく、こげ茶寄りの文字色 */
-    --bs-body-bg: #fffaf5;                 /* ほんのり温かみのある白 */
-    --bs-body-line-height: 1.8;            /* 行間を広げて読みやすく */
-    --bs-link-color-rgb: 196, 98, 45;      /* リンクの色（オレンジ寄りの茶色） */
-    --bs-link-hover-color-rgb: 150, 70, 30;/* リンクにマウスを乗せたときの色 */
-
-    /* ホゴタロウの配色。色はここにまとめて、下のCSSでは変数名で使う */
-    --hogo-peach: #FFD1A0;        /* ロゴ・ヘッダーと同じピーチ色 */
-    --hogo-peach-light: #fff1e4;  /* ピーチをうすくした色（背景・ホバー用） */
-    --hogo-accent: #c4622d;       /* ボタンなどの強調色（オレンジ寄りの茶色） */
-    --hogo-accent-dark: #a34f22;  /* 強調色にマウスを乗せたときの色 */
-    --hogo-brown: #6b4226;        /* 見出し・ラベルの茶色 */
-    --hogo-border: #ecd6c4;       /* 淡いベージュの線 */
-  }
-
-  /* ページの見出し */
-  h1 {
-    color: var(--hogo-brown);
-    font-weight: 700;
-  }
-
+  /* この画面だけのスタイル。共通のスタイルは hogotarou.css（head.jspf が読み込む） */
   /* ===== 検索フォーム ===== */
   /* 全体を白いカードにして、角を丸く・影をうっすら付ける */
   .hogo-search {
@@ -85,77 +55,6 @@
   /* 入力欄の中の薄い例文 */
   .hogo-search .form-control::placeholder {
     color: #c8b3a3;
-  }
-
-  /* ===== ボタン ===== */
-  /* メインのボタン（検索・新規登録）。強調色で塗りつぶし、両端を丸く */
-  .btn-hogo {
-    background-color: var(--hogo-accent);
-    border: 1.5px solid var(--hogo-accent);
-    color: #ffffff;
-    font-weight: 500;
-    border-radius: 999px;
-    padding: 0.4rem 1.4rem;
-    transition: background-color 0.2s, box-shadow 0.2s;
-  }
-  .btn-hogo:hover,
-  .btn-hogo:focus-visible {
-    background-color: var(--hogo-accent-dark);
-    border-color: var(--hogo-accent-dark);
-    color: #ffffff;
-    box-shadow: 0 3px 8px rgba(163, 79, 34, 0.25); /* ふわっと浮く */
-  }
-  /* サブのボタン（クリア）。普段は文字だけ、マウスを乗せるとうすいピーチ色 */
-  .btn-hogo-sub {
-    background-color: transparent;
-    border: 1.5px solid transparent;
-    color: var(--hogo-brown);
-    font-weight: 500;
-    border-radius: 999px;
-    padding: 0.4rem 1rem;
-    transition: background-color 0.2s;
-  }
-  .btn-hogo-sub:hover,
-  .btn-hogo-sub:focus-visible {
-    background-color: var(--hogo-peach-light);
-    color: var(--hogo-accent);
-  }
-
-  /* 件数の表示 */
-  .hogo-count {
-    color: var(--hogo-brown);
-  }
-  .hogo-count strong {
-    color: var(--hogo-accent);
-    font-size: 1.2rem;
-  }
-
-  /* ===== 表 ===== */
-  /* 表全体の文字色と境界線の色（境界線は黒っぽい灰色ではなく、淡いベージュに） */
-  .table {
-    --bs-table-color: var(--bs-body-color);
-    --bs-table-border-color: var(--hogo-border);
-    --bs-table-hover-bg: var(--hogo-peach-light); /* マウスを乗せた行もピーチ系に */
-  }
-
-  /* セルの内側の余白を少し広げて、ゆったり見せる */
-  .table > :not(caption) > * > * {
-    padding: 0.75rem 1rem;
-  }
-
-  /* 項目行の色（ヘッダーと同じピーチ色）。Bootstrapの表はこの変数で背景色を決めている */
-  .table-peach {
-    --bs-table-bg: var(--hogo-peach);
-    --bs-table-color: var(--hogo-brown); /* 項目名は茶色にして、背景となじませる */
-    font-weight: 500;                    /* 太すぎない太字 */
-  }
-
-  /* 表の中のリンクは普段は下線なし、マウスを乗せたときだけ下線を出す */
-  .table a {
-    text-decoration: none;
-  }
-  .table a:hover {
-    text-decoration: underline;
   }
 
   /* 0件のときの表示 */

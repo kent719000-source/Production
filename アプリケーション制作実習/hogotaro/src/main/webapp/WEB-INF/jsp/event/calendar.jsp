@@ -7,67 +7,10 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<%@ include file="/WEB-INF/jsp/common/head.jspf" %>
 <title>イベントカレンダー | ホゴタロウ</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-<%-- 丸ゴシック体（Zen Maru Gothic）を Google Fonts から読み込む --%>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* 里親一覧と共通の配色・フォント */
-:root {
-    --bs-body-font-family: 'Zen Maru Gothic', sans-serif; /* 丸ゴシックでやわらかい印象に */
-    --bs-body-color: #4a3f38;              /* 真っ黒ではなく、こげ茶寄りの文字色 */
-    --bs-body-bg: #fffaf5;                 /* ほんのり温かみのある白 */
-    --bs-body-line-height: 1.8;            /* 行間を広げて読みやすく */
-    --bs-link-color-rgb: 196, 98, 45;      /* リンクの色（オレンジ寄りの茶色） */
-    --bs-link-hover-color-rgb: 150, 70, 30;/* リンクにマウスを乗せたときの色 */
-
-    /* ホゴタロウの配色。色はここにまとめて、下のCSSでは変数名で使う */
-    --hogo-peach: #FFD1A0;        /* ロゴ・ヘッダーと同じピーチ色 */
-    --hogo-peach-light: #fff1e4;  /* ピーチをうすくした色（背景・ホバー用） */
-    --hogo-accent: #c4622d;       /* ボタンなどの強調色（オレンジ寄りの茶色） */
-    --hogo-accent-dark: #a34f22;  /* 強調色にマウスを乗せたときの色 */
-    --hogo-brown: #6b4226;        /* 見出し・ラベルの茶色 */
-    --hogo-border: #ecd6c4;       /* 淡いベージュの線 */
-  }
-  .btn-hogo {
-    background-color: var(--hogo-accent);
-    border: 1.5px solid var(--hogo-accent);
-    color: #ffffff;
-    font-weight: 500;
-    border-radius: 999px;
-    padding: 0.4rem 1.4rem;
-    transition: background-color 0.2s, box-shadow 0.2s;
-  }
-  .btn-hogo:hover,
-  .btn-hogo:focus-visible {
-    background-color: var(--hogo-accent-dark);
-    border-color: var(--hogo-accent-dark);
-    color: #ffffff;
-    box-shadow: 0 3px 8px rgba(163, 79, 34, 0.25); /* ふわっと浮く */
-  }
-  /* サブのボタン（クリア）。普段は文字だけ、マウスを乗せるとうすいピーチ色 */
-  .btn-hogo-sub {
-    background-color: transparent;
-    border: 1.5px solid transparent;
-    color: var(--hogo-brown);
-    font-weight: 500;
-    border-radius: 999px;
-    padding: 0.4rem 1rem;
-    transition: background-color 0.2s;
-  }
-  .btn-hogo-sub:hover,
-  .btn-hogo-sub:focus-visible {
-    background-color: var(--hogo-peach-light);
-    color: var(--hogo-accent);
-  }
-
-
+  /* この画面だけのスタイル。共通のスタイルは hogotarou.css（head.jspf が読み込む） */
 [hidden] { display: none !important; }
 .hogo-calendar-page { max-width: 1400px; }
 .hogo-calendar-page h1, .hogo-calendar-page h2, .hogo-calendar-page h3 {

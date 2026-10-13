@@ -7,20 +7,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%@ include file="/WEB-INF/jsp/common/head.jspf" %>
 <title>${mode == 'new' ? 'イベント新規登録' : 'イベント編集'} | ホゴタロウ</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-<%-- 丸ゴシック体（Zen Maru Gothic）を Google Fonts から読み込む --%>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
-
-<%-- Bootstrapの後に、君の共通CSSを読み込む --%>
-<c:url var="hogoCssUrl" value="/css/hogotarou.css" />
-<link rel="stylesheet" href="${fn:escapeXml(hogoCssUrl)}">
-
 </head>
 
 <body>
