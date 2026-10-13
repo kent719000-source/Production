@@ -192,10 +192,14 @@ public class AnimalService {
         // DBに登録
         return animalRepository.save(animal);
        }    
-    public void update(Integer id, Integer organizationId, AnimalForm form) {
+    // 戻り値: 保護頭数に数えない保護状況（譲渡済など）から、数える保護状況（保護中など）に変わったら true（定員のポップアップに使う）
+    public boolean update(Integer id, Integer organizationId, AnimalForm form) {
         Animal animal = animalRepository.findByIdAndOrganizationId(id, organizationId)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // 変更前の保護状況が保護頭数に入っていたか（値を書き換える前に覚えておく）
+        boolean wasInCare = Status.inCare().contains(animal.getStatus());
 
         // 更新前の古い画像パスを保存しておく
         String oldImagePath = animal.getImagePath();
@@ -306,7 +310,10 @@ public class AnimalService {
 
         // DBに登録
         animalRepository.save(animal);
-    }    // 個体削除時に写真ファイルも削除する
+        return !wasInCare && Status.inCare().contains(animal.getStatus());
+    }
+
+    // 個体削除時に写真ファイルも削除する
     public void delete(Integer id, Integer organizationId) {
 
         // 団体IDも指定して個体を取得

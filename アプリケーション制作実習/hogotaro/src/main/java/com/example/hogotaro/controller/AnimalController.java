@@ -117,13 +117,7 @@ public class AnimalController {
 		    redirectAttributes.addFlashAttribute("message", "個体新規登録が完了しました");
 		    // この登録で保護頭数が定員を超えたら、詳細画面でポップアップを出す（警告だけ。登録はもう済んでいる）
 		    if (Status.inCare().contains(animal.getStatus())) {
-		        Integer organizationId = loginUser.getOrganizationId();
-		        long inCare = topService.countInCare(organizationId);
-		        int capacity = topService.findOrganization(organizationId).getCapacity();
-		        if (inCare > capacity) {
-		            redirectAttributes.addFlashAttribute("capacityOver",
-		                    "保護中 " + inCare + " 頭 / 定員 " + capacity + " 頭です。トップページの受け入れ状況も確認してください。");
-		        }
+		        addCapacityOverFlash(loginUser.getOrganizationId(), redirectAttributes);
 		    }
 		    return "redirect:/animal/" + animal.getId();
 	    }catch(ResponseStatusException e) {
@@ -199,10 +193,14 @@ public class AnimalController {
 	        return "animal/form";
 	    }
 	    try {
-		    // 個体を更新
-		    animalService.update(id, organizationId, form);
+		    // 個体を更新（戻り値: 譲渡済などから保護中などに変わったら true）
+		    boolean enteredCare = animalService.update(id, organizationId, form);
 		  //編集のフラッシュメッセージ
 		    redirectAttributes.addFlashAttribute("message","個体を編集しました");
+		    // 譲渡済などから保護中に戻して定員を超えたら、新規登録と同じく詳細画面でポップアップを出す（警告だけ。更新はもう済んでいる）
+		    if (enteredCare) {
+		        addCapacityOverFlash(organizationId, redirectAttributes);
+		    }
 
 		    // PRGパターン：更新後は詳細画面へリダイレクト
 		    return "redirect:/animal/" + id;	
@@ -253,6 +251,17 @@ public class AnimalController {
 	    // 削除後は一覧へ
 	    return "redirect:/animal";
 	}
+	// 保護頭数が定員を超えていたら、詳細画面のポップアップ（detail.jsp の capacityOver）に出す文言をフラッシュで渡す。
+	// 新規登録（保護中などで登録したとき）と編集（譲渡済などから保護中などに戻したとき）で使う
+	private void addCapacityOverFlash(Integer organizationId, RedirectAttributes redirectAttributes) {
+	    long inCare = topService.countInCare(organizationId);
+	    int capacity = topService.findOrganization(organizationId).getCapacity();
+	    if (inCare > capacity) {
+	        redirectAttributes.addFlashAttribute("capacityOver",
+	                "保護中 " + inCare + " 頭 / 定員 " + capacity + " 頭です。トップページの受け入れ状況も確認してください。");
+	    }
+	}
+
 	// 写真の種類のチェック（U-02）。画面の accept と Cropper.js は JPEG にして送るが、それ以外の方法で送られた JPEG・PNG 以外のファイルははじく
 	private void checkPhotoType(AnimalForm form, BindingResult result) {
 	    MultipartFile photo = form.getPhoto();
