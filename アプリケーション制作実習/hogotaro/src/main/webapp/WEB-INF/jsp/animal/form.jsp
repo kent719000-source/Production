@@ -41,6 +41,15 @@
         </c:choose>
     </h1>
 
+    <%-- 保護頭数が定員以上のときのお知らせ（新規登録の画面を開いたときだけ。閉じれば登録を続けられる） --%>
+    <c:if test="${mode == 'new' && capacityFull}">
+        <c:set var="dialogTitle" value="保護頭数が定員に達しています"/>
+        <c:set var="dialogMessage" value="保護中 ${inCare} 頭 / 定員 ${capacity} 頭です。保護中・入院中・トライアル中として登録すると、定員を超えます。"/>
+        <c:set var="dialogLinkUrl" value="${pageContext.request.contextPath}/animal"/>
+        <c:set var="dialogLinkText" value="一覧へ戻る"/>
+        <%@ include file="/WEB-INF/jsp/common/dialog.jspf" %>
+    </c:if>
+
     <%-- フォーム開始 --%>
     <c:choose>
         <%-- 編集 --%>

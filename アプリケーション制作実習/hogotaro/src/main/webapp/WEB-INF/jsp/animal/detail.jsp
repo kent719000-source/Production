@@ -23,6 +23,12 @@
             	<c:out value="${message}"/>
         		</div>
     		</c:if>
+     <%-- 新規登録で保護頭数が定員を超えたときのお知らせ（AnimalController#create がフラッシュで渡す） --%>
+    		<c:if test="${not empty capacityOver}">
+    		    <c:set var="dialogTitle" value="保護頭数が定員を超えました"/>
+    		    <c:set var="dialogMessage" value="${capacityOver}"/>
+    		    <%@ include file="/WEB-INF/jsp/common/dialog.jspf" %>
+    		</c:if>
   <%-- gx-4: 列の間だけ空ける（縦の間はカードの mb-4。スマホで縦に並んだときに間が二重にならないように） --%>
   <div class="row gx-4">
     <%-- 左の列：写真と基本情報 --%>

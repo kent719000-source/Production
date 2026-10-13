@@ -26,6 +26,7 @@ import com.example.hogotaro.repository.AnimalRepository;
 import com.example.hogotaro.repository.BreedRepository;
 import com.example.hogotaro.security.LoginUser;
 import com.example.hogotaro.service.AnimalService;
+import com.example.hogotaro.service.TopService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,6 +39,7 @@ public class AnimalController {
 	private final BreedRepository breedRepository;
 	private final AdopterRepository adopterRepository;
 	private final AnimalRepository animalRepository;
+	private final TopService topService; // 保護頭数と定員（新規登録のポップアップ用）
 
 	@GetMapping("/animal") //URLでlocalhost:8080/animalをリクエストすると呼ばれる
 	public String list(@ModelAttribute("searchForm") AnimalSearchForm form,@RequestParam(value = "search",required = false) String search,Model model) { //Model: JSPに渡すデータを入れる箱。引数に書くだけでSpringが用意して渡してくれる(自分でnewしない)
@@ -90,6 +92,13 @@ public class AnimalController {
 		
 		//ユーザーの権限
 		model.addAttribute("loginUser", loginUser);
+		// 保護頭数が定員以上なら、画面を開いたときにポップアップで知らせる（警告だけで、登録はできる）
+		Integer organizationId = loginUser.getOrganizationId();
+		long inCare = topService.countInCare(organizationId);
+		int capacity = topService.findOrganization(organizationId).getCapacity();
+		model.addAttribute("capacityFull", inCare >= capacity);
+		model.addAttribute("inCare", inCare);
+		model.addAttribute("capacity", capacity);
 
 		return "animal/form";
 	}
@@ -106,6 +115,16 @@ public class AnimalController {
 		    Animal animal = animalService.create(form,loginUser.getOrganizationId());
 		    //新規登録のフラッシュメッセージ
 		    redirectAttributes.addFlashAttribute("message", "個体新規登録が完了しました");
+		    // この登録で保護頭数が定員を超えたら、詳細画面でポップアップを出す（警告だけ。登録はもう済んでいる）
+		    if (Status.inCare().contains(animal.getStatus())) {
+		        Integer organizationId = loginUser.getOrganizationId();
+		        long inCare = topService.countInCare(organizationId);
+		        int capacity = topService.findOrganization(organizationId).getCapacity();
+		        if (inCare > capacity) {
+		            redirectAttributes.addFlashAttribute("capacityOver",
+		                    "保護中 " + inCare + " 頭 / 定員 " + capacity + " 頭です。トップページの受け入れ状況も確認してください。");
+		        }
+		    }
 		    return "redirect:/animal/" + animal.getId();
 	    }catch(ResponseStatusException e) {
 	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {

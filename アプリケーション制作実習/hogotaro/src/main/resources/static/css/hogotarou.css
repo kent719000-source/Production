@@ -330,3 +330,29 @@ h1 {
   height: 200px;
   object-fit: cover;
 }
+
+/* お知らせのポップアップ（common/dialog.jspf）。<dialog open> を画面の真ん中に出し、後ろを暗くする */
+.hogo-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  z-index: 1050;
+  width: min(90vw, 440px);
+  height: fit-content;
+  padding: 1.5rem;
+  border: 1px solid var(--hogo-border);
+  border-radius: 16px;
+  background-color: #ffffff;
+  color: var(--bs-body-color);
+  /* 2つ目の影を画面いっぱいに広げて後ろを暗くする（JavaScript の showModal() を使わないので ::backdrop は使えない） */
+  box-shadow: 0 8px 24px rgba(160, 90, 40, 0.2), 0 0 0 100vmax rgba(74, 63, 56, 0.45);
+}
+.hogo-dialog-title {
+  color: var(--hogo-brown);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.hogo-dialog-message {
+  margin-bottom: 1.25rem;
+}

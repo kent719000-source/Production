@@ -1,0 +1,17 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%-- お知らせのポップアップ（JavaScript を使わない）。
+     使い方: include の前に c:set で dialogTitle（見出し）と dialogMessage（本文）を入れておく。
+     dialogLinkUrl・dialogLinkText を入れると、「閉じる」の左にもう1つボタン（リンク）を出す。
+     <dialog open> はページを開いたときから表示されるダイアログ。
+     「閉じる」は <form method="dialog"> の送信で閉じる（ブラウザの機能。サーバーには何も送らないので CSRF トークンも要らない） --%>
+<dialog open class="hogo-dialog" aria-labelledby="hogo-dialog-title">
+  <h2 id="hogo-dialog-title" class="hogo-dialog-title"><c:out value="${dialogTitle}"/></h2>
+  <p class="hogo-dialog-message"><c:out value="${dialogMessage}"/></p>
+  <form method="dialog" class="d-flex flex-wrap justify-content-end gap-2 m-0">
+    <c:if test="${not empty dialogLinkUrl}">
+      <a href="${dialogLinkUrl}" class="btn btn-hogo-sub"><c:out value="${dialogLinkText}"/></a>
+    </c:if>
+    <button type="submit" class="btn btn-hogo" autofocus>閉じる</button>
+  </form>
+</dialog>
