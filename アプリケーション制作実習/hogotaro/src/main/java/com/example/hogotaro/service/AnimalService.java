@@ -128,21 +128,6 @@ public class AnimalService {
         Animal animal = new Animal(); // 新しいAnimalを作る
         Organization organization = organizationRepository.getReferenceById(organizationId); // 団体を設定
         animal.setOrganization(organization);//上で指定した団体に個体を所属させる
-     // 受け入れ上限チェック
-     // 受け入れ対象のステータスで登録する場合のみ確認する
-     if (Status.inCare().contains(form.getStatus())) {
-
-         // ログイン中の団体の現在の保護頭数を取得
-         long currentCount =animalRepository.countByOrganizationIdAndStatusIn(organizationId, Status.inCare());
-
-         // 団体ごとの受け入れ上限を取得
-         Integer capacity = organization.getCapacity();
-
-         // 上限に達していたら登録を拒否する
-         if (capacity != null && currentCount >= capacity) {
-             throw new AnimalValidationException("status","status.capacityExceeded","受け入れ上限に達しているため、保護中の個体を登録できません。");
-         }
-     }
         // 基本情報
         animal.setName(form.getName());
         animal.setSpecies(form.getSpecies());
@@ -230,25 +215,6 @@ public class AnimalService {
         Animal animal = animalRepository.findByIdAndOrganizationId(id, organizationId)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND));
-        
-        // 変更前と変更後の保護状況を確認
-        boolean wasInCare = Status.inCare().contains(animal.getStatus());
-        boolean willBeInCare = Status.inCare().contains(form.getStatus());
-
-        // 保護対象外から保護対象へ変更する場合だけ、受け入れ上限を確認
-        if (!wasInCare && willBeInCare) {
-
-            // ログイン中の団体の現在の保護頭数
-            long currentCount = animalRepository.countByOrganizationIdAndStatusIn(organizationId, Status.inCare());
-
-            // 団体ごとの受け入れ上限
-            Integer capacity =
-                    organizationRepository.getReferenceById(organizationId).getCapacity();
-
-            if (capacity != null && currentCount >= capacity) {
-                throw new AnimalValidationException("status","status.capacityExceeded","受け入れ上限に達しているため、保護中の個体に変更できません。");
-            }
-        }
 
         // 更新前の古い画像パスを保存しておく
         String oldImagePath = animal.getImagePath();

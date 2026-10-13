@@ -27,6 +27,7 @@ import com.example.hogotaro.repository.AnimalRepository;
 import com.example.hogotaro.repository.BreedRepository;
 import com.example.hogotaro.security.LoginUser;
 import com.example.hogotaro.service.AnimalService;
+import com.example.hogotaro.service.TopService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +40,19 @@ public class AnimalController {
 	private final BreedRepository breedRepository;
 	private final AdopterRepository adopterRepository;
 	private final AnimalRepository animalRepository;
+	private final TopService topService; // 保護頭数と定員（定員のメッセージ用）
+
+	// 保護頭数が定員以上か（トップページの「満員」と同じ条件）
+	private boolean isFull(Integer organizationId) {
+	    return topService.countInCare(organizationId) >= topService.findOrganization(organizationId).getCapacity();
+	}
+
+	// 保存で保護頭数が増えて、定員以上になったら、詳細画面のメッセージ（detail.jsp の capacityFull）をフラッシュで渡す
+	private void addCapacityFull(long before, Integer organizationId, RedirectAttributes redirectAttributes) {
+	    if (topService.countInCare(organizationId) > before && isFull(organizationId)) {
+	        redirectAttributes.addFlashAttribute("capacityFull", true);
+	    }
+	}
 
 	private void addValidationError(BindingResult result,AnimalService.AnimalValidationException e) {
 	    result.rejectValue(e.getField(),e.getErrorCode(),e.getMessage());
@@ -102,6 +116,8 @@ public class AnimalController {
 		
 		//ユーザーの権限
 		model.addAttribute("loginUser", loginUser);
+		// 定員に達していたら、登録画面を開いたときにメッセージを出す（登録はできる）
+		model.addAttribute("capacityFull", isFull(loginUser.getOrganizationId()));
 
 		return "animal/form";
 	}
@@ -114,9 +130,12 @@ public class AnimalController {
 	        return "animal/form";
 	    }
 	    try {
+		    long before = topService.countInCare(loginUser.getOrganizationId()); // 登録前の保護頭数
 		    Animal animal = animalService.create(form,loginUser.getOrganizationId());
 		    //新規登録のフラッシュメッセージ
 		    redirectAttributes.addFlashAttribute("message", "個体新規登録が完了しました");
+		    // 保護頭数が増えて定員に達したら、詳細画面でメッセージを出す
+		    addCapacityFull(before, loginUser.getOrganizationId(), redirectAttributes);
 		    return "redirect:/animal/" + animal.getId();
 	    } catch (AnimalService.AnimalValidationException e) {
 	        addValidationError(result, e);
@@ -182,9 +201,12 @@ public class AnimalController {
 	    }
 	    try {
 		    // 個体を更新
+		    long before = topService.countInCare(organizationId); // 更新前の保護頭数
 		    animalService.update(id, organizationId, form);
 		  //編集のフラッシュメッセージ
 		    redirectAttributes.addFlashAttribute("message","個体を編集しました");
+		    // 譲渡済などから保護中に戻して定員に達したら、詳細画面でメッセージを出す（名前だけの編集などでは出さない）
+		    addCapacityFull(before, organizationId, redirectAttributes);
 
 		    // PRGパターン：更新後は詳細画面へリダイレクト
 		    return "redirect:/animal/" + id;	

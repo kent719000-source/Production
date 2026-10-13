@@ -25,6 +25,13 @@
             	<c:out value="${message}"/>
         		</div>
     		</c:if>
+     <%-- 新規登録・編集で保護頭数が増えて定員に達したときのメッセージ（AnimalController がフラッシュで渡す） --%>
+    		<c:if test="${capacityFull}">
+    		    <dialog open class="hogo-dialog">
+    		        <p>保護頭数が定員に達しています。トップページの受け入れ状況を確認してください。</p>
+    		        <form method="dialog" class="text-end m-0"><button type="submit" class="btn btn-hogo">閉じる</button></form>
+    		    </dialog>
+    		</c:if>
      <%-- 基本情報 --%>
 	<div class="hogo-card mb-4">
     <div class="hogo-card-head">

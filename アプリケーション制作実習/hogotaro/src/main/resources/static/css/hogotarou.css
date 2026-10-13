@@ -330,3 +330,12 @@ h1 {
   height: 200px;
   object-fit: cover;
 }
+
+/* 定員のメッセージ（<dialog open>。animal/form.jsp・detail.jsp）。画面の真ん中に出し、後ろを暗くする */
+.hogo-dialog {
+  position: fixed;                               /* スクロールしても画面に固定 */
+  inset: 0;                                      /* 上下左右を 0 にして、margin: auto（ブラウザの初期値）で真ん中に寄せる */
+  border: 1px solid var(--hogo-border);          /* ブラウザ標準の黒い枠を、ほかのカードと同じ淡い色に */
+  border-radius: 16px;                           /* 角を丸く */
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.4);  /* 画面いっぱいの影で、後ろを暗くする */
+}

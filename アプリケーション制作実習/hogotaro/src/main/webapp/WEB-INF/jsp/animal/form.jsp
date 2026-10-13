@@ -44,6 +44,14 @@
         </c:choose>
     </h1>
 
+    <%-- 定員に達しているときのメッセージ（新規登録の画面を最初に開いたときだけ。閉じれば登録を続けられる） --%>
+    <c:if test="${mode == 'new' && capacityFull}">
+        <dialog open class="hogo-dialog">
+            <p>保護頭数が定員に達しています。このまま登録することもできます。</p>
+            <form method="dialog" class="text-end m-0"><button type="submit" class="btn btn-hogo">閉じる</button></form>
+        </dialog>
+    </c:if>
+
     <%-- フォーム開始 --%>
     <c:choose>
         <%-- 編集 --%>
