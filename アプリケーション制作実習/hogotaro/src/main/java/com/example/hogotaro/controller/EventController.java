@@ -49,13 +49,16 @@ public class EventController {
     @PostMapping("/event/{id}/complete")
     public String complete(
             @PathVariable("id") Integer id,
-            @RequestParam(name = "reopenPane", defaultValue = "false") boolean reopenPane) {
+            @RequestParam(name = "reopenPane", defaultValue = "false") boolean reopenPane,
+            RedirectAttributes redirectAttributes) {
 
         // 1. Serviceに「この予定を完了にして」とお願いする
         Event event = eventService.complete(
                 id,
                 loginUser.getOrganizationId(),
                 loginUser.getStaffId());
+        // 戻った画面（カレンダー・詳細）に1回だけ出すメッセージ（U-19）
+        redirectAttributes.addFlashAttribute("message", "イベントを対応済にしました");
 
         // 2. 完了した予定の日付から、年と月を取り出す
         int year = event.getEventDate().getYear();
@@ -95,12 +98,14 @@ public class EventController {
     @PostMapping("/event/{id}/uncomplete")
     public String uncomplete(
             @PathVariable("id") Integer id,
-            @RequestParam(name = "reopenPane", defaultValue = "false") boolean reopenPane) {
+            @RequestParam(name = "reopenPane", defaultValue = "false") boolean reopenPane,
+            RedirectAttributes redirectAttributes) {
 
         // Serviceに、未対応へ戻す処理をお願いする
         Event event = eventService.uncomplete(
                 id,
                 loginUser.getOrganizationId());
+        redirectAttributes.addFlashAttribute("message", "イベントを未対応に戻しました");
 
         // イベントの年月を取り出す
         int year = event.getEventDate().getYear();
