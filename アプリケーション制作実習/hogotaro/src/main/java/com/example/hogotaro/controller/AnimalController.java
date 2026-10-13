@@ -1,5 +1,7 @@
 package com.example.hogotaro.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,13 +40,24 @@ public class AnimalController {
 	private final AdopterRepository adopterRepository;
 	private final AnimalRepository animalRepository;
 
+	private void addValidationError(BindingResult result,AnimalService.AnimalValidationException e) {
+	    result.rejectValue(e.getField(),e.getErrorCode(),e.getMessage());
+	}
+
 	@GetMapping("/animal") //URLでlocalhost:8080/animalをリクエストすると呼ばれる
 	public String list(@ModelAttribute("searchForm") AnimalSearchForm form,@RequestParam(value = "search",required = false) String search,Model model) { //Model: JSPに渡すデータを入れる箱。引数に書くだけでSpringが用意して渡してくれる(自分でnewしない)
 	    // 初めて一覧を開いたときだけ、保護状況を「保護中・入院中・トライアル中」の4つにする
 	    if (search == null && (form.getStatuses() == null || form.getStatuses().isEmpty())) {
 	        form.setStatuses(Status.inCare());
 	    }
-	    model.addAttribute("animalList",animalService.search(loginUser.getOrganizationId(),form));
+	    // 検索結果を取得
+	    List<Animal> animalList = animalService.search(loginUser.getOrganizationId(), form);
+
+	    // 検索結果を画面に渡す
+	    model.addAttribute("animalList", animalList);
+
+	    // 検索結果の件数を画面に渡す
+	    model.addAttribute("resultCount", animalList.size());
 
 	    // 犬猫の選択肢
 	    model.addAttribute("speciesList", Species.values());
@@ -105,22 +118,13 @@ public class AnimalController {
 		    //新規登録のフラッシュメッセージ
 		    redirectAttributes.addFlashAttribute("message", "個体新規登録が完了しました");
 		    return "redirect:/animal/" + animal.getId();
-	    }catch(ResponseStatusException e) {
-	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-	            if ("犬の場合は狂犬病ワクチンを選択してください。".equals(e.getReason())) {
-	                // 狂犬病ワクチンエラー
-	                result.rejectValue("rabiesVaccine","rabiesVaccine.required",e.getReason());
-	            } else if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
-	                // 品種エラー
-	                result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
-	            } else {
-	                // 里親エラー
-	                result.rejectValue("adopterId","adopter.required",e.getReason());
-	            }
-	            setFormModel(model);
-	            model.addAttribute("mode", "new");
-	            return "animal/form";
-	        }
+	    } catch (AnimalService.AnimalValidationException e) {
+	        addValidationError(result, e);
+	        setFormModel(model);
+	        model.addAttribute("mode", "new");
+	        return "animal/form";
+	    }
+	    catch (ResponseStatusException e) {
 	        throw e;
 	    }
 	}
@@ -185,27 +189,18 @@ public class AnimalController {
 		    // PRGパターン：更新後は詳細画面へリダイレクト
 		    return "redirect:/animal/" + id;	
 		    
-	    }catch(ResponseStatusException e) {
-	        if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+	    } catch (AnimalService.AnimalValidationException e) {
+	        addValidationError(result, e);
+	        setFormModel(model);
+	        model.addAttribute("animalId", id);
+	        model.addAttribute("mode", "edit");
 
-	            if ("犬の場合は狂犬病ワクチンを選択してください。".equals(e.getReason())) {
-	                // 狂犬病ワクチンエラー
-	                result.rejectValue("rabiesVaccine","rabiesVaccine.required",e.getReason());
-	            } else if ("犬猫と品種の組み合わせが不正です。".equals(e.getReason())) {
-	                // 品種エラー
-	                result.rejectValue("breedId","breed.speciesMismatch",e.getReason());
-	            } else {
-	                // 里親エラー
-	                result.rejectValue("adopterId","adopter.required",e.getReason());
-	            }
-	            setFormModel(model);
-	            model.addAttribute("animalId", id);
-	            model.addAttribute("mode", "edit");
-	            Animal animal = animalService.findById(id, organizationId);
-	            model.addAttribute("animal", animal);
-	            model.addAttribute("imagePath", animal.getImagePath());
-	            return "animal/form";
-	        }
+	        Animal animal = animalService.findById(id, organizationId);
+	        model.addAttribute("animal", animal);
+	        model.addAttribute("imagePath", animal.getImagePath());
+	        return "animal/form";
+	    }
+	    catch (ResponseStatusException e) {
 	        throw e;
 	    }
 	}

@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -77,7 +78,7 @@
                         <label for="name" class="form-label">
                             名前
                         </label>
-                        <input type="text" id="name" name="name" class="form-control" value="${searchForm.name}" placeholder="個体名を入力してください">
+                        <input type="text" id="name" name="name" class="form-control" value="<c:out value='${searchForm.name}'/>" placeholder="個体名を入力してください">
                     </div>
                     <div class="col-md-auto mt-3 mt-md-0">
                         <button type="submit" name="search" value="1" class="btn btn-hogo">
@@ -88,18 +89,32 @@
             </form>
         </div>
     </div>
+<%-- 検索結果件数 --%>
+	<div class="d-flex align-items-center mb-2">
+    	<span class="hogo-count">
+        	検索結果 <strong><c:out value="${resultCount}"/></strong> 件
+    	</span>
+	</div>
 <%-- 個体カード --%>
-    <c:if test="${not empty animalList}">
-        <div class="row g-4">
-            <c:forEach var="animal" items="${animalList}">
-                <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+	<c:choose>
+
+    <%-- 該当する個体がいない場合 --%>
+		<c:when test="${empty animalList}">
+    		<p class="hogo-empty">該当する個体はいません</p>
+		</c:when>
+
+    <%-- 該当する個体がいる場合 --%>
+    	<c:otherwise>
+        	<div class="row g-4">
+            	<c:forEach var="animal" items="${animalList}">
+                	<div class="col-12 col-sm-6 col-lg-4 col-xl-3">
                     <a href="${pageContext.request.contextPath}/animal/${animal.id}" class="text-decoration-none">
                         <div class="hogo-card h-100">
 
                             <%-- 写真 --%>
                             <c:choose>
                                 <c:when test="${not empty animal.imagePath}">
-                                    <img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${animal.name}" class="w-100 hogo-card-img">
+                                    <img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${fn:escapeXml(animal.name)}" class="w-100 hogo-card-img">
                                 </c:when>
                                 <c:otherwise>
                                     <img src="${pageContext.request.contextPath}/NoPhotos/NoPhotos.png" alt="画像なし" class="w-100 hogo-card-img"style="object-fit: contain;">
@@ -114,15 +129,25 @@
                                     <c:out value="${animal.name}"/>
                                 </h3>
 
-                                <%-- 種別・性別 --%>
-                                <div class="d-flex justify-content-center gap-2 mb-3">
-                                    <span class="badge rounded-pill" style="background-color: var(--hogo-peach); color: var(--hogo-brown);">
-                                        ${animal.species.label}
-                                    </span>
-                                    <span class="badge rounded-pill" style="background-color: var(--hogo-peach-light); color: var(--hogo-brown);">
-                                        ${animal.sex.label}
-                                    </span>
-                                </div>
+							<%-- 種別・性別・保護状況 --%>
+							<div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+
+    						<%-- 種別 --%>
+    						<span class="badge rounded-pill" style="background-color: var(--hogo-peach); color: var(--hogo-brown);">
+        						<c:out value="${animal.species.label}"/>
+    						</span>
+
+    						<%-- 性別 --%>
+    						<span class="badge rounded-pill" style="background-color: var(--hogo-peach-light); color: var(--hogo-brown);">
+        						<c:out value="${animal.sex.label}"/>
+    						</span>
+
+    						<%-- 保護状況 --%>
+    						<span class="badge rounded-pill" style="background-color: #f5e6d8; color: var(--hogo-brown);">
+        						<c:out value="${animal.status.label}"/>
+    						</span>
+
+							</div>
 
                                 <%-- 品種・年齢 --%>
                                 <div class="small">
@@ -155,7 +180,8 @@
                 </div>
             </c:forEach>
         </div>
-    </c:if>
+       	</c:otherwise>
+	</c:choose>	
 </main>
 
 </body>

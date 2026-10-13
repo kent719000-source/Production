@@ -3,6 +3,7 @@
 
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html>
 
@@ -38,11 +39,7 @@
 
                 <%-- 写真が登録されている場合 --%>
                 <c:when test="${not empty animal.imagePath}">
-                    <img
-                        src="${pageContext.request.contextPath}${animal.imagePath}"
-                        alt="${animal.name}"
-                        class="img-fluid rounded"
-                        style="max-width: 300px;">
+				<img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${fn:escapeXml(animal.name)}" class="img-fluid rounded" style="max-width: 300px;">
                 </c:when>
 
                 <%-- 写真が登録されていない場合 --%>
@@ -366,24 +363,27 @@
 
                         <tbody>
 
-                            <c:forEach var="event" items="${eventList}">
+						<c:forEach var="event" items="${eventList}">
+    						<tr class="event-row" onclick="location.href='${pageContext.request.contextPath}/event/${event.id}'" style="cursor: pointer;">
+        					<td>
+            					<a href="${pageContext.request.contextPath}/event/${event.id}">
+                					<c:out value="${event.eventDate}" />
+            					</a>
+        					</td>
 
-                                <tr>
-                                    <td>
-                                        ${event.eventDate}
-                                    </td>
+        					<td>
+            					<a href="${pageContext.request.contextPath}/event/${event.id}">
+                				<c:out value="${event.eventType.name}" />
+            					</a>
+        					</td>
 
-                                    <td>
-                                        ${event.eventType.name}
-                                    </td>
-
-                                    <td>
-                                        <c:out value="${event.notes}" />
-                                    </td>
-                                </tr>
-
-                            </c:forEach>
-
+        					<td>
+            					<a href="${pageContext.request.contextPath}/event/${event.id}">
+                				<c:out value="${event.notes}" />
+            					</a>
+        					</td>
+    						</tr>
+						</c:forEach>
                         </tbody>
 
                     </table>
@@ -453,6 +453,8 @@
     </a>
 
 </div>
+</div>
+</main>
 </body>
 
 </html>

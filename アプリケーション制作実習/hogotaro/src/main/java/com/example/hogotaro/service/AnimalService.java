@@ -39,6 +39,30 @@ public class AnimalService {
 	private final BreedRepository breedRepository;
 	private final AdopterRepository adopterRepository;
 	private final EventRepository eventRepository;
+	
+	// 個体登録・編集時の入力チェックエラー
+	public static class AnimalValidationException extends RuntimeException {
+	    private final String field;
+	    private final String errorCode;
+	    private final String message;
+
+	    public AnimalValidationException(String field, String errorCode, String message) {
+	        super(message);
+	        this.field = field;
+	        this.errorCode = errorCode;
+	        this.message = message;
+	    }
+	    public String getField() {
+	        return field;
+	    }
+	    public String getErrorCode() {
+	        return errorCode;
+	    }
+	    @Override
+	    public String getMessage() {
+	        return message;
+	    }
+	}
 
 	//団体ID(OrganizationId)で絞って取得する。他の団体のデータを出さないため、Repository を呼ぶときは必ず団体IDを渡す
 	public List<Animal> findAll(Integer organizationId) {
@@ -99,12 +123,26 @@ public class AnimalService {
 	    return form;
 	}
 
-	   // 個体新規登録
+	// 個体新規登録
     public Animal create(AnimalForm form, Integer organizationId) {
         Animal animal = new Animal(); // 新しいAnimalを作る
         Organization organization = organizationRepository.getReferenceById(organizationId); // 団体を設定
         animal.setOrganization(organization);//上で指定した団体に個体を所属させる
+     // 受け入れ上限チェック
+     // 受け入れ対象のステータスで登録する場合のみ確認する
+     if (Status.inCare().contains(form.getStatus())) {
 
+         // ログイン中の団体の現在の保護頭数を取得
+         long currentCount =animalRepository.countByOrganizationIdAndStatusIn(organizationId, Status.inCare());
+
+         // 団体ごとの受け入れ上限を取得
+         Integer capacity = organization.getCapacity();
+
+         // 上限に達していたら登録を拒否する
+         if (capacity != null && currentCount >= capacity) {
+             throw new AnimalValidationException("status","status.capacityExceeded","受け入れ上限に達しているため、保護中の個体を登録できません。");
+         }
+     }
         // 基本情報
         animal.setName(form.getName());
         animal.setSpecies(form.getSpecies());
@@ -129,14 +167,9 @@ public class AnimalService {
                             new ResponseStatusException(HttpStatus.NOT_FOUND));}
         // 犬猫と品種の組み合わせが正しいかチェック
         if (breed != null && breed.getSpecies() != form.getSpecies()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"犬猫と品種の組み合わせが不正です。");
+        	throw new AnimalValidationException("breedId","breed.speciesMismatch","犬猫と品種の組み合わせが不正です。");
         }
-        if (form.getAdopterId() != null) {
-            Adopter adopter = adopterRepository.findByIdAndOrganizationId(form.getAdopterId(),organizationId)
-                .orElseThrow(() ->
-                    new ResponseStatusException(HttpStatus.NOT_FOUND));
-            animal.setAdopter(adopter);
-        }
+
         animal.setBreed(breed);
 
         // 誕生日
@@ -147,25 +180,30 @@ public class AnimalService {
         animal.setIntakeDate(form.getIntakeDate());
         animal.setIntakePlace(form.getIntakePlace());
         animal.setIntakeMethod(form.getIntakeMethod());
+        // 保護状況
         animal.setStatus(form.getStatus());
-        // 譲渡・トライアルの場合は里親を必須にする
-        if ((form.getStatus() == Status.TRIAL || form.getStatus() == Status.ADOPTED) && form.getAdopterId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"このステータスの場合は里親を選択してください。");
-        }
-        //里親Idと紐づける
-        if (form.getAdopterId() != null) {
-            Adopter adopter = adopterRepository.findByIdAndOrganizationId(form.getAdopterId(),organizationId)
-                .orElseThrow(() ->
-                    new ResponseStatusException(HttpStatus.NOT_FOUND));
-            animal.setAdopter(adopter);
-        }
 
+        // トライアル中・譲渡済の場合は里親を必須にする
+        if (form.getStatus() == Status.TRIAL || form.getStatus() == Status.ADOPTED) {
+            if (form.getAdopterId() == null) {
+            	throw new AnimalValidationException("adopterId","adopter.required","このステータスの場合は里親を選択してください。");
+            }
+
+            // 選択された里親を設定
+            Adopter adopter = adopterRepository.findByIdAndOrganizationId(form.getAdopterId(), organizationId)
+                    .orElseThrow(() ->
+                            new ResponseStatusException(HttpStatus.NOT_FOUND));
+            animal.setAdopter(adopter);
+        } else {
+            // トライアル中・譲渡済以外は里親を紐づけない
+            animal.setAdopter(null);
+        }
         // 避妊去勢・ワクチン
         animal.setNeutered(form.getNeutered());
         animal.setComboVaccine(form.getComboVaccine());
         // 犬の場合は狂犬病ワクチンを必須にする
         if (form.getSpecies() == Species.DOG && form.getRabiesVaccine() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"犬の場合は狂犬病ワクチンを選択してください。");
+        	throw new AnimalValidationException("rabiesVaccine","rabiesVaccine.required","犬の場合は狂犬病ワクチンを選択してください。");
         }
         //猫は狂犬病ワクチン関係ないのでifで分岐
         if (form.getSpecies() == Species.CAT) {
@@ -192,6 +230,25 @@ public class AnimalService {
         Animal animal = animalRepository.findByIdAndOrganizationId(id, organizationId)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND));
+        
+        // 変更前と変更後の保護状況を確認
+        boolean wasInCare = Status.inCare().contains(animal.getStatus());
+        boolean willBeInCare = Status.inCare().contains(form.getStatus());
+
+        // 保護対象外から保護対象へ変更する場合だけ、受け入れ上限を確認
+        if (!wasInCare && willBeInCare) {
+
+            // ログイン中の団体の現在の保護頭数
+            long currentCount = animalRepository.countByOrganizationIdAndStatusIn(organizationId, Status.inCare());
+
+            // 団体ごとの受け入れ上限
+            Integer capacity =
+                    organizationRepository.getReferenceById(organizationId).getCapacity();
+
+            if (capacity != null && currentCount >= capacity) {
+                throw new AnimalValidationException("status","status.capacityExceeded","受け入れ上限に達しているため、保護中の個体に変更できません。");
+            }
+        }
 
         // 更新前の古い画像パスを保存しておく
         String oldImagePath = animal.getImagePath();
@@ -222,7 +279,7 @@ public class AnimalService {
 
         // 犬猫と品種の組み合わせが正しいかチェック
         if (breed != null && breed.getSpecies() != form.getSpecies()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"犬猫と品種の組み合わせが不正です。");
+        	throw new AnimalValidationException("breedId","breed.speciesMismatch","犬猫と品種の組み合わせが不正です。");
         }
         animal.setBreed(breed);
 
@@ -236,27 +293,29 @@ public class AnimalService {
         animal.setIntakeMethod(form.getIntakeMethod());
         animal.setStatus(form.getStatus());
 
-        // 譲渡・トライアルの場合は里親を必須にする
-        if ((form.getStatus() == Status.TRIAL || form.getStatus() == Status.ADOPTED) && form.getAdopterId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"このステータスの場合は里親を選択してください。");
-        }
+        // トライアル中・譲渡済の場合は里親を必須にする
+        if (form.getStatus() == Status.TRIAL || form.getStatus() == Status.ADOPTED) {
 
-        // 里親Idと紐づける
-        if (form.getAdopterId() != null) {
-            Adopter adopter = adopterRepository.findByIdAndOrganizationId(form.getAdopterId(),organizationId)
+            if (form.getAdopterId() == null) {
+            	throw new AnimalValidationException("adopterId","adopter.required","このステータスの場合は里親を選択してください。");
+            }
+
+            // 選択された里親を設定
+            Adopter adopter = adopterRepository.findByIdAndOrganizationId(form.getAdopterId(), organizationId)
                     .orElseThrow(() ->
                             new ResponseStatusException(HttpStatus.NOT_FOUND));
             animal.setAdopter(adopter);
+        } else {
+            // トライアル中・譲渡済以外は以前の里親も解除する
+            animal.setAdopter(null);
         }
-
         // 避妊去勢・ワクチン
         animal.setNeutered(form.getNeutered());
         animal.setComboVaccine(form.getComboVaccine());
 
         // 犬の場合は狂犬病ワクチンを必須にする
         if (form.getSpecies() == Species.DOG && form.getRabiesVaccine() == null) {
-
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"犬の場合は狂犬病ワクチンを選択してください。");
+        	throw new AnimalValidationException("rabiesVaccine","rabiesVaccine.required","犬の場合は狂犬病ワクチンを選択してください。");
         }
 
         // 猫は狂犬病ワクチン関係ないのでifで分岐

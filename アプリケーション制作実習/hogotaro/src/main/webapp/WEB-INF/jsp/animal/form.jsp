@@ -3,6 +3,7 @@
 
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
 <html>
@@ -64,7 +65,7 @@
                 <c:choose>
                     <%-- 編集時に現在の写真がある場合 --%>
                     <c:when test="${mode == 'edit' and not empty animal.imagePath}">
-                        <img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${animal.name}" class="img-fluid rounded" id="photoPreview" style="max-width: 300px;">
+                        <img src="${pageContext.request.contextPath}${animal.imagePath}" alt="${fn:escapeXml(animal.name)}" class="img-fluid rounded" id="photoPreview" style="max-width: 300px;">
                     </c:when>
 
                     <%-- 写真がない場合 --%>
@@ -322,9 +323,7 @@
                     </option>
                 </c:forEach>
             </select>
-            <form:errors
-                path="adopterId"
-                cssClass="text-danger small"/>
+            <form:errors path="adopterId" cssClass="text-danger small"/>
         </div>
 
         <%-- 避妊去勢 --%>
@@ -371,9 +370,7 @@
                     </label>
                 </div>
             </div>
-            <form:errors
-                path="neutered"
-                cssClass="text-danger small"/>
+            <form:errors path="neutered" cssClass="text-danger small"/>
         </div>
 
         <%-- 混合ワクチン --%>
@@ -408,9 +405,7 @@
                     </label>
                 </div>
             </div>
-            <form:errors
-                path="comboVaccine"
-                cssClass="text-danger small"/>
+            <form:errors path="comboVaccine" cssClass="text-danger small"/>
         </div>
 
         <%-- 狂犬病ワクチン --%>
@@ -444,9 +439,7 @@
                     </label>
                 </div>
             </div>
-            <form:errors
-                path="rabiesVaccine"
-                cssClass="text-danger small"/>
+            <form:errors path="rabiesVaccine" cssClass="text-danger small"/>
         </div>
 
         <%-- マイクロチップ --%>
@@ -461,9 +454,7 @@
                 maxlength="15"
                 id="microchipNo"
                 cssClass="form-control"/>
-            <form:errors
-                path="microchipNo"
-                cssClass="text-danger small"/>
+            <form:errors path="microchipNo" cssClass="text-danger small"/>
         </div>
 
         <%-- 健康に関する特記事項 --%>
@@ -479,9 +470,7 @@
                 id="healthNotes"
                 cssClass="form-control"
                 rows="5"/>
-            <form:errors
-                path="healthNotes"
-                cssClass="text-danger small"/>
+            <form:errors path="healthNotes" cssClass="text-danger small"/>
         </div>
 
         <%-- その他の特記事項 --%>
@@ -497,9 +486,7 @@
                 id="notes"
                 cssClass="form-control"
                 rows="5"/>
-            <form:errors
-                path="notes"
-                cssClass="text-danger small"/>
+            <form:errors path="notes" cssClass="text-danger small"/>
         </div>
     </div>
 </div>
@@ -553,9 +540,7 @@
             <div class="form-text">
                 JPEG または PNG / 5MB以下
             </div>
-            <form:errors
-                path="photo"
-                cssClass="text-danger small"/>
+            <form:errors path="photo" cssClass="text-danger small"/>
         </div>
 
         <%-- 名前 --%>
@@ -569,9 +554,7 @@
                 maxlength="10"
                 id="name"
                 cssClass="form-control"/>
-            <form:errors
-                path="name"
-                cssClass="text-danger small"/>
+            <form:errors path="name" cssClass="text-danger small"/>
         </div>
 
         <%-- 犬猫 --%>
@@ -606,9 +589,7 @@
                     </label>
                 </div>
             </div>
-            <form:errors
-                path="species"
-                cssClass="text-danger small"/>
+            <form:errors path="species" cssClass="text-danger small"/>
         </div>
 
         <%-- 品種 --%>
@@ -640,9 +621,7 @@
                     </c:forEach>
                 </optgroup>
             </select>
-            <form:errors
-                path="breedId"
-                cssClass="text-danger small"/>
+            <form:errors path="breedId" cssClass="text-danger small"/>
 
             <%-- 新しい品種 --%>
             <div class="mt-3">
@@ -654,9 +633,7 @@
                     maxlength="50"
                     id="newBreedName"
                     cssClass="form-control"/>
-                <form:errors
-                    path="newBreedName"
-                    cssClass="text-danger small"/>
+                <form:errors path="newBreedName" cssClass="text-danger small"/>
             </div>
         </div>
 
@@ -698,9 +675,7 @@
                     </label>
                 </div>
             </div>
-            <form:errors
-                path="sex"
-                cssClass="text-danger small"/>
+            <form:errors path="sex" cssClass="text-danger small"/>
         </div>
     </div>
 </div>
@@ -727,9 +702,7 @@
                         type="date"
                         cssClass="form-control"/>
 
-                    <form:errors
-                        path="birthday"
-                        cssClass="text-danger small"/>
+                    <form:errors path="birthday" cssClass="text-danger small"/>
                 </div>
 
                 <div class="col-md-6">
@@ -783,9 +756,7 @@
                 id="intakeDate"
                 cssClass="form-control"/>
 
-            <form:errors
-                path="intakeDate"
-                cssClass="text-danger small"/>
+            <form:errors path="intakeDate" cssClass="text-danger small"/>
 
         </div>
         <%-- 保護場所 --%>
@@ -802,9 +773,7 @@
                 id="intakePlace"
                 cssClass="form-control"/>
 
-            <form:errors
-                path="intakePlace"
-                cssClass="text-danger small"/>
+            <form:errors path="intakePlace" cssClass="text-danger small"/>
 
         </div>
 		<%-- 保護方法 --%>
@@ -821,9 +790,7 @@
                 id="intakeMethod"
                 cssClass="form-control"/>
 
-            <form:errors
-                path="intakeMethod"
-                cssClass="text-danger small"/>
+            <form:errors path="intakeMethod" cssClass="text-danger small"/>
 
         </div>
         <%-- 保護状況 --%>
@@ -855,9 +822,7 @@
 
             </select>
 
-            <form:errors
-                path="status"
-                cssClass="text-danger small"/>
+            <form:errors path="status" cssClass="text-danger small"/>
 
         </div>
         <%-- 里親 --%>
@@ -888,9 +853,7 @@
 
             </select>
 
-            <form:errors
-                path="adopterId"
-                cssClass="text-danger small"/>
+            <form:errors path="adopterId" cssClass="text-danger small"/>
 
         </div>
 
@@ -948,9 +911,7 @@
 
             </div>
 
-            <form:errors
-                path="neutered"
-                cssClass="text-danger small"/>
+            <form:errors path="neutered" cssClass="text-danger small"/>
 
         </div>
         <%-- 混合ワクチン --%>
@@ -993,9 +954,7 @@
 
             </div>
 
-            <form:errors
-                path="comboVaccine"
-                cssClass="text-danger small"/>
+            <form:errors path="comboVaccine" cssClass="text-danger small"/>
 
         </div>
         <%-- 狂犬病ワクチン --%>
@@ -1037,9 +996,7 @@
 
             </div>
 
-            <form:errors
-                path="rabiesVaccine"
-                cssClass="text-danger small"/>
+            <form:errors path="rabiesVaccine" cssClass="text-danger small"/>
 
         </div>
 		<%-- マイクロチップ --%>
@@ -1055,9 +1012,7 @@
                 id="microchipNo"
                 cssClass="form-control"/>
 
-            <form:errors
-                path="microchipNo"
-                cssClass="text-danger small"/>
+            <form:errors path="microchipNo" cssClass="text-danger small"/>
 
         </div>
         <%-- 健康に関する特記事項 --%>
@@ -1074,9 +1029,7 @@
                 cssClass="form-control"
                 rows="5"/>
 
-            <form:errors
-                path="healthNotes"
-                cssClass="text-danger small"/>
+            <form:errors path="healthNotes" cssClass="text-danger small"/>
 
         </div>
         <%-- その他の特記事項 --%>
@@ -1093,9 +1046,7 @@
                 cssClass="form-control"
                 rows="5"/>
 
-            <form:errors
-                path="notes"
-                cssClass="text-danger small"/>
+            <form:errors path="notes" cssClass="text-danger small"/>
 
         </div>
 
