@@ -6,7 +6,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <%@ include file="/WEB-INF/jsp/common/head.jspf" %>
 <title>個体一覧 | ホゴタロウ</title>
 </head>

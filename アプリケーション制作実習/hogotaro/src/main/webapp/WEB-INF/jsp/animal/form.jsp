@@ -8,8 +8,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<meta charset="UTF-8">
 <%@ include file="/WEB-INF/jsp/common/head.jspf" %>
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">

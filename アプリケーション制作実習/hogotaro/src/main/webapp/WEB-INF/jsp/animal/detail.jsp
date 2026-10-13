@@ -8,7 +8,6 @@
 <html>
 
 <head>
-<meta charset="UTF-8">
 <%@ include file="/WEB-INF/jsp/common/head.jspf" %>
 <title>個体詳細</title>
 
