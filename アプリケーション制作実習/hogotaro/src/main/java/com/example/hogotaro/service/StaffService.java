@@ -40,7 +40,7 @@ public class StaffService {
                 ? ""
                 : form.getPhoneNumber().replace("-", "").trim();
 
-        return staffRepository.search(organizationId, name, phone);
+        return staffRepository.search(organizationId, escapeLike(name), escapeLike(phone));
     }
 
     // スタッフ1件取得。団体IDも条件に含める
@@ -217,6 +217,11 @@ public class StaffService {
     }
 
     // 任意項目の空文字をnullにする
+    // LIKE で記号として扱われる ! % _ の前に ! を付ける（@Query の escape '!' と組）。% や _ を入れても全件に当たらないようにする（Q-03）
+    private String escapeLike(String value) {
+        return value.replace("!", "!!").replace("%", "!%").replace("_", "!_");
+    }
+
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value;
     }

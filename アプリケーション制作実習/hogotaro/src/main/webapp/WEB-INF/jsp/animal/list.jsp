@@ -155,6 +155,10 @@
             </c:forEach>
         </div>
     </c:if>
+    <%-- 0件のとき（里親・スタッフの一覧と同じ表示） --%>
+    <c:if test="${empty animalList}">
+        <p class="hogo-empty">該当する個体はいません</p>
+    </c:if>
 </main>
 
 </body>

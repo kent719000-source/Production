@@ -34,7 +34,7 @@ public class AdopterService {
 	public List<Adopter> search(Integer organizationId, AdopterSearchForm form){
 		String name = form.getName() == null ? "" :form.getName().trim();
 		String phone = form.getPhoneNumber() == null ? "" :form.getPhoneNumber().replace("-","").trim();
-		return adopterRepository.search(organizationId, name, phone);
+		return adopterRepository.search(organizationId, escapeLike(name), escapeLike(phone));
 	}
 	
 	// 里親を登録する（F-23）。団体はフォームからではなく、ログイン中の人の団体IDから設定する
@@ -53,6 +53,11 @@ public class AdopterService {
 	}
 	
 	// 空文字（未入力なら） null にする
+	// LIKE で記号として扱われる ! % _ の前に ! を付ける（@Query の escape '!' と組）。% や _ を入れても全件に当たらないようにする（Q-03）
+	private String escapeLike(String s) {
+		return s.replace("!", "!!").replace("%", "!%").replace("_", "!_");
+	}
+
 	private String blankToNull(String s) {
 		return (s == null || s.isBlank()) ? null : s;
 	}
