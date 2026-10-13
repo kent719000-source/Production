@@ -19,7 +19,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <%-- ファビコン（ブラウザのタブのアイコン） --%>
-<link rel="icon" href="${ctx}/favicon.ico">
+<link rel="icon" href="${ctx}/images/favicon.ico">
 <link rel="apple-touch-icon" href="${ctx}/images/apple-touch-icon.png">
 
 <%-- 1. Bootstrap --%>

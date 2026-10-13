@@ -148,10 +148,24 @@
 <nav class="hogo-header">
   <div class="hogo-header-inner">
 
-    <%-- ロゴ（クリックでトップへ） --%>
+    <%-- ロゴ。ログイン後はクリックでトップへ。ログイン前（ログイン画面・ログイン前のエラー画面）はリンクにしない --%>
+    <c:choose>
+      <c:when test="${loginUser.loggedIn}">
     <a class="hogo-logo" href="${ctx}/">
       <img src="${ctx}/images/hogotarou_logo_peach.png" alt="ホゴタロウ">
     </a>
+      </c:when>
+      <c:otherwise>
+    <span class="hogo-logo">
+      <img src="${ctx}/images/hogotarou_logo_peach.png" alt="ホゴタロウ">
+    </span>
+      </c:otherwise>
+    </c:choose>
+
+    <%-- ここから下（メニュー・団体名と名前・ログアウト）は、ログインしているときだけ出す。
+         loginUser は LoginUserModelAdvice が全画面に渡しているので、not empty では判定できない（常に true）。
+         ログイン画面・ログイン前のエラー画面では、ロゴだけの帯になる --%>
+    <c:if test="${loginUser.loggedIn}">
 
     <%-- メニュー。今開いている画面のリンクには active を付ける --%>
     <div class="hogo-nav">
@@ -161,8 +175,7 @@
       <a href="${ctx}/staff"   class="hogo-nav-link ${fn:startsWith(currentUri, ctx += '/staff')   ? 'active' : ''}">スタッフ管理</a>
     </div>
 
-    <%-- ユーザー情報とログアウト。ログインしていないときは出さない --%>
-    <c:if test="${not empty loginUser}">
+    <%-- ユーザー情報とログアウト --%>
       <div class="hogo-account">
         <%-- loginUserはLoginUserModelAdviceが全画面に渡している --%>
         <span class="hogo-user">
@@ -173,6 +186,7 @@
           <button type="submit" class="hogo-logout">ログアウト</button>
         </form:form>
       </div>
+
     </c:if>
 
   </div>
