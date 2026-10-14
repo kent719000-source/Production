@@ -4,8 +4,9 @@
 -- 全アカウントのパスワードは pass1234（BCrypt 済み）。
 --
 -- ■ 写真
---   発表/demo_photos/ の中身（demo_01.jpg 〜 demo_43.jpg）を、hogotaro/uploads/photos/ にそのままコピーする。
---   image_path の '/photos/demo_01.jpg' は uploads/photos/demo_01.jpg を指す（application.properties の file:uploads/）。
+--   demo_01.jpg 〜 demo_43.jpg は src/main/resources/static/photos/ に入っている（WAR の中に入るので、外部 Tomcat でもコピー不要）。
+--   image_path の '/photos/demo_01.jpg' は static/photos/demo_01.jpg を指す（application.properties の static-locations で classpath:/static/ が先に探される）。
+--   画面から登録した写真は今までどおり uploads/photos/ に保存され、同じ /photos/ファイル名 の URL で表示される。
 --   写真が無いのは 33 クロ（返還済み）だけ。わざと。一覧を「すべて」で絞り込むと NO IMAGE のカードが1枚出る。
 --
 -- ■ 日付
