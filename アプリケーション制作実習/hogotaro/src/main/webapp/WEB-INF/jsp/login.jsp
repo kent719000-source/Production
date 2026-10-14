@@ -62,7 +62,7 @@
 
       <%-- POST /login は Spring Security が受け取る（Controller は書かない）。
            form:form で書くと CSRF のトークンが自動で入る（生の <form> だと 403） --%>
-      <form:form action="/login" method="post" cssClass="hogo-card">
+      <form:form action="${ctx}/login" method="post" cssClass="hogo-card">
         <h2 class="hogo-card-head h6 m-0">ログイン情報</h2>
 
         <div class="hogo-card-body">

@@ -147,10 +147,10 @@
 
   <%-- 管理画面へのリンク。ボタンを横に並べる（狭い画面では折り返す） --%>
   <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
-    <a href="/animal" class="btn btn-hogo">個体管理へ</a>
-    <a href="/event" class="btn btn-hogo">イベント管理へ</a>
-    <a href="/adopter" class="btn btn-hogo">里親管理へ</a>
-    <a href="/staff" class="btn btn-hogo">スタッフ管理へ</a>
+    <a href="${ctx}/animal" class="btn btn-hogo">個体管理へ</a>
+    <a href="${ctx}/event" class="btn btn-hogo">イベント管理へ</a>
+    <a href="${ctx}/adopter" class="btn btn-hogo">里親管理へ</a>
+    <a href="${ctx}/staff" class="btn btn-hogo">スタッフ管理へ</a>
   </div>
 
   <%-- 2列レイアウト。PC(lg以上)では左4：右8、スマホでは縦1列 --%>
@@ -239,7 +239,7 @@
                            はみ出したマスはその月へ飛ぶように d.date の年・月を使う --%>
                       <div class="mini-events ${fn:length(d.eventList) >= 3 ? 'is-scrollable' : ''}">
                       <c:forEach items="${d.eventList}" var="e">
-                        <a href="/event?year=${d.date.year}&month=${d.date.monthValue}&selectedEventId=${e.id}"
+                        <a href="${ctx}/event?year=${d.date.year}&month=${d.date.monthValue}&selectedEventId=${e.id}"
                            class="event-link ${e.done ? 'done' : 'pending'}">
                           <c:out value="${e.animal.name}" />
                           <c:out value="${e.eventType.name}" />

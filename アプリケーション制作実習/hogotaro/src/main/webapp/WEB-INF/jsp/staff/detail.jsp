@@ -31,15 +31,15 @@
 
   <%-- 操作ボタンの行。左に「一覧へ戻る」、右に「編集」「削除」（里親詳細と同じ並び） --%>
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-    <a href="/staff" class="btn btn-hogo-sub">← 一覧へ戻る</a>
+    <a href="${ctx}/staff" class="btn btn-hogo-sub">← 一覧へ戻る</a>
 
     <%-- 編集・削除は管理ユーザーだけ --%>
     <c:if test="${loginUser.role == 'ADMIN'}">
       <div class="d-flex gap-2">
-        <a href="/staff/${staff.id}/edit" class="btn btn-hogo">編集</a>
+        <a href="${ctx}/staff/${staff.id}/edit" class="btn btn-hogo">編集</a>
         <%-- 自分自身は削除できない --%>
         <c:if test="${staff.id != loginUser.staffId}">
-          <form:form method="post" action="/staff/${staff.id}/delete"
+          <form:form method="post" action="${ctx}/staff/${staff.id}/delete"
               cssClass="m-0" onsubmit="return confirm('本当に削除しますか？')">
             <button type="submit" class="btn btn-hogo-danger">削除</button>
           </form:form>
@@ -140,7 +140,7 @@
                 <tbody>
                   <c:forEach var="e" items="${eventList}">
                     <tr>
-                      <td><a href="/event/${e.id}"><c:out value="${e.eventDate}"/></a></td>
+                      <td><a href="${ctx}/event/${e.id}"><c:out value="${e.eventDate}"/></a></td>
                       <td><c:out value="${e.eventType.name}"/></td>
                       <td><c:out value="${e.animal.name}"/></td>
                     </tr>

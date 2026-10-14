@@ -54,7 +54,7 @@
     <c:choose>
         <%-- 編集 --%>
         <c:when test="${mode == 'edit'}">
-            <form:form id="animalForm" modelAttribute="animalForm" method="post" enctype="multipart/form-data" action="/animal/${animalId}/edit">
+            <form:form id="animalForm" modelAttribute="animalForm" method="post" enctype="multipart/form-data" action="${ctx}/animal/${animalId}/edit">
    <%-- 基本情報 --%>
 <div class="hogo-card mb-4">
 
@@ -512,7 +512,7 @@
 </c:when>
 <%-- 新規登録 --%>
         <c:otherwise>
-            <form:form id="animalForm" modelAttribute="animalForm" method="post" enctype="multipart/form-data" action="/animal/new">
+            <form:form id="animalForm" modelAttribute="animalForm" method="post" enctype="multipart/form-data" action="${ctx}/animal/new">
 
 <%-- 基本情報 --%>
 <div class="hogo-card mb-4">

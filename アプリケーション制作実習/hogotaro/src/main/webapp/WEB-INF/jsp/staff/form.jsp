@@ -190,11 +190,11 @@
         <div class="hogo-card-foot d-flex justify-content-end gap-2">
           <c:choose>
             <c:when test="${mode == 'edit'}">
-              <a href="/staff/${staff.id}" class="btn btn-hogo-sub">キャンセル</a>
+              <a href="${ctx}/staff/${staff.id}" class="btn btn-hogo-sub">キャンセル</a>
               <button type="submit" class="btn btn-hogo">更新</button>
             </c:when>
             <c:otherwise>
-              <a href="/staff" class="btn btn-hogo-sub">キャンセル</a>
+              <a href="${ctx}/staff" class="btn btn-hogo-sub">キャンセル</a>
               <button type="submit" class="btn btn-hogo">登録</button>
             </c:otherwise>
           </c:choose>

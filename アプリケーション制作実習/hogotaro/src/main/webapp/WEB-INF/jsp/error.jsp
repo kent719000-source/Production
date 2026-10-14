@@ -51,7 +51,7 @@
 
       <%-- トップへ戻るボタン（中央） --%>
       <div class="text-center mt-4">
-        <a href="/" class="btn btn-hogo">トップページへ</a>
+        <a href="${ctx}/" class="btn btn-hogo">トップページへ</a>
       </div>
 
     </div>

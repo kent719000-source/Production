@@ -11,6 +11,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>hogotaro</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<name>hogotaro</name>
 	<description>保護団体用の管理アプリ</description>
 	<url/>
@@ -44,6 +45,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<!-- 外部 Tomcat に WAR で載せるとき、内蔵 Tomcat を WAR に入れない（Eclipse からの起動では今までどおり内蔵 Tomcat が使われる） -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -91,6 +98,7 @@
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		
 <!--		入力チェック用（@NotBlank、@Valid など）-->
@@ -107,6 +115,8 @@
 	</dependencies>
 
 	<build>
+		<!-- WAR のファイル名。講師台の Tomcat では http://192.168.10.10:8083/hogotaro-app/ になる -->
+		<finalName>hogotaro-app</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
