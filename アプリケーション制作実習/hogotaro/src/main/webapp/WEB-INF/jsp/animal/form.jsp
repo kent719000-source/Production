@@ -1064,7 +1064,7 @@
      style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 16px 20px; border-top: 1px solid #f0ddd2;">
 
     <%-- キャンセル --%>
-    <a href="${mode == 'new' ? '/animal' : '/animal/'.concat(animalId)}"
+    <a href="${ctx}${mode == 'new' ? '/animal' : '/animal/'.concat(animalId)}"
        class="btn btn-hogo-sub">
         キャンセル
     </a>
